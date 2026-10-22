@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#101719">
+    <title>Web Games · Regniwekim Arcade</title>
+    <style>
+      :root { color-scheme: dark; --bg: #101719; --panel: #172225; --line: #2c3b3e; --text: #edf5ef; --muted: #a7b8b5; --accent: #c1f77c; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.6; }
+      a { color: inherit; }
+      a:focus-visible { outline: 3px solid var(--accent); outline-offset: 6px; }
+      .shell { width: min(1080px, calc(100% - 48px)); margin-inline: auto; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 28px; border-bottom: 1px solid var(--line); }
+      .brand { display: flex; align-items: center; gap: 12px; font-size: .9rem; font-weight: 700; letter-spacing: .02em; }
+      .brand-mark { display: grid; grid-template-columns: repeat(2, 7px); gap: 3px; transform: rotate(-8deg); }
+      .brand-mark i { width: 7px; height: 7px; background: var(--accent); border-radius: 1px; }
+      .header-note, .eyebrow, .section-index, .tag, footer { font-family: ui-monospace, "Cascadia Code", monospace; }
+      .header-note { color: var(--muted); font-size: .72rem; }
+      .intro { padding: 72px 0 60px; max-width: 720px; }
+      .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 16px; color: var(--accent); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+      h1 { margin: 0 0 20px; font-size: clamp(3.5rem, 10vw, 6.6rem); font-weight: 750; line-height: 1; letter-spacing: -.065em; }
+      .welcome { max-width: 490px; margin: 0; color: var(--muted); font-size: 1.1rem; }
+      .section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 20px; }
+      h2 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+      .section-index { color: var(--muted); font-size: .7rem; letter-spacing: .08em; }
+      .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 24px; list-style: none; padding: 0; margin: 0; }
+      .game-card { display: block; max-width: 350px; height: 100%; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--panel); text-decoration: none; transition: border-color .18s, transform .18s; }
+      .game-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+      .game-art { position: relative; display: grid; place-items: center; height: 205px; overflow: hidden; background-color: #1d302b; background-image: linear-gradient(#ffffff05 1px, transparent 1px), linear-gradient(90deg, #ffffff05 1px, transparent 1px); background-size: 28px 28px; }
+      .target { display: grid; place-items: center; width: 110px; height: 110px; border: 2px solid #c1f77465; border-radius: 50%; box-shadow: 0 0 0 20px #c1f77c08, 0 0 0 40px #c1f77c04; }
+      .target::before { content: ""; width: 64px; height: 64px; border: 15px solid var(--accent); border-radius: 50%; }
+      .art-label { position: absolute; bottom: 15px; left: 20px; color: #a8c6b3; font-family: ui-monospace, monospace; font-size: .65rem; letter-spacing: .12em; }
+      .game-info { padding: 22px; }
+      .tag { color: var(--accent); font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; }
+      h3 { margin: 8px 0; font-size: 1.5rem; letter-spacing: -.03em; }
+      .game-info p { margin: 0; color: var(--muted); font-size: .92rem; }
+      .play { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); font-size: .9rem; font-weight: 600; }
+      .play span { color: var(--accent); font-size: 1.3rem; }
+      .collection-note { margin: 26px 0 0; color: var(--muted); font-size: .85rem; }
+      footer { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-top: 72px; padding-block: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: .7rem; }
+      @media (max-width: 540px) { .shell { width: calc(100% - 36px); } .header-note { display: none; } .intro { padding-block: 54px 44px; } .section-index { font-size: .6rem; } .game-card { max-width: none; } footer { margin-top: 48px; } }
+      @media (prefers-reduced-motion: reduce) { .game-card { transition: none; } .game-card:hover { transform: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>regniwekim / arcade</div>
+        <span class="header-note">A little escape, one game at a time.</span>
+      </header>
+      <main>
+        <section class="intro" aria-labelledby="page-title">
+          <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Browser-based good times</p>
+          <h1 id="page-title">Web Games<span style="color: var(--accent)">.</span></h1>
+          <p class="welcome">Welcome to my little corner of the arcade. Pick a game, take a break, and see how far you can go.</p>
+        </section>
+        <section aria-labelledby="games-title">
+          <div class="section-heading">
+            <h2 id="games-title">Pick something to play</h2>
+            <span class="section-index">01 / COLLECTION</span>
+          </div>
+          <ul class="games-grid">
+            <!-- Add another list item and game card here for each new game. -->
+            <li>
+              <a class="game-card" href="./demo-game/" aria-labelledby="demo-title demo-play">
+                <div class="game-art" aria-hidden="true"><div class="target"></div><span class="art-label">AIM. TAP. REPEAT.</span></div>
+                <div class="game-info">
+                  <span class="tag">Demo game · Reflexes</span>
+                  <h3 id="demo-title">Target Tap</h3>
+                  <p>Thirty seconds. One moving target. How many hits can you land?</p>
+                  <div class="play" id="demo-play">Play demo <span aria-hidden="true">↗</span></div>
+                </div>
+              </a>
+            </li>
+          </ul>
+          <p class="collection-note">A small collection, with room for more.</p>
+        </section>
+      </main>
+      <footer><span>games.regniwekim.com</span><span>No downloads. Just play.</span></footer>
+    </div>
+  </body>
+</html>
