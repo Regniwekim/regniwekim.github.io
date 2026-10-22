@@ -85,6 +85,16 @@ h3 { margin: 14px 0 9px; font: 25px/1.15 var(--display); }
 .game-meta { display: flex; gap: 22px; margin: 18px 0; color: #b2a7c5; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
 .play { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: auto; min-height: 49px; border-top: 1px solid #ffffff24; color: var(--yellow); font: 12px/1.5 var(--display); }
 .play > span { color: var(--yellow); font: 26px/1 "Space Grotesk", sans-serif; }
+.coming-card { display: grid; grid-template-columns: .95fr 1fr; min-height: 272px; height: 100%; overflow: hidden; border: 1px dashed #625181; background: #211b2c; }
+.coming-poster { position: relative; display: grid; place-items: center; min-height: 260px; overflow: hidden; border-right: 1px dashed #625181; background: repeating-linear-gradient(135deg, transparent 0 17px, #ad5ba013 17px 21px), linear-gradient(125deg, #1a153c, #352044); }
+.coming-poster::before { content: ""; position: absolute; width: 130px; height: 130px; border: 9px solid #8355ac33; transform: rotate(18deg); box-shadow: 0 0 0 25px #b3429033; }
+.question-mark { position: relative; font: 120px/1 var(--display); color: #bda5da; text-shadow: 6px 6px 0 #5b2e74; }
+.coming-stamp { position: absolute; bottom: 20px; padding: 5px 10px; transform: rotate(-7deg); background: var(--pink); color: var(--bg); font: 10px/1.5 var(--display); letter-spacing: 1px; }
+.coming-details { display: flex; flex-direction: column; padding: 24px 23px 0; }
+.coming-label { color: #b6a4cb; font-size: 8px; font-weight: 700; letter-spacing: 1px; }
+.coming-details h3 { color: #e7d6f2; }
+.coming-details p { margin: 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.coming-bottom { display: flex; align-items: center; min-height: 49px; margin-top: auto; padding-block: 12px; border-top: 1px solid #ffffff24; color: #b6a4cb; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
 .arcade-note { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 14px 0 14px 26px; border-left: 1px dashed #655477; }
 .note-star { color: var(--yellow); font: 52px/1 sans-serif; transform: rotate(-12deg); }
 .arcade-note .pixel { margin: 17px 0 10px; font-size: 9px; line-height: 2; color: var(--text); }
@@ -129,7 +139,7 @@ kbd { padding: 2px 5px; border: 1px solid #706280; border-bottom-width: 3px; bac
   .games-layout { grid-template-columns: minmax(0, 1fr) 185px; gap: 20px; }
   .arcade-note { padding-left: 20px; }
   .arcade-note .pixel { font-size: 8px; }
-  .game-info { padding-inline: 17px; }
+  .game-info, .coming-details { padding-inline: 17px; }
   h3 { font-size: 22px; }
   .game-tags { gap: 4px; }
   .tag { font-size: 7px; }
@@ -153,8 +163,8 @@ kbd { padding: 2px 5px; border: 1px solid #706280; border-bottom-width: 3px; bac
   .collection { padding: 25px; margin-top: 28px; }
   .games-layout { grid-template-columns: 1fr; }
   .arcade-note { display: none; }
-  .game-card { grid-template-columns: 1fr 1fr; }
-  .game-info { padding: 24px 25px 0; }
+  .game-card, .coming-card { grid-template-columns: 1fr 1fr; }
+  .game-info, .coming-details { padding: 24px 25px 0; }
   .game-info > p { font-size: 13px; }
   h3 { font-size: 27px; }
   .game-tags .tag { font-size: 8px; }
@@ -190,9 +200,10 @@ kbd { padding: 2px 5px; border: 1px solid #706280; border-bottom-width: 3px; bac
   .section-heading .eyebrow { font-size: 7px; letter-spacing: 1.5px; }
   h2 { font-size: 23px; }
   .section-index { font-size: 6px; }
-  .game-card { grid-template-columns: 1fr; }
+  .game-card, .coming-card { grid-template-columns: 1fr; }
   .game-art { min-height: 225px; border-right: 0; border-bottom: 1px solid #625181; }
-  .game-info { padding: 23px 22px 0; }
+  .coming-poster { min-height: 225px; border-right: 0; border-bottom: 1px dashed #625181; }
+  .game-info, .coming-details { padding: 23px 22px 0; }
   h3 { font-size: 28px; }
   .game-info > p br { display: initial; }
   .game-meta { margin-block: 17px; }
