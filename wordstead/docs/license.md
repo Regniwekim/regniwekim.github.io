@@ -5,7 +5,7 @@ third-party assets in `wordstead/assets/`. It does not license Wordstead's desig
 or source code, or grant additional rights to the assets.
 
 **Asset credit: Sprout Lands assets by Cup Nooble.** All three asset packs listed
-below identify Cup Nooble as their creator. Keep their original `read_me.txt`
+below require attribution to Cup Nooble. Keep their original `read_me.txt`
 files with the assets and retain this credit and the applicable terms when
 sharing a project that uses them.
 
@@ -40,9 +40,8 @@ other commercial permission was found among the supplied files.
   Redistribution or resale, even after modification, is prohibited. The notice
   excludes NFTs and directs commercial users to contact the creator or buy the
   Premium version. It does not include the other packs' explicit project/open
-  source redistribution exception or AI-training clause. It does not state a
-  credit requirement, but the author's linked UI page requests credit; the
-  credit above includes this pack.
+  source redistribution exception or AI-training clause. Credit to Cup Nooble
+  is required, as for the Sprites Basic and Sorry packs.
 
 These are custom author terms, not a standard open-source license. The complete
 bundled license sections are reproduced below, with surrounding whitespace
