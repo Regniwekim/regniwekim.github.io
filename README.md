@@ -1,9 +1,8 @@
 # Web Games
 
 A small, build-free arcade for GitHub Pages at `games.regniwekim.com`.
-All HTML, CSS, and JavaScript are local; no external assets, packages, or build step are required.
-The landing page uses `arcade.css` for its mid-90s game-select design. The demo
-keeps its own self-contained styling and game logic.
+All pages, styles, illustrations, and fonts are hosted in this repository;
+no packages, third-party requests, or build step are required.
 
 ```text
 /
@@ -11,6 +10,12 @@ keeps its own self-contained styling and game logic.
 ├── robots.txt            # Requests that crawlers skip the entire site
 ├── arcade.css            # 90s arcade homepage theme (CSS-only)
 ├── index.html            # Arcade homepage
+├── assets/
+│   ├── arcade.css        # Shared arcade theme and responsive layouts
+│   ├── arcade-carpet.svg # Repeating Memphis-style neon carpet
+│   ├── joystick.svg      # Homepage illustration
+│   ├── favicon.svg       # Arcade joystick icon
+│   └── fonts/            # Local fonts and their SIL Open Font Licenses
 └── demo-game/
     └── index.html        # Playable Target Tap canvas demo
 ```
@@ -43,9 +48,21 @@ run this command from the repository root:
 python -m http.server 8000
 ```
 
-Visit `http://localhost:8000/`, then follow **Play demo** to check subfolder
+Visit `http://localhost:8000/`, then follow **Play now** to check subfolder
 routing. Target Tap supports clicking, touch, and keyboard controls. Each round
 lasts 30 seconds; use **Play again** to restart after it finishes.
+
+## Arcade theme
+
+The shared theme uses a charcoal backdrop with cyan, hot pink, acid yellow,
+violet, and orange geometric shapes inspired by 1990s arcade carpets. Edit the
+color variables in `assets/arcade.css` and the matching shapes in
+`assets/arcade-carpet.svg` to customize it. Bungee provides the cabinet lettering,
+Press Start 2P the pixel labels, and Space Grotesk the readable body text.
+
+New game pages can use `../assets/arcade.css` and the demo's `.game-shell` and
+`.game-cabinet` layout to keep the same visual style. The theme supports narrow
+screens, visible keyboard focus, and reduced-motion preferences.
 
 ## Search visibility
 

@@ -4,62 +4,65 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#0b0918">
-    <meta name="description" content="Free browser games at Regniwekim Arcade. No downloads, no quarters.">
-    <title>Regniwekim Arcade — Free Browser Games</title>
-    <link rel="stylesheet" href="./arcade.css">
+    <meta name="theme-color" content="#17151e">
+    <meta name="description" content="A little escape with a lot of neon. Play free browser games at Regniwekim Arcade. No downloads, no quarters, just one more try.">
+    <title>Regniwekim Arcade · Good times, on the house.</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./assets/arcade.css">
   </head>
   <body>
-    <div class="site-shell">
-      <header class="topbar">
-        <a class="brand" href="./index.html" aria-label="Regniwekim Arcade home">
-          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span>REGNIWEKIM<span class="brand-suffix"> // ARCADE</span></span>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="./" aria-label="Regniwekim Arcade home">
+          <svg class="brand-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M11 24h26l6 16H5l6-16Z" fill="#7064ed"/><path d="M5 40h38v5H5z" fill="#ee3295"/><path d="M20 13h5v17h-5z" fill="#f9f4e8"/><circle cx="22.5" cy="10" r="8" fill="#ee3295"/><path d="M12 34h10m-5-5v10" stroke="#2edbd6" stroke-width="4"/><circle cx="32" cy="33" r="3" fill="#eff84b"/></svg>
+          <span class="brand-type"><span class="brand-name">REGNIWEKIM</span><span class="brand-arcade">ARCADE</span></span>
         </a>
-        <div class="topbar-info">
-          <span class="live"><span class="status-dot" aria-hidden="true"></span>FREE PLAY</span>
-          <span class="est">EST. 2026</span>
-        </div>
-      </header>
-      <main>
-        <section class="hero" aria-labelledby="page-title">
+        <nav aria-label="Main navigation"><a class="nav-link" href="#games">The game floor <span aria-hidden="true">↘</span></a></nav>
+        <span class="coin-badge"><span aria-hidden="true">✳</span> NO COINS NEEDED</span>
+      </div>
+    </header>
+    <main class="shell" id="main">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-topline pixel"><span><i class="status-light" aria-hidden="true"></i> OPEN FOR GOOD TIMES</span><span class="hero-credit">CREDIT <b>∞</b></span></div>
+        <div class="hero-content">
           <div class="hero-copy">
-            <p class="hero-overline"><span aria-hidden="true">★</span>NO QUARTERS REQUIRED</p>
-            <h1 class="hero-title" id="page-title">
-              <span class="top-word">WELCOME TO</span>
-              <span class="bottom-word">THE<br>ARCADE<b>!</b></span>
-            </h1>
-            <p class="hero-subtitle">BIG SCORES. QUICK GAMES. ONE MORE ROUND.<br>YOUR LITTLE CORNER OF THE INTERNET ARCADE.</p>
-            <a class="hero-cta" href="#game-select">CHOOSE YOUR GAME <span class="arrow" aria-hidden="true">↘</span></a>
+            <p class="eyebrow">YOUR BROWSER. YOUR ARCADE.</p>
+            <h1 id="page-title">ALL PLAY.<br><span>NO QUARTERS.</span></h1>
+            <p class="welcome">Welcome to my little corner of the arcade.<br class="desktop-break"> Pick a game, take a break, chase a high score.</p>
+            <a class="arcade-button" href="#games">LET’S PLAY <span aria-hidden="true">↘</span></a>
+            <p class="hero-footnote">No downloads. No sign-ups. Just one more try.</p>
           </div>
-          <div class="coin-stamp" aria-hidden="true">1 UP<br>READY<small>PLAYER ONE</small></div>
-        </section>
-        <div class="ribbon" aria-hidden="true">
-          <span>★ HIGH SCORE ENERGY</span><b>///</b><span>NO DOWNLOADS</span><b>///</b><span>ALL GAMES. ALL FUN.</span><b>///</b><span>FREE PLAY</span>
+          <div class="hero-art" aria-hidden="true">
+            <span class="player-label pixel">1UP</span>
+            <img src="./assets/joystick.svg" alt="" width="460" height="360">
+            <span class="good-times-stamp">GOOD TIMES<br>ON THE HOUSE.</span>
+          </div>
         </div>
-        <section id="game-select" aria-labelledby="games-title">
-          <header class="section-head">
-            <div>
-              <p class="eyebrow">// PICK YOUR CABINET</p>
-              <h2 class="section-title" id="games-title">GAME <span>SELECT</span></h2>
-            </div>
-            <p class="game-count">01 GAME ONLINE</p>
-          </header>
-          <ul class="game-grid">
-            <!-- Duplicate a playable <li> and update its link, labels, and artwork for each new game. -->
+        <div class="hero-marquee" aria-hidden="true"><span>PRESS PLAY</span><i>✳</i><span>TAKE A BREAK</span><i>✳</i><span>BEAT YOUR BEST</span><i>✳</i><span>REPEAT</span><i>✳</i></div>
+      </section>
+      <section class="collection" id="games" aria-labelledby="games-title">
+        <div class="section-heading">
+          <div><p class="eyebrow">PICK YOUR NEXT DISTRACTION</p><h2 id="games-title">THE GAME FLOOR<span class="pink">.</span></h2></div>
+          <span class="section-index pixel">01 GAME / ∞ REPLAYS</span>
+        </div>
+        <div class="games-layout">
+          <ul class="games-grid">
+            <!-- Copy this list item to add another game. Give its heading and play label unique IDs. -->
             <li>
-              <a class="game-card" href="./demo-game/" aria-labelledby="target-title">
-                <div class="game-poster" aria-hidden="true">
-                  <span class="card-index">01 / REFLEX</span>
-                  <span class="poster-timer">30 SEC</span>
-                  <span class="poster-target"></span>
-                  <span class="poster-title">TARGET <span>TAP</span></span>
+              <a class="game-card" href="./demo-game/" aria-labelledby="demo-title demo-play">
+                <div class="game-art" aria-hidden="true">
+                  <span class="game-number pixel">GAME 001</span>
+                  <span class="art-spark spark-one">+</span><span class="art-spark spark-two">+</span>
+                  <div class="target"><span></span></div>
+                  <span class="art-caption pixel">AIM. TAP. REPEAT.</span><span class="art-corner">↗</span>
                 </div>
-                <div class="game-details">
-                  <p class="game-category">PLAYER 01 // QUICKPLAY</p>
-                  <h3 id="target-title">Target Tap</h3>
-                  <p class="game-description">Thirty seconds. One moving target. How many hits can you land?</p>
-                  <div class="press-start"><span>PRESS START</span><span class="start-arrow" aria-hidden="true">↗</span></div>
+                <div class="game-info">
+                  <div class="game-tags"><span class="tag">REFLEXES</span><span class="tag tag-demo">DEMO GAME</span></div>
+                  <h3 id="demo-title">TARGET TAP</h3>
+                  <p>Thirty seconds. One moving target.<br>How many hits can you land?</p>
+                  <div class="game-meta"><span>◷ &nbsp;30 SEC</span><span>1 PLAYER</span></div>
+                  <div class="play" id="demo-play">PLAY NOW <span aria-hidden="true">↗</span></div>
                 </div>
               </a>
             </li>
@@ -78,13 +81,15 @@
               </div>
             </li>
           </ul>
-        </section>
-        <div class="outro"><strong>INSERT COIN?</strong> NAH. THESE MACHINES ARE ALWAYS ON FREE PLAY.</div>
-      </main>
-      <footer class="footer">
-        <span>© REGNIWEKIM // THE WEB ARCADE</span>
-        <span>MADE FOR YOUR BROWSER. <a href="https://github.com/Regniwekim/regniwekim.github.io">VIEW ON GITHUB ↗</a></span>
-      </footer>
-    </div>
+          <aside class="arcade-note" aria-label="About the arcade">
+            <span class="note-star" aria-hidden="true">✳</span>
+            <p class="pixel">SMALL ARCADE.<br>BIG BREAK ENERGY.</p>
+            <p>A few games, a little nostalgia,<br>and room for more.</p>
+            <span class="note-bottom">Stay a while. Play a little.</span>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer shell"><span>© REGNIWEKIM ARCADE</span><span class="footer-message">BUILT FOR THE LOVE OF PLAY <span aria-hidden="true">✳</span></span><a href="#main">BACK TO TOP ↑</a></footer>
   </body>
 </html>

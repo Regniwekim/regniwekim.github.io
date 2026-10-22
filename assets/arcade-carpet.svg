@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <rect width="600" height="600" fill="#17151e"/>
+  <g fill="none" stroke-width="7">
+    <circle cx="100" cy="63" r="29" stroke="#eff84b"/>
+    <circle cx="426" cy="348" r="42" stroke="#7064ed" stroke-width="13"/>
+    <circle cx="157" cy="470" r="18" stroke="#ee3295"/>
+    <circle cx="548" cy="103" r="13" stroke="#7064ed" stroke-width="5"/>
+    <circle cx="323" cy="560" r="11" stroke="#2edbd6" stroke-width="5"/>
+    <path d="m240 72 52 42-66 17Z" stroke="#2edbd6"/>
+    <path d="m506 453 35 39-52 9Z" stroke="#ee3295"/>
+    <path d="M37 246c15-25 21 25 36 0s21 25 36 0 21 25 36 0" stroke="#ee3295" stroke-linecap="round" transform="rotate(-18 85 246)"/>
+    <path d="M297 281c13-24 19 24 32 0s19 24 32 0 19 24 32 0" stroke="#eff84b" stroke-linecap="round" transform="rotate(32 345 281)"/>
+    <path d="M376 76c12-23 18 23 30 0s18 23 30 0" stroke="#2edbd6" stroke-linecap="round" transform="rotate(-13 406 76)"/>
+    <path d="M43 542c12-23 18 23 30 0s18 23 30 0 18 23 30 0" stroke="#2edbd6" stroke-linecap="round" transform="rotate(11 88 542)"/>
+    <path d="m231 365 44 7-12 45" stroke="#ee3295"/>
+    <path d="m514 253 30-23 24 30" stroke="#ff975a" stroke-width="6"/>
+  </g>
+  <g stroke-width="9">
+    <path d="M35 128v53m-26-26h53" stroke="#ff975a" transform="rotate(-22 35 155)"/>
+    <path d="M482 149v45m-22-22h45" stroke="#ee3295" transform="rotate(17 482 172)"/>
+    <path d="M339 440v56m-28-28h56" stroke="#2edbd6" transform="rotate(-23 339 468)"/>
+    <path d="M582 366v33m-16-16h33" stroke="#eff84b" transform="rotate(24 582 383)"/>
+    <path d="M204 190v30m-15-15h30" stroke="#7064ed" transform="rotate(-14 204 205)"/>
+  </g>
+  <g fill="#eff84b">
+    <path d="m148 312 12-15 5 18Zm23 4 12-15 5 18Zm23 4 12-15 5 18Zm-31 20 12-15 5 18Zm23 4 12-15 5 18Zm-8 24 12-15 5 18Z"/>
+    <circle cx="326" cy="159" r="6"/><circle cx="455" cy="544" r="4"/><path d="m59 423 19-5 5 19-19 5Z"/>
+  </g>
+  <g fill="#2edbd6"><path d="m393 200 24 6-6 24-24-6Z"/><path d="m558 549 12-6 6 12-12 6Z"/><circle cx="236" cy="518" r="7"/><path d="m137 167 11 4-9 8Z"/><path d="m431 439 13-1-6 11Z"/></g>
+  <g fill="#ff975a"><circle cx="254" cy="246" r="20"/><circle cx="61" cy="352" r="5"/><path d="m438 19 20-8 8 20-20 8Z"/><circle cx="388" cy="582" r="7"/></g>
+  <g fill="#ee3295"><circle cx="570" cy="32" r="5"/><circle cx="309" cy="33" r="4"/><circle cx="537" cy="311" r="7"/><path d="m210 576 10-4 4 10-10 4Z"/></g>
+  <g stroke-width="5"><path d="m176 30 21 6m299 391 22-7" stroke="#2edbd6"/><path d="m25 294 21 5m342 74 26 5" stroke="#7064ed"/></g>
+</svg>
