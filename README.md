@@ -1,12 +1,15 @@
 # Web Games
 
 A small, build-free arcade for GitHub Pages at `games.regniwekim.com`.
-All HTML, CSS, and JavaScript are self-contained; no packages or build step are required.
+All HTML, CSS, and JavaScript are local; no external assets, packages, or build step are required.
+The landing page uses `arcade.css` for its mid-90s game-select design. The demo
+keeps its own self-contained styling and game logic.
 
 ```text
 /
 ├── CNAME                 # Custom domain
 ├── robots.txt            # Requests that crawlers skip the entire site
+├── arcade.css            # 90s arcade homepage theme (CSS-only)
 ├── index.html            # Arcade homepage
 └── demo-game/
     └── index.html        # Playable Target Tap canvas demo
@@ -17,9 +20,12 @@ All HTML, CSS, and JavaScript are self-contained; no packages or build step are 
 1. Create a folder with a URL-friendly name, such as `my-game/`.
 2. Put the game's entry page at `my-game/index.html`. Keep any supporting assets
    inside that folder and use relative paths (for example, `./assets/sprite.png`).
-3. Copy the demo's `<li>` inside `.games-grid` in the root `index.html`, give its
-   heading and play label unique IDs, update `aria-labelledby` to match, and
-   change the title, description, artwork, and link to `./my-game/`.
+3. Duplicate the first playable `<li>` in `.game-grid` in the root `index.html`.
+   Update the link, `aria-labelledby` / game title ID, poster text and art,
+   description, category, and its visible number. The artwork is styled in
+   `arcade.css`, so each game can have its own CSS poster treatment.
+   Update the “games online” count and remove the noninteractive coming-soon
+   placeholder once you have enough games.
 4. Add a link back to the arcade in the game:
    `<a href="../index.html">Back to Main Arcade</a>`.
 5. Commit and push the files to the branch used by GitHub Pages.
