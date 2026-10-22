@@ -4,53 +4,35 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#101719">
-    <title>Target Tap · Web Games</title>
-    <style>
-      :root { color-scheme: dark; --bg: #101719; --line: #2c3b3e; --text: #edf5ef; --muted: #a7b8b5; --accent: #c1f77c; }
-      * { box-sizing: border-box; }
-      body { margin: 0; background: var(--bg); color: var(--text); font-family: "Segoe UI", system-ui, sans-serif; line-height: 1.6; }
-      main { width: min(860px, calc(100% - 36px)); margin: 32px auto 48px; }
-      a { color: var(--muted); text-decoration-thickness: 1px; text-underline-offset: 4px; }
-      a:hover { color: var(--accent); }
-      :focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
-      .eyebrow { margin: 36px 0 8px; color: var(--accent); font-family: ui-monospace, monospace; font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; }
-      h1 { margin: 0; font-size: clamp(2.6rem, 7vw, 4rem); letter-spacing: -.05em; line-height: 1.1; }
-      .intro { margin: 16px 0 24px; color: var(--muted); }
-      .scoreboard { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 12px; background: #172225; }
-      .stat { display: flex; align-items: baseline; gap: 12px; }
-      .label { color: var(--muted); font-family: ui-monospace, monospace; font-size: .72rem; text-transform: uppercase; }
-      .value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-      .playfield { padding: 5px; border: 1px solid var(--line); border-radius: 16px; background: #172225; }
-      canvas { display: block; width: 100%; height: auto; border-radius: 11px; cursor: crosshair; touch-action: manipulation; }
-      .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: 20px; }
-      button { min-height: 48px; padding: 12px 24px; border: 0; border-radius: 8px; background: var(--accent); color: #172315; font: inherit; font-weight: 700; cursor: pointer; }
-      button:hover { background: #d3ff9c; }
-      #status { margin: 0; color: var(--muted); }
-      .instructions { margin-top: 24px; color: var(--muted); font-size: .85rem; }
-      kbd { padding: 2px 5px; border: 1px solid var(--line); border-radius: 4px; font-size: .8rem; }
-      @media (max-width: 480px) { .scoreboard { padding: 12px 14px; } .stat { gap: 8px; } .label { font-size: .65rem; } .value { font-size: 1.25rem; } }
-    </style>
+    <meta name="theme-color" content="#17151e">
+    <title>Target Tap · Regniwekim Arcade</title>
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../assets/arcade.css">
   </head>
   <body>
-    <main>
-      <a href="../index.html">← Back to Main Arcade</a>
-      <p class="eyebrow">01 / Reflexes · Demo game</p>
-      <h1>Target Tap</h1>
-      <p class="intro">Hit the target. Find the next one. Rack up as many points as you can in 30 seconds.</p>
-      <div class="scoreboard" aria-label="Round statistics">
-        <div class="stat"><span class="label">Score</span><span class="value" id="score">0</span></div>
-        <div class="stat"><span class="label">Time left</span><span class="value"><span id="time">30</span>s</span></div>
-      </div>
-      <div class="playfield">
-        <canvas id="game" width="960" height="600" tabindex="0" role="img" aria-label="Target Tap playfield" aria-describedby="instructions status">This game requires a browser with HTML canvas support.</canvas>
-      </div>
-      <div class="controls">
-        <button id="start" type="button">Start round</button>
-        <p id="status" role="status" aria-live="polite">Ready when you are.</p>
-      </div>
-      <p class="instructions" id="instructions">Click or tap the green target to score. For keyboard play, start a round, use the <kbd>arrow keys</kbd> to move the crosshair, and press <kbd>Space</kbd> or <kbd>Enter</kbd> to shoot. Each hit moves the target.</p>
-      <noscript><p>Enable JavaScript to play Target Tap.</p></noscript>
+    <main class="game-shell" id="main">
+      <a class="back-link" href="../index.html">← BACK TO THE ARCADE</a>
+      <section class="game-cabinet" aria-labelledby="game-title">
+        <div class="game-heading">
+          <div><p class="eyebrow">GAME 001 / REFLEXES</p><h1 id="game-title">TARGET TAP</h1></div>
+          <span class="target-icon" aria-hidden="true"></span>
+        </div>
+        <p class="game-intro">Hit the target. Find the next one. Rack up as many points as you can in 30 seconds.</p>
+        <div class="scoreboard" aria-label="Round statistics">
+          <div class="stat"><span class="label">Score</span><span class="value" id="score">0</span></div>
+          <div class="stat"><span class="label">Time left</span><span class="value"><span id="time">30</span>s</span></div>
+        </div>
+        <div class="playfield">
+          <canvas id="game" width="960" height="600" tabindex="0" role="img" aria-label="Target Tap playfield" aria-describedby="instructions status">This game requires a browser with HTML canvas support.</canvas>
+        </div>
+        <div class="controls">
+          <button class="arcade-button" id="start" type="button">Start round</button>
+          <p id="status" role="status" aria-live="polite">Ready when you are.</p>
+        </div>
+        <p class="instructions" id="instructions">Click or tap the cyan target to score. For keyboard play, start a round, use the <kbd>arrow keys</kbd> to move the crosshair, and press <kbd>Space</kbd> or <kbd>Enter</kbd> to shoot. Each hit moves the target.</p>
+        <noscript><p>Enable JavaScript to play Target Tap.</p></noscript>
+      </section>
+      <p class="game-footer">NO QUARTERS. UNLIMITED DO-OVERS.</p>
     </main>
     <script>
       (() => {
@@ -96,9 +78,9 @@
         }
 
         function draw(now) {
-          ctx.fillStyle = "#12211f";
+          ctx.fillStyle = "#171222";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.strokeStyle = "#20312b";
+          ctx.strokeStyle = "#2a223c";
           ctx.lineWidth = 1;
           ctx.beginPath();
           for (let x = 0; x < canvas.width; x += 40) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
@@ -106,10 +88,10 @@
           ctx.stroke();
 
           if (state === "running") {
-            circle(target.x, target.y, radius + 12, "#c1f77c30");
-            circle(target.x, target.y, radius, "#c1f77c", 3);
-            circle(target.x, target.y, radius * .54, "#c1f77c", 13);
-            ctx.fillStyle = "#edf5ef";
+            circle(target.x, target.y, radius + 12, "#ee329550");
+            circle(target.x, target.y, radius, "#ee3295", 3);
+            circle(target.x, target.y, radius * .54, "#2edbd6", 13);
+            ctx.fillStyle = "#eff84b";
             ctx.beginPath();
             ctx.arc(target.x, target.y, 5, 0, Math.PI * 2);
             ctx.fill();
@@ -124,16 +106,16 @@
               ctx.stroke();
             }
             if (flash && now - flash.time < 220) {
-              circle(flash.x, flash.y, 18 + (now - flash.time) * .15, flash.hit ? "#c1f77c" : "#f3ad94");
+              circle(flash.x, flash.y, 18 + (now - flash.time) * .15, flash.hit ? "#2edbd6" : "#ff975a");
             }
           } else {
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillStyle = "#edf5ef";
-            ctx.font = "700 48px system-ui, sans-serif";
+            ctx.fillStyle = "#f8f4e9";
+            ctx.font = '400 42px Bungee, "Arial Black", sans-serif';
             ctx.fillText(state === "ready" ? "Take your best shot." : "Nice shooting!", 480, 260);
-            ctx.fillStyle = "#a7b8b5";
-            ctx.font = "26px system-ui, sans-serif";
+            ctx.fillStyle = "#bdb7ca";
+            ctx.font = '26px "Space Grotesk", sans-serif';
             ctx.fillText(state === "ready" ? "Start a round to play" : `${score} ${score === 1 ? "target" : "targets"} hit · Play again?`, 480, 325);
           }
         }
@@ -180,7 +162,7 @@
           state = "running";
           deadline = performance.now() + duration;
           startButton.textContent = "Restart round";
-          status.textContent = "Round started. Hit the green target!";
+          status.textContent = "Round started. Hit the cyan target!";
           canvas.focus({ preventScroll: true });
           animationId = requestAnimationFrame(frame);
         });
@@ -210,6 +192,7 @@
         });
 
         draw(performance.now());
+        document.fonts.ready.then(() => draw(performance.now()));
       })();
     </script>
   </body>
