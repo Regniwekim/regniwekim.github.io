@@ -11,12 +11,12 @@ sharing a project that uses them.
 
 ## Inventory and sources
 
-Each directory below also has a same-named `.zip` in `wordstead/assets/`. All
-220 files in the three archives match their extracted copies byte for byte:
-217 asset files and three readmes. Each archive contains one `read_me.txt` with
-licensing terms; no additional license documents were found.
+The three extracted directories below contain 217 asset files and three
+readmes. The original asset-pack ZIP archives have been removed from the
+current asset tree. Each directory retains its `read_me.txt` with licensing
+terms; no additional license documents were found.
 
-| Asset directory / ZIP stem | Contents covered by the bundled notice | License source |
+| Asset directory | Contents covered by the bundled notice | License source |
 | --- | --- | --- |
 | `Sprout Lands - Sprites - Basic pack` | Characters, objects, tilesets, palette images and Aseprite file, and reference animation | [Bundled readme](../assets/Sprout%20Lands%20-%20Sprites%20-%20Basic%20pack/read_me.txt), headed "License - Basic Pack" |
 | `Sprout Lands - UI Pack - Basic pack` | UI sprite sheets, buttons, icons, cursors, dialogue, emoji and inventory/weather art, font and font previews | [Bundled readme](../assets/Sprout%20Lands%20-%20UI%20Pack%20-%20Basic%20pack/read_me.txt), headed "License - Free Basic Pack" |
@@ -57,13 +57,7 @@ as 1.0. It contains no copyright, license-description, or license-URL name
 record. No separate font license was supplied; the UI pack's readme is the
 only bundled license notice for this font and its PNG previews.
 
-## Redistribution questions to resolve
-
-The original asset-pack ZIPs are currently checked into this repository. The
-notices prohibit redistribution of the packs themselves; the Sprites and Sorry
-project/open-source exception does not explicitly permit mirroring the original
-archives. Confirm permission for distributing those standalone copies, or omit
-them from distributions. Adding this document does not resolve that permission.
+## Redistribution question to resolve
 
 The UI notice has no explicit project/open-source redistribution exception.
 Confirm the permitted scope with Cup Nooble before relying on such an exception
