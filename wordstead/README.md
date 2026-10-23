@@ -5,7 +5,7 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 3B
+## Current status: Milestone 3B gameplay; 3C.1 development analysis
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -38,6 +38,11 @@ synchronously and work offline after loading. No external word service or per-wo
 requests are used. See [source, policy and regeneration](docs/vocabulary.md),
 [browser credits](vocabulary/index.html), [upstream notice](licenses/esdb/Copyright)
 and [measured validation](docs/vocabulary-validation.md).
+
+Milestone **3C.1** adds development-only vocabulary statistics, physical-rack
+constructibility, sampled 7/8/9-tile baselines and deterministic letter-seed reports.
+Run `node scripts/analyze-letters.js --help`; see [methods and measured results](docs/letter-analysis.md).
+It does not change gameplay, targets or browser dependencies.
 
 Milestone 1's configurable board and Milestone 2A's enclosure/territory modules
 remain unchanged. **Legal word placement lab** keeps unrestricted word entry and
@@ -531,9 +536,11 @@ src/
   ui/startup.js             Loading/error/retry gate before gameplay initialization
   ui/results.js             Result presentation, clipboard feedback and manual copy
   vocabulary/               Static parser, memoized loader and generated manifest
+  analysis/                 Pure development-only vocabulary/rack/seed statistics
 styles/main.css             Local responsive presentation
 vocabulary/                 Committed word list, generation report and browser credits
-scripts/                    Development-only vocabulary generation and benchmark
+data/letter-analysis/       Versioned generated profile, baselines and ESDB notice
+scripts/                    Development-only vocabulary and letter-analysis tools
 tests/                      Built-in Node model tests and explicit fixtures
 ```
 

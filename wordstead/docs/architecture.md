@@ -1,5 +1,9 @@
 # Wordstead architecture
 
+Milestone 3C.1 adds development-only lexical analysis in `src/analysis/`, using
+the existing vocabulary parser/manifest and unchanged core bag generator. No
+browser entry point imports it; Milestone 3B gameplay and target 1 remain intact.
+
 Milestone 3B adds derived terminal results, deterministic spoiler-free text and
 client-side clipboard/manual sharing. It adds no gameplay state or victory logic.
 Milestone 3A prepares a pinned, licensed ESDB vocabulary before browser gameplay,
@@ -667,6 +671,37 @@ reports without claiming. Latest new claims remain highlighted until the next
 claim or letter edit. Neither refresh nor navigation preserves state.
 
 ## Development and validation
+
+### Letter analysis (3C.1)
+
+`src/analysis/vocabulary.js` profiles all accepted lengths 2–30, including ordered
+combinations and distinct occurrence/presence/repeat counts. `analysis/bag.js`
+imports the core distribution for expectations and descriptive availability ratios.
+`analysis/rack.js` prepares a private compact trie of sorted-letter multisets for
+lengths 2–9. Queries consume physical counts and temporary blank deficits, counting
+each spelling once; no board/session dependency or input mutation is involved.
+
+`analysis/statistics.js` owns versioned normalization, provisional group weights,
+type-7 quantiles, finite stable JSON and compatibility checks. `analysis/seeds.js`
+uses fresh core `createBag` results for capacity-specific sampled baselines,
+opening racks, hypothetical remaining-bag windows and batch summaries/outliers.
+Window samples do not predict future player racks or advance gameplay RNG.
+
+The Node-only `scripts/letter-analysis-source.js` verifies committed vocabulary
+bytes/checksum before calling the existing parser. `scripts/analyze-letters.js`
+provides vocabulary/rack/seed/batch/baseline reports and deterministic generation
+of `data/letter-analysis/profile-v1.json` with its derived-data notice. Analysis
+APIs remain pure ES modules; file/crypto/CLI operations stay in scripts. No extra
+runtime vocabulary, backend or gameplay imports are added. See
+[formulas, reproducible commands, results and limits](letter-analysis.md).
+
+Analysis tests add fixture statistics, independent full-dictionary rack scans,
+blanks/multiplicity, immutable physical resources, sampled/empty distributions,
+schema/vocabulary/bag compatibility, CLI errors and byte-for-byte regeneration.
+Later milestones can consume versioned data or these APIs; no board opportunity,
+target calculation or difficulty grade is implemented here.
+
+### Existing gameplay validation
 
 `npm test` invokes `node --test` using only Node built-ins. Existing board tests
 remain unchanged. New diagram fixtures assert exact enclosed coordinates and

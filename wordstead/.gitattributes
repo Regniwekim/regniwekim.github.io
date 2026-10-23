@@ -3,3 +3,5 @@
 /vocabulary/*.json text eol=lf
 /src/vocabulary/manifest.js text eol=lf
 /licenses/esdb/Copyright text eol=lf whitespace=-blank-at-eol
+# Generated analysis and its notice must also survive Windows checkout unchanged.
+/data/letter-analysis/* text eol=lf
