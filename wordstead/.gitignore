@@ -1,0 +1,12 @@
+# Full source packs belong in the approved private asset store.
+# These rules do not remove files that are already tracked or present in history.
+/assets/Sprout Lands - Sprites - Basic pack/
+/assets/Sprout Lands - UI Pack - Basic pack/
+/assets/Sprout Sorry pack/
+/assets/Sprout Lands - Sprites - Basic pack.zip
+/assets/Sprout Lands - UI Pack - Basic pack.zip
+/assets/Sprout Sorry pack.zip
+
+# Machine-local storage binding, not needed by deployed game code.
+/asset-organization/private-store.local.json
+__pycache__/

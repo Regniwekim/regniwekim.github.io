@@ -1,0 +1,1102 @@
+{
+  "A001": {
+    "description": "Cat character using hoe-like tool, axe, and watering can in four facing rows per action.",
+    "layout": "48x48 observed frame pitch; 2 columns x 12 rows; zero inter-cell gutter/outer margin; internal transparent padding. Action names/order and timing need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A002": {
+    "description": "Cat character poses in four facing rows, with repeated motion poses across columns.",
+    "layout": "48x48 observed frames; 4x4; margin/gutter 0; timing and exact idle/walk grouping unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A003": {
+    "description": "Egg, small egg, nest with egg, and empty nest.",
+    "layout": "Four 16x16 cells in one row; transparent padding inside cells; static variants, not a verified animation.",
+    "confidence": "visual-family-verified"
+  },
+  "A004": {
+    "description": "Chicken poses; two populated cells in top row, four in bottom row.",
+    "layout": "16x16 cells, 4x2; margin/gutter 0; six populated cells; timing and sequence unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A005": {
+    "description": "Cow poses; three populated upper frames and two lower frames.",
+    "layout": "32x32 cells, 3x2; margin/gutter 0; five populated cells. Not 16x16; timing/sequence unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A006": {
+    "description": "Watering cans, axes, and hoe-like tools in multiple orientations.",
+    "layout": "16-pixel alignment, 6x6 base units; orientation/pose variants. Verify complete tool bounds before registration.",
+    "confidence": "visual-family-verified"
+  },
+  "A007": {
+    "description": "Beds, chairs, tables, clocks, small storage furniture, flowers, and rugs.",
+    "layout": "Mixed 16-pixel aligned props, including objects spanning several base units; no universal sprite size.",
+    "confidence": "visual-family-verified"
+  },
+  "A011": {
+    "description": "Beds, chairs, tables, clocks, small storage furniture, flowers, and rugs.",
+    "layout": "Mixed 16-pixel aligned props, including objects spanning several base units; no universal sprite size.",
+    "confidence": "visual-family-verified"
+  },
+  "A008": {
+    "description": "Trees, bushes, mushrooms, rocks, flowers and small collected items.",
+    "layout": "Mixed 16-pixel aligned regions; taller trees span multiple units. Species beyond obvious motifs need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A012": {
+    "description": "Trees, bushes, mushrooms, rocks, flowers and small collected items.",
+    "layout": "Mixed 16-pixel aligned regions; taller trees span multiple units. Species beyond obvious motifs need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A009": {
+    "description": "Grain-like and purple-root crop progression, seed bags, harvested item icons.",
+    "layout": "16x16 cells, 6x2, margin/gutter 0; each row combines static growth stages and item icons. Growth is not a timed animation.",
+    "confidence": "visual-family-verified"
+  },
+  "A013": {
+    "description": "Grain-like and purple-root crop progression, seed bags, harvested item icons.",
+    "layout": "16x16 cells, 6x2, margin/gutter 0; each row combines static growth stages and item icons. Growth is not a timed animation.",
+    "confidence": "visual-family-verified"
+  },
+  "A010": {
+    "description": "Watering can, axes, stone-like material and wood-like item icons.",
+    "layout": "Six 16x16 item cells in 3x2 layout, margin/gutter 0.",
+    "confidence": "visual-family-verified"
+  },
+  "A014": {
+    "description": "Watering can, axes, stone-like material and wood-like item icons.",
+    "layout": "Six 16x16 item cells in 3x2 layout, margin/gutter 0.",
+    "confidence": "visual-family-verified"
+  },
+  "A015": {
+    "description": "Chest opening poses and orientations.",
+    "layout": "48x48 observed pitch; 5x2; internal padding. Multiple pose/orientation groups; timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A016": {
+    "description": "Single egg item.",
+    "layout": "Single 16x16 image; no atlas margin/gutter.",
+    "confidence": "visual-family-verified"
+  },
+  "A017": {
+    "description": "Single egg item.",
+    "layout": "Single 16x16 image; no atlas margin/gutter.",
+    "confidence": "visual-family-verified"
+  },
+  "A018": {
+    "description": "Chicken coop with roof, doorway and ramp.",
+    "layout": "Single 48x48 sprite; 3x3 artwork units of 16. Does not imply a 3x3 gameplay footprint.",
+    "confidence": "visual-family-verified"
+  },
+  "A019": {
+    "description": "Wooden stepping/plank paths and connecting arrangements.",
+    "layout": "Mixed 16-pixel base units; assembled path forms must be registered as complete regions.",
+    "confidence": "visual-family-verified"
+  },
+  "A020": {
+    "description": "Milk bottles at different fill levels and grass-like item.",
+    "layout": "Four 16x16 cells in one row; static item/fill variants.",
+    "confidence": "visual-family-verified"
+  },
+  "A021": {
+    "description": "Milk bottles at different fill levels and grass-like item.",
+    "layout": "Four 16x16 cells in one row; static item/fill variants.",
+    "confidence": "visual-family-verified"
+  },
+  "A022": {
+    "description": "Wood bridge orientations and segments.",
+    "layout": "Mixed modular regions on 16-pixel base units (5x3 canvas units); not one sprite per cell.",
+    "confidence": "visual-family-verified"
+  },
+  "A023": {
+    "description": "Wood bridge orientations and segments.",
+    "layout": "Mixed modular regions on 16-pixel base units (5x3 canvas units); not one sprite per cell.",
+    "confidence": "visual-family-verified"
+  },
+  "A024": {
+    "description": "Original author readme and custom license notice; preserve unchanged.",
+    "layout": "Text document; no image layout.",
+    "confidence": "text-verified"
+  },
+  "A063": {
+    "description": "Original author readme and custom license notice; preserve unchanged.",
+    "layout": "Text document; no image layout.",
+    "confidence": "text-verified"
+  },
+  "A216": {
+    "description": "Original author readme and custom license notice; preserve unchanged.",
+    "layout": "Text document; no image layout.",
+    "confidence": "text-verified"
+  },
+  "A025": {
+    "description": "Palette screenshot including editor chrome.",
+    "layout": "236x371 reference capture; do not treat as sprites.",
+    "confidence": "visual-family-verified"
+  },
+  "A026": {
+    "description": "Small color palette resource.",
+    "layout": "16x7 color swatch image/editor canvas. Aseprite has one indexed-color frame; editor grid 16x16 is not a sprite grid.",
+    "confidence": "visual-family-verified"
+  },
+  "A027": {
+    "description": "Small color palette resource.",
+    "layout": "16x7 color swatch image/editor canvas. Aseprite has one indexed-color frame; editor grid 16x16 is not a sprite grid.",
+    "confidence": "visual-family-verified"
+  },
+  "A028": {
+    "description": "Bitmask/autotile layout diagrams; second includes additional grid subdivision.",
+    "layout": "Reference diagrams, not production texture sheets. No universal bitmask-number mapping inferred.",
+    "confidence": "visual-family-verified"
+  },
+  "A029": {
+    "description": "Bitmask/autotile layout diagrams; second includes additional grid subdivision.",
+    "layout": "Reference diagrams, not production texture sheets. No universal bitmask-number mapping inferred.",
+    "confidence": "visual-family-verified"
+  },
+  "A030": {
+    "description": "Animated tile-layout reference with labels and demonstration area.",
+    "layout": "183 composited GIF frames, 100ms each; loop metadata 0. Full 540x540 reference scene, not terrain frame rectangles.",
+    "confidence": "visual-family-verified"
+  },
+  "A031": {
+    "description": "Wooden door poses/parts.",
+    "layout": "16x64 canvas; vertical 16-pixel units. Door extents and sequence require review; do not assume four complete 16x16 doors.",
+    "confidence": "visual-family-verified"
+  },
+  "A032": {
+    "description": "Wood fence posts, rails, corners and connections.",
+    "layout": "4x4 canvas of 16x16 base tiles; includes connecting artwork at cell boundaries. No enclosure-rule mapping supplied.",
+    "confidence": "visual-family-verified"
+  },
+  "A033": {
+    "description": "Grass edges, corners, inner corners, center fills and decorative patches.",
+    "layout": "11x7 canvas of 16x16 terrain units, margin/gutter 0; not all units occupied. Autotile index policy unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A034": {
+    "description": "Raised grassy cliff/hill edges, soil faces and stairs.",
+    "layout": "11x9 canvas of 16x16 construction units; assembled heights span units; collision/elevation not encoded.",
+    "confidence": "visual-family-verified"
+  },
+  "A035": {
+    "description": "Older/differently arranged tilled soil edges and patches.",
+    "layout": "128x128, mixed layout on 16-pixel alignment; differs from underscore-named 176x112 sheets.",
+    "confidence": "visual-family-verified"
+  },
+  "A036": {
+    "description": "Tilled soil terrain, inner/outer corners, fill/decorations; narrow/wide and v2 alternatives.",
+    "layout": "11x7 canvas of 16x16 base terrain units; zero packing gutter/margin. Different arrangements and edge styles; not interchangeable by filename.",
+    "confidence": "visual-family-verified"
+  },
+  "A037": {
+    "description": "Tilled soil terrain, inner/outer corners, fill/decorations; narrow/wide and v2 alternatives.",
+    "layout": "11x7 canvas of 16x16 base terrain units; zero packing gutter/margin. Different arrangements and edge styles; not interchangeable by filename.",
+    "confidence": "visual-family-verified"
+  },
+  "A038": {
+    "description": "Tilled soil terrain, inner/outer corners, fill/decorations; narrow/wide and v2 alternatives.",
+    "layout": "11x7 canvas of 16x16 base terrain units; zero packing gutter/margin. Different arrangements and edge styles; not interchangeable by filename.",
+    "confidence": "visual-family-verified"
+  },
+  "A039": {
+    "description": "Tilled soil terrain, inner/outer corners, fill/decorations; narrow/wide and v2 alternatives.",
+    "layout": "11x7 canvas of 16x16 base terrain units; zero packing gutter/margin. Different arrangements and edge styles; not interchangeable by filename.",
+    "confidence": "visual-family-verified"
+  },
+  "A040": {
+    "description": "Water fill variations.",
+    "layout": "Four 16x16 cells in one horizontal row, margin/gutter 0. No timing metadata: variants versus animation not established.",
+    "confidence": "visual-family-verified"
+  },
+  "A041": {
+    "description": "Modular wooden house roof/wall/door components; sheets overlap in subject matter.",
+    "layout": "16-pixel construction alignment, multi-tile regions. Compose buildings explicitly; never assign sheet dimensions as board occupancy.",
+    "confidence": "visual-family-verified"
+  },
+  "A042": {
+    "description": "Modular wooden house roof/wall/door components; sheets overlap in subject matter.",
+    "layout": "16-pixel construction alignment, multi-tile regions. Compose buildings explicitly; never assign sheet dimensions as board occupancy.",
+    "confidence": "visual-family-verified"
+  },
+  "A043": {
+    "description": "Modular wooden house roof/wall/door components; sheets overlap in subject matter.",
+    "layout": "16-pixel construction alignment, multi-tile regions. Compose buildings explicitly; never assign sheet dimensions as board occupancy.",
+    "confidence": "visual-family-verified"
+  },
+  "A044": {
+    "description": "Nine inventory slot blocks: three shapes/sizes by three tan shades.",
+    "layout": "3x3 cells at 48x48 pitch, margin/gutter 0. Visible bounds vary: first [9,9,30,32], last-row light [3,98,42,44]. Not uniform 16x16 art.",
+    "confidence": "visual-family-verified"
+  },
+  "A045": {
+    "description": "Premade brown/light inventory bars with a five-heart tab; two widths.",
+    "layout": "Single composed panel per file (352x96 or 304x96); embedded heart artwork. Prefer modular DOM rack.",
+    "confidence": "visual-family-verified"
+  },
+  "A046": {
+    "description": "Premade brown/light inventory bars with a five-heart tab; two widths.",
+    "layout": "Single composed panel per file (352x96 or 304x96); embedded heart artwork. Prefer modular DOM rack.",
+    "confidence": "visual-family-verified"
+  },
+  "A050": {
+    "description": "Premade brown/light inventory bars with a five-heart tab; two widths.",
+    "layout": "Single composed panel per file (352x96 or 304x96); embedded heart artwork. Prefer modular DOM rack.",
+    "confidence": "visual-family-verified"
+  },
+  "A051": {
+    "description": "Premade brown/light inventory bars with a five-heart tab; two widths.",
+    "layout": "Single composed panel per file (352x96 or 304x96); embedded heart artwork. Prefer modular DOM rack.",
+    "confidence": "visual-family-verified"
+  },
+  "A047": {
+    "description": "Premade inventory bars with slots and five-heart tab; wide version has seven slots, narrow version six.",
+    "layout": "Single composed panel per file; fixed embedded slot count is unsuitable as responsive layout logic.",
+    "confidence": "visual-family-verified"
+  },
+  "A048": {
+    "description": "Premade inventory bars with slots and five-heart tab; wide version has seven slots, narrow version six.",
+    "layout": "Single composed panel per file; fixed embedded slot count is unsuitable as responsive layout logic.",
+    "confidence": "visual-family-verified"
+  },
+  "A052": {
+    "description": "Premade inventory bars with slots and five-heart tab; wide version has seven slots, narrow version six.",
+    "layout": "Single composed panel per file; fixed embedded slot count is unsuitable as responsive layout logic.",
+    "confidence": "visual-family-verified"
+  },
+  "A053": {
+    "description": "Premade inventory bars with slots and five-heart tab; wide version has seven slots, narrow version six.",
+    "layout": "Single composed panel per file; fixed embedded slot count is unsuitable as responsive layout logic.",
+    "confidence": "visual-family-verified"
+  },
+  "A049": {
+    "description": "Heart fill/progress states, heart tabs and inventory panel pieces in two palettes.",
+    "layout": "Mixed-region vertical sheets, not uniform animation strips; component extents/9-slice insets need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A054": {
+    "description": "Heart fill/progress states, heart tabs and inventory panel pieces in two palettes.",
+    "layout": "Mixed-region vertical sheets, not uniform animation strips; component extents/9-slice insets need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A055": {
+    "description": "Combined inventory hearts, tabs, blocks, corner pieces and bars.",
+    "layout": "Composite atlas overlaps dedicated inventory sheets; no new canonical source chosen during audit.",
+    "confidence": "visual-family-verified"
+  },
+  "A056": {
+    "description": "Sun/cloud, moon/cloud and warm-toned weather icon variants.",
+    "layout": "32x32 observed pitch, 2x3; internal padding; static weather/time variants, no verified timing.",
+    "confidence": "visual-family-verified"
+  },
+  "A057": {
+    "description": "Weather display frame, label field and small weather/navigation motifs.",
+    "layout": "Mixed component atlas; no uniform grid or verified stretch/9-slice regions.",
+    "confidence": "visual-family-verified"
+  },
+  "A058": {
+    "description": "Small expressive faces, animals, farm items, gestures, and other emoji icons.",
+    "layout": "16x16 observed base pitch, 10x38 canvas units; mixed occupancy. Individual semantics require review; not 380 verified icons.",
+    "confidence": "visual-family-verified"
+  },
+  "A059": {
+    "description": "Grey speech bubbles of different sizes with small tail/indicator shapes.",
+    "layout": "Mixed regions with large blank areas; explicit rectangles required.",
+    "confidence": "visual-family-verified"
+  },
+  "A060": {
+    "description": "Bitmap glyph reference images; large preview is exactly a nearest-neighbor 4x copy of the smaller image.",
+    "layout": "118x106 original reference and 472x424 preview; variable glyph extents, no verified font-atlas character map.",
+    "confidence": "visual-family-verified"
+  },
+  "A061": {
+    "description": "Bitmap glyph reference images; large preview is exactly a nearest-neighbor 4x copy of the smaller image.",
+    "layout": "118x106 original reference and 472x424 preview; variable glyph extents, no verified font-atlas character map.",
+    "confidence": "visual-family-verified"
+  },
+  "A062": {
+    "description": "Cup Nooble pixelFont-7-8x14-sproutLands Regular, version 1.0; 82 glyph records.",
+    "layout": "TTF, 2304 units/em; glyph count is not Unicode coverage. No embedded license records 0/13/14; separate font permission not supplied.",
+    "confidence": "font-metadata-verified"
+  },
+  "A064": {
+    "description": "Small round/square buttons in pale and tan color/state pairs.",
+    "layout": "16x16 observed cells, 2x8; margin/gutter 0; some artwork touches adjacent cell edges. Which state means disabled/pressed is unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A065": {
+    "description": "Tall rounded buttons in multiple palettes/state pairs; filename says 19x26.",
+    "layout": "Actual observed cell pitch 32x48 (4x2), margin/gutter 0. First visible bounds [7,9,18,30], so filename is not the crop size.",
+    "confidence": "visual-family-verified"
+  },
+  "A066": {
+    "description": "Wide rounded buttons in multiple palettes/state pairs; filename says 26x19.",
+    "layout": "Actual observed cell pitch 48x32 (2x4), margin/gutter 0. First visible bounds [11,6,26,19], partner [59,7,26,18].",
+    "confidence": "visual-family-verified"
+  },
+  "A067": {
+    "description": "Square buttons in multiple palettes/state pairs; filename says 26x26.",
+    "layout": "Observed cell pitch 48x48 (2x4), margin/gutter 0. Visible bounds first [11,11,26,28], partner [59,11,26,26].",
+    "confidence": "visual-family-verified"
+  },
+  "A068": {
+    "description": "Dialogue bubbles/panels in several widths and small base form.",
+    "layout": "Single regions within transparent canvas. 9-slice corners/content insets not verified; do not stretch rasterized text.",
+    "confidence": "visual-family-verified"
+  },
+  "A070": {
+    "description": "Dialogue bubbles/panels in several widths and small base form.",
+    "layout": "Single regions within transparent canvas. 9-slice corners/content insets not verified; do not stretch rasterized text.",
+    "confidence": "visual-family-verified"
+  },
+  "A071": {
+    "description": "Dialogue bubbles/panels in several widths and small base form.",
+    "layout": "Single regions within transparent canvas. 9-slice corners/content insets not verified; do not stretch rasterized text.",
+    "confidence": "visual-family-verified"
+  },
+  "A072": {
+    "description": "Dialogue bubbles/panels in several widths and small base form.",
+    "layout": "Single regions within transparent canvas. 9-slice corners/content insets not verified; do not stretch rasterized text.",
+    "confidence": "visual-family-verified"
+  },
+  "A069": {
+    "description": "Dialogue continue indicator with successive shape changes.",
+    "layout": "Seven 16x16 cells across 112x16 strip; timing and intended loop unknown.",
+    "confidence": "visual-family-verified"
+  },
+  "A073": {
+    "description": "Teemo/cat portrait emotes and pose sequences.",
+    "layout": "32x32 observed pitch, 5x15; sparse rows with different frame counts. Timing, expression names and grouping need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A074": {
+    "description": "Premade portrait frame plus dialogue panel in three widths.",
+    "layout": "Single composition per file; named big/medium/small, with static portrait placeholder.",
+    "confidence": "visual-family-verified"
+  },
+  "A075": {
+    "description": "Premade portrait frame plus dialogue panel in three widths.",
+    "layout": "Single composition per file; named big/medium/small, with static portrait placeholder.",
+    "confidence": "visual-family-verified"
+  },
+  "A076": {
+    "description": "Premade portrait frame plus dialogue panel in three widths.",
+    "layout": "Single composition per file; named big/medium/small, with static portrait placeholder.",
+    "confidence": "visual-family-verified"
+  },
+  "A077": {
+    "description": "Interface glyphs including controls, question mark, money, basket, calendar, trophy, crown, check and cross; white and multicolor rows.",
+    "layout": "16x16 observed pitch; All Icons 18x3, white subset 6x3. Dedicated sheet/composite atlas overlap; glyph meaning must be paired with text.",
+    "confidence": "visual-family-verified"
+  },
+  "A080": {
+    "description": "Interface glyphs including controls, question mark, money, basket, calendar, trophy, crown, check and cross; white and multicolor rows.",
+    "layout": "16x16 observed pitch; All Icons 18x3, white subset 6x3. Dedicated sheet/composite atlas overlap; glyph meaning must be paired with text.",
+    "confidence": "visual-family-verified"
+  },
+  "A078": {
+    "description": "Colored happiness/sadness-style face icons with bordered alternatives.",
+    "layout": "16x16 observed pitch, 6x2; static state variants.",
+    "confidence": "visual-family-verified"
+  },
+  "A079": {
+    "description": "Stars, hearts and small bar-like icons in colored fill/outline styles.",
+    "layout": "16x16 observed pitch, 7x4; variants/states, no timed animation verified.",
+    "confidence": "visual-family-verified"
+  },
+  "A081": {
+    "description": "Cat-paw cursor/gesture variants.",
+    "layout": "Single 16x16 image each; pointer hotspot not documented.",
+    "confidence": "visual-family-verified"
+  },
+  "A082": {
+    "description": "Cat-paw cursor/gesture variants.",
+    "layout": "Single 16x16 image each; pointer hotspot not documented.",
+    "confidence": "visual-family-verified"
+  },
+  "A083": {
+    "description": "Cat-paw cursor/gesture variants.",
+    "layout": "Single 16x16 image each; pointer hotspot not documented.",
+    "confidence": "visual-family-verified"
+  },
+  "A084": {
+    "description": "Three triangular cursor treatments with distinct outline/shadow pixels.",
+    "layout": "Single 16x16 image each; visually similar but not duplicates; hotspot unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A085": {
+    "description": "Three triangular cursor treatments with distinct outline/shadow pixels.",
+    "layout": "Single 16x16 image each; visually similar but not duplicates; hotspot unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A086": {
+    "description": "Three triangular cursor treatments with distinct outline/shadow pixels.",
+    "layout": "Single 16x16 image each; visually similar but not duplicates; hotspot unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A087": {
+    "description": "Settings menu panels, one with an embedded SETTINGS heading.",
+    "layout": "Two 128x144 composition regions; panel/frame text insets require review.",
+    "confidence": "visual-family-verified"
+  },
+  "A088": {
+    "description": "Composite Basic UI atlas containing buttons, icons, dialogue and settings components.",
+    "layout": "896x240 mixed packed regions. Overlaps dedicated sheets; do not slice the entire image on a universal grid.",
+    "confidence": "visual-family-verified"
+  },
+  "A089": {
+    "description": "Four large buttons: blank and PLAY labels, light/darker partner variants.",
+    "layout": "96x32 observed cells, 2x2; margin/gutter 0. First visible [3,2,90,27]; partner [99,4,90,25]. Semantic state assignment unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A090": {
+    "description": "Settings labels, round controls, toggles, sliders/levels and speaker motif.",
+    "layout": "128x240 mixed regions; state relationships and slider stretch slices need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A091": {
+    "description": "Author-labeled sound effect: bing_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A092": {
+    "description": "Author-labeled sound effect: bip_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A093": {
+    "description": "Author-labeled sound effect: blup_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A094": {
+    "description": "Author-labeled sound effect: blup_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A095": {
+    "description": "Author-labeled sound effect: boo_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A096": {
+    "description": "Author-labeled sound effect: boo_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A097": {
+    "description": "Author-labeled sound effect: flute_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A098": {
+    "description": "Author-labeled sound effect: flute_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A099": {
+    "description": "Author-labeled sound effect: flute_3. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A100": {
+    "description": "Author-labeled sound effect: flute_4. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A101": {
+    "description": "Author-labeled sound effect: phone_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A102": {
+    "description": "Author-labeled sound effect: phone_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A103": {
+    "description": "Author-labeled sound effect: punch_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A104": {
+    "description": "Author-labeled sound effect: punch_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A105": {
+    "description": "Author-labeled sound effect: punch_3. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A106": {
+    "description": "Author-labeled sound effect: punch_4. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A107": {
+    "description": "Author-labeled sound effect: punch_5. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A108": {
+    "description": "Author-labeled sound effect: punch_6. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A109": {
+    "description": "Author-labeled sound effect: squick_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A110": {
+    "description": "Author-labeled sound effect: squick_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A111": {
+    "description": "Author-labeled sound effect: squick_squick_1. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A112": {
+    "description": "Author-labeled sound effect: squick_squick_2. Not auditioned; intended event association unverified.",
+    "layout": "PCM WAV: 22050 Hz, stereo, signed 16-bit. Identical channels; large quiet tail indicated by amplitude scan.",
+    "confidence": "metadata-only-audio-review"
+  },
+  "A113": {
+    "description": "Bat animation reference GIFs, large and small bat; opaque background.",
+    "layout": "16 GIF frames at 100ms, loop metadata 0; 64x64 preview canvas is not the PNG sprite frame size.",
+    "confidence": "visual-family-verified"
+  },
+  "A115": {
+    "description": "Bat animation reference GIFs, large and small bat; opaque background.",
+    "layout": "16 GIF frames at 100ms, loop metadata 0; 64x64 preview canvas is not the PNG sprite frame size.",
+    "confidence": "visual-family-verified"
+  },
+  "A114": {
+    "description": "Large/small bat poses including flying/grounded or collapse-like phases.",
+    "layout": "32x32 observed pitch, 6x2; sparse cells. Do not transfer GIF timing/order without exact frame correspondence.",
+    "confidence": "visual-family-verified"
+  },
+  "A116": {
+    "description": "Large/small bat poses including flying/grounded or collapse-like phases.",
+    "layout": "32x32 observed pitch, 6x2; sparse cells. Do not transfer GIF timing/order without exact frame correspondence.",
+    "confidence": "visual-family-verified"
+  },
+  "A117": {
+    "description": "Green slime motion/deformation sequences across rows.",
+    "layout": "38x38 observed candidate pitch, 12x8; variable populated row lengths. NOT 16x16; grouping and timing unverified.",
+    "confidence": "visual-family-verified-layout-candidate"
+  },
+  "A118": {
+    "description": "Mine cart variants/orientations.",
+    "layout": "16-pixel alignment; some cart forms span more than one base unit.",
+    "confidence": "visual-family-verified"
+  },
+  "A119": {
+    "description": "Pickaxe, ore/ingot-like items, gems and bottles/jars.",
+    "layout": "16x16 observed item cells, 5x3; species/material names beyond clear motifs unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A120": {
+    "description": "Crates, barrels, containers and tables/storage props.",
+    "layout": "Mixed 16-pixel aligned props with multi-tile objects.",
+    "confidence": "visual-family-verified"
+  },
+  "A121": {
+    "description": "Dungeon walls, doors, archways, gates and decorative elements, including colored variants.",
+    "layout": "Mixed modular regions on 16-pixel base alignment; collision and connection maps absent.",
+    "confidence": "visual-family-verified"
+  },
+  "A122": {
+    "description": "Dungeon walls, doors, archways, gates and decorative elements, including colored variants.",
+    "layout": "Mixed modular regions on 16-pixel base alignment; collision and connection maps absent.",
+    "confidence": "visual-family-verified"
+  },
+  "A123": {
+    "description": "Orange dirt modular terrain, darker variant.",
+    "layout": "11x11 canvas of 16x16 base units; includes several region groups and fill variations.",
+    "confidence": "visual-family-verified"
+  },
+  "A124": {
+    "description": "Orange dirt modular terrain, darker variant.",
+    "layout": "11x11 canvas of 16x16 base units; includes several region groups and fill variations.",
+    "confidence": "visual-family-verified"
+  },
+  "A125": {
+    "description": "Ladder/hole ground variants on orange dirt.",
+    "layout": "Four 16x16 cells across; static alternatives, not established animation.",
+    "confidence": "visual-family-verified"
+  },
+  "A126": {
+    "description": "Ladder/hole ground variants on orange dirt.",
+    "layout": "Four 16x16 cells across; static alternatives, not established animation.",
+    "confidence": "visual-family-verified"
+  },
+  "A127": {
+    "description": "Mine rails and a junction/turning assembly.",
+    "layout": "64x48 mixed modular layout; 16-pixel alignment with multi-tile forms.",
+    "confidence": "visual-family-verified"
+  },
+  "A128": {
+    "description": "Rocks and colored ore/crystal outcrops.",
+    "layout": "16-pixel alignment, 4x4 canvas; variable object bounds.",
+    "confidence": "visual-family-verified"
+  },
+  "A129": {
+    "description": "Lever/switch poses.",
+    "layout": "Three 16x16 cells across; sequence and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A130": {
+    "description": "Fish swimming/turning poses in three sizes.",
+    "layout": "Fifteen 16x16 cells across each strip; facing/motion progression observed, no timing supplied.",
+    "confidence": "visual-family-verified"
+  },
+  "A138": {
+    "description": "Fish swimming/turning poses in three sizes.",
+    "layout": "Fifteen 16x16 cells across each strip; facing/motion progression observed, no timing supplied.",
+    "confidence": "visual-family-verified"
+  },
+  "A139": {
+    "description": "Fish swimming/turning poses in three sizes.",
+    "layout": "Fifteen 16x16 cells across each strip; facing/motion progression observed, no timing supplied.",
+    "confidence": "visual-family-verified"
+  },
+  "A131": {
+    "description": "Fish, aquatic motifs, containers and other item icons.",
+    "layout": "16-pixel alignment, 10x5 canvas; individual species/semantics require review.",
+    "confidence": "visual-family-verified"
+  },
+  "A132": {
+    "description": "Fishing character sequences viewed from back, front and side.",
+    "layout": "48x48 observed candidate pitch, 32x6 canvas; variable populated row lengths, exact action groups and timing unknown.",
+    "confidence": "visual-family-verified-layout-candidate"
+  },
+  "A133": {
+    "description": "Fishing character sequences viewed from back, front and side.",
+    "layout": "48x48 observed candidate pitch, 32x6 canvas; variable populated row lengths, exact action groups and timing unknown.",
+    "confidence": "visual-family-verified-layout-candidate"
+  },
+  "A134": {
+    "description": "Fishing character sequences viewed from back, front and side.",
+    "layout": "48x48 observed candidate pitch, 32x6 canvas; variable populated row lengths, exact action groups and timing unknown.",
+    "confidence": "visual-family-verified-layout-candidate"
+  },
+  "A135": {
+    "description": "Fishing rod, float and water-splash pose/effect elements.",
+    "layout": "Sparse mixed effect regions; 48-pixel pitch candidate only, not a verified universal frame grid.",
+    "confidence": "visual-family-verified-layout-candidate"
+  },
+  "A136": {
+    "description": "Two fishing rod item icon variants.",
+    "layout": "Single 16x16 image each, different visible pixels.",
+    "confidence": "visual-family-verified"
+  },
+  "A137": {
+    "description": "Two fishing rod item icon variants.",
+    "layout": "Single 16x16 image each, different visible pixels.",
+    "confidence": "visual-family-verified"
+  },
+  "A140": {
+    "description": "Cat swimming poses/facings.",
+    "layout": "48x48 observed pitch, 8x8; groups and timing need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A141": {
+    "description": "Bee wing/body poses in two sizes.",
+    "layout": "Eight 16x16 frames in a row, margin/gutter 0; timing and order unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A144": {
+    "description": "Bee wing/body poses in two sizes.",
+    "layout": "Eight 16x16 frames in a row, margin/gutter 0; timing and order unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A142": {
+    "description": "Beehive structures in large/small forms.",
+    "layout": "Single 32x32 / 16x32 sprites; visible size does not determine gameplay footprint.",
+    "confidence": "visual-family-verified"
+  },
+  "A145": {
+    "description": "Beehive structures in large/small forms.",
+    "layout": "Single 32x32 / 16x32 sprites; visible size does not determine gameplay footprint.",
+    "confidence": "visual-family-verified"
+  },
+  "A143": {
+    "description": "Honey jars, honeycomb, bread and preserve-like food items.",
+    "layout": "16x16 observed item cells, 4x4; some empty cells; flavor/type names unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A146": {
+    "description": "Biome water plants including reeds and lily-pad-like vegetation.",
+    "layout": "16-pixel alignment with multiple adjacent small variants; identify full plant bounds individually.",
+    "confidence": "visual-family-verified"
+  },
+  "A148": {
+    "description": "Biome water plants including reeds and lily-pad-like vegetation.",
+    "layout": "16-pixel alignment with multiple adjacent small variants; identify full plant bounds individually.",
+    "confidence": "visual-family-verified"
+  },
+  "A174": {
+    "description": "Biome water plants including reeds and lily-pad-like vegetation.",
+    "layout": "16-pixel alignment with multiple adjacent small variants; identify full plant bounds individually.",
+    "confidence": "visual-family-verified"
+  },
+  "A147": {
+    "description": "Author-labeled birch, cherry-blossom and pine biome trees, growth stages, stumps, bushes and items.",
+    "layout": "Mixed 16-pixel aligned regions; canopies and trunks span multiple units. Preserve species labels only where supplied by filenames.",
+    "confidence": "visual-family-verified"
+  },
+  "A149": {
+    "description": "Author-labeled birch, cherry-blossom and pine biome trees, growth stages, stumps, bushes and items.",
+    "layout": "Mixed 16-pixel aligned regions; canopies and trunks span multiple units. Preserve species labels only where supplied by filenames.",
+    "confidence": "visual-family-verified"
+  },
+  "A175": {
+    "description": "Author-labeled birch, cherry-blossom and pine biome trees, growth stages, stumps, bushes and items.",
+    "layout": "Mixed 16-pixel aligned regions; canopies and trunks span multiple units. Preserve species labels only where supplied by filenames.",
+    "confidence": "visual-family-verified"
+  },
+  "A150": {
+    "description": "Seed packets, harvested crops and food/produce icons.",
+    "layout": "16x16 observed item pitch, 5x14; individual crop labels absent; manual review of species required.",
+    "confidence": "visual-family-verified"
+  },
+  "A151": {
+    "description": "Many crop growth stages; watered/unwatered alternatives, including obvious grain, pumpkin-like, sunflower-like and climbing forms.",
+    "layout": "16-pixel base alignment, 112x528 canvas. MIXED HEIGHTS: some growth rows are 16 high, tall stages cross row boundaries (top crop spans 32 high); no universal row-to-species map. Timing absent.",
+    "confidence": "visual-family-verified"
+  },
+  "A152": {
+    "description": "Many crop growth stages; watered/unwatered alternatives, including obvious grain, pumpkin-like, sunflower-like and climbing forms.",
+    "layout": "16-pixel base alignment, 112x528 canvas. MIXED HEIGHTS: some growth rows are 16 high, tall stages cross row boundaries (top crop spans 32 high); no universal row-to-species map. Timing absent.",
+    "confidence": "visual-family-verified"
+  },
+  "A153": {
+    "description": "Frog pose/motion sheets in two color treatments.",
+    "layout": "16x16 observed pitch, 14x6; sparse row groups with different lengths; timing and action labels unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A154": {
+    "description": "Frog pose/motion sheets in two color treatments.",
+    "layout": "16x16 observed pitch, 14x6; sparse row groups with different lengths; timing and action labels unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A155": {
+    "description": "Chest pose/orientation sheets: birch, cherry, gold, oak, pine, silver by supplied names.",
+    "layout": "32x32 observed pitch, 5x2; do not reuse Basic chest 48x48 rectangles. Opening/rotation grouping and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A156": {
+    "description": "Chest pose/orientation sheets: birch, cherry, gold, oak, pine, silver by supplied names.",
+    "layout": "32x32 observed pitch, 5x2; do not reuse Basic chest 48x48 rectangles. Opening/rotation grouping and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A157": {
+    "description": "Chest pose/orientation sheets: birch, cherry, gold, oak, pine, silver by supplied names.",
+    "layout": "32x32 observed pitch, 5x2; do not reuse Basic chest 48x48 rectangles. Opening/rotation grouping and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A160": {
+    "description": "Chest pose/orientation sheets: birch, cherry, gold, oak, pine, silver by supplied names.",
+    "layout": "32x32 observed pitch, 5x2; do not reuse Basic chest 48x48 rectangles. Opening/rotation grouping and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A161": {
+    "description": "Chest pose/orientation sheets: birch, cherry, gold, oak, pine, silver by supplied names.",
+    "layout": "32x32 observed pitch, 5x2; do not reuse Basic chest 48x48 rectangles. Opening/rotation grouping and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A162": {
+    "description": "Chest pose/orientation sheets: birch, cherry, gold, oak, pine, silver by supplied names.",
+    "layout": "32x32 observed pitch, 5x2; do not reuse Basic chest 48x48 rectangles. Opening/rotation grouping and timing unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A158": {
+    "description": "Small inventory icons for furniture in multiple wood/color variants.",
+    "layout": "16x16 observed pitch, 12x5; sparse final row, no timings.",
+    "confidence": "visual-family-verified"
+  },
+  "A159": {
+    "description": "Beds, chairs, tables and storage furniture in multiple palettes.",
+    "layout": "Mixed 16-pixel aligned multi-tile objects. Unlike the small item-icon sheet, not a uniform one-cell atlas.",
+    "confidence": "visual-family-verified"
+  },
+  "A163": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A164": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A165": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A166": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A167": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A168": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A169": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A170": {
+    "description": "Grass tile layers, texture details and vegetation accents in normal/blue-tinted and numbered alternatives.",
+    "layout": "16-pixel base units; mostly 11x25 canvas, A168 is 10x25. Numbered variants are not interchangeable or proven animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A171": {
+    "description": "Picnic basket item.",
+    "layout": "Single 16x16 sprite.",
+    "confidence": "visual-family-verified"
+  },
+  "A172": {
+    "description": "Picnic blanket.",
+    "layout": "Single 48x48 sprite, 3x3 artwork units; not a 3x3 game footprint declaration.",
+    "confidence": "visual-family-verified"
+  },
+  "A173": {
+    "description": "Picnic food/ingredient variants.",
+    "layout": "16x16 observed pitch, 7x2; sparse second row; recipe/species names need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A176": {
+    "description": "Trees, stumps, bushes, fruit/wood-related items and growth variants.",
+    "layout": "Mixed 16-pixel aligned regions, with multi-tile tree canopies and smaller items.",
+    "confidence": "visual-family-verified"
+  },
+  "A177": {
+    "description": "Wood/log icons and mushroom-like items in multiple colors/types.",
+    "layout": "16x16 observed item pitch, 6x5, some blank positions; species unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A178": {
+    "description": "Campfire wood/fire states in multiple arrangements.",
+    "layout": "16-pixel aligned mixed stages, including larger multi-tile fires. Timing absent.",
+    "confidence": "visual-family-verified"
+  },
+  "A179": {
+    "description": "Decorated Christmas tree with changing lights.",
+    "layout": "Aseprite/PNG verified pair: 8 frames, 48x64 each, horizontal strip, margin/gutter 0, 100ms per frame. No animation tags or loop semantics.",
+    "confidence": "visual-family-verified"
+  },
+  "A180": {
+    "description": "Decorated Christmas tree with changing lights.",
+    "layout": "Aseprite/PNG verified pair: 8 frames, 48x64 each, horizontal strip, margin/gutter 0, 100ms per frame. No animation tags or loop semantics.",
+    "confidence": "visual-family-verified"
+  },
+  "A181": {
+    "description": "Small fire/flame animation.",
+    "layout": "Aseprite/PNG verified pair: 16 frames, 16x16 each, horizontal strip, margin/gutter 0, 100ms per frame. No tags/loop semantics.",
+    "confidence": "visual-family-verified"
+  },
+  "A182": {
+    "description": "Small fire/flame animation.",
+    "layout": "Aseprite/PNG verified pair: 16 frames, 16x16 each, horizontal strip, margin/gutter 0, 100ms per frame. No tags/loop semantics.",
+    "confidence": "visual-family-verified"
+  },
+  "A183": {
+    "description": "Ice surface/edge motifs.",
+    "layout": "64x48 canvas on 16-pixel alignment; full patch/edge regions need review.",
+    "confidence": "visual-family-verified"
+  },
+  "A184": {
+    "description": "Red gift/present opening animation, two PNG aliases.",
+    "layout": "Aseprite/PNG verified pair: 10 frames, 16x16, horizontal, margin/gutter 0, 100ms per frame. No tags; one-shot playback would be a game design choice.",
+    "confidence": "visual-family-verified"
+  },
+  "A185": {
+    "description": "Red gift/present opening animation, two PNG aliases.",
+    "layout": "Aseprite/PNG verified pair: 10 frames, 16x16, horizontal, margin/gutter 0, 100ms per frame. No tags; one-shot playback would be a game design choice.",
+    "confidence": "visual-family-verified"
+  },
+  "A190": {
+    "description": "Red gift/present opening animation, two PNG aliases.",
+    "layout": "Aseprite/PNG verified pair: 10 frames, 16x16, horizontal, margin/gutter 0, 100ms per frame. No tags; one-shot playback would be a game design choice.",
+    "confidence": "visual-family-verified"
+  },
+  "A186": {
+    "description": "Gift-opening strips with alternate wrapping/ribbon colors/patterns.",
+    "layout": "Ten 16x16 cells across. Visually aligned with red gift, but timing not automatically inherited from the separately verified Aseprite pair.",
+    "confidence": "visual-family-verified"
+  },
+  "A187": {
+    "description": "Gift-opening strips with alternate wrapping/ribbon colors/patterns.",
+    "layout": "Ten 16x16 cells across. Visually aligned with red gift, but timing not automatically inherited from the separately verified Aseprite pair.",
+    "confidence": "visual-family-verified"
+  },
+  "A188": {
+    "description": "Gift-opening strips with alternate wrapping/ribbon colors/patterns.",
+    "layout": "Ten 16x16 cells across. Visually aligned with red gift, but timing not automatically inherited from the separately verified Aseprite pair.",
+    "confidence": "visual-family-verified"
+  },
+  "A189": {
+    "description": "Gift-opening strips with alternate wrapping/ribbon colors/patterns.",
+    "layout": "Ten 16x16 cells across. Visually aligned with red gift, but timing not automatically inherited from the separately verified Aseprite pair.",
+    "confidence": "visual-family-verified"
+  },
+  "A191": {
+    "description": "Tiny snowflake/particle shapes.",
+    "layout": "16x48 sparse mixed symbols; not a verified animation strip.",
+    "confidence": "visual-family-verified"
+  },
+  "A192": {
+    "description": "Snow terrain with edges, interior variations and small details.",
+    "layout": "11x25 canvas of 16-pixel base units; two visual alternatives; no animation metadata.",
+    "confidence": "visual-family-verified"
+  },
+  "A193": {
+    "description": "Snow terrain with edges, interior variations and small details.",
+    "layout": "11x25 canvas of 16-pixel base units; two visual alternatives; no animation metadata.",
+    "confidence": "visual-family-verified"
+  },
+  "A194": {
+    "description": "Candy canes, gingerbread-like food and warm drink item icons.",
+    "layout": "16x16 observed pitch, 2x4.",
+    "confidence": "visual-family-verified"
+  },
+  "A195": {
+    "description": "Snow-covered trees, snow figures, candy canes, gifts and seasonal decorations.",
+    "layout": "Mixed 16-pixel aligned multi-tile decorations and item-size variants.",
+    "confidence": "visual-family-verified"
+  },
+  "A196": {
+    "description": "Separate building ground-shadow masks.",
+    "layout": "96x32 or 64x16 image. Alignment relative to building base not documented; near resemblance is not duplication.",
+    "confidence": "visual-family-verified"
+  },
+  "A206": {
+    "description": "Separate building ground-shadow masks.",
+    "layout": "96x32 or 64x16 image. Alignment relative to building base not documented; near resemblance is not duplication.",
+    "confidence": "visual-family-verified"
+  },
+  "A210": {
+    "description": "Separate building ground-shadow masks.",
+    "layout": "96x32 or 64x16 image. Alignment relative to building base not documented; near resemblance is not duplication.",
+    "confidence": "visual-family-verified"
+  },
+  "A197": {
+    "description": "Three grey-brick building variants, with combinations of doors and grass details.",
+    "layout": "Three 96x80 composition cells horizontally, margin/gutter 0; door/grass variants are alternatives, not an animation sequence.",
+    "confidence": "visual-family-verified"
+  },
+  "A198": {
+    "description": "Three grey-brick building variants, with combinations of doors and grass details.",
+    "layout": "Three 96x80 composition cells horizontally, margin/gutter 0; door/grass variants are alternatives, not an animation sequence.",
+    "confidence": "visual-family-verified"
+  },
+  "A199": {
+    "description": "Three grey-brick building variants, with combinations of doors and grass details.",
+    "layout": "Three 96x80 composition cells horizontally, margin/gutter 0; door/grass variants are alternatives, not an animation sequence.",
+    "confidence": "visual-family-verified"
+  },
+  "A200": {
+    "description": "Three grey-brick building variants, with combinations of doors and grass details.",
+    "layout": "Three 96x80 composition cells horizontally, margin/gutter 0; door/grass variants are alternatives, not an animation sequence.",
+    "confidence": "visual-family-verified"
+  },
+  "A201": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A202": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A203": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A204": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A205": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A207": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A208": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A209": {
+    "description": "Nine small-house roof colors; light/dark wall versions, doors and grass variants.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives, not nine animation frames.",
+    "confidence": "visual-family-verified"
+  },
+  "A211": {
+    "description": "Nine small-hut roof colors, plus door/grass combinations.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives.",
+    "confidence": "visual-family-verified"
+  },
+  "A212": {
+    "description": "Nine small-hut roof colors, plus door/grass combinations.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives.",
+    "confidence": "visual-family-verified"
+  },
+  "A213": {
+    "description": "Nine small-hut roof colors, plus door/grass combinations.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives.",
+    "confidence": "visual-family-verified"
+  },
+  "A214": {
+    "description": "Nine small-hut roof colors, plus door/grass combinations.",
+    "layout": "3x3 composition cells of 64x64, margin/gutter 0; static alternatives.",
+    "confidence": "visual-family-verified"
+  },
+  "A215": {
+    "description": "Wooden door turn/open poses for village buildings.",
+    "layout": "Eight 48x48 observed cells in one row; generous internal padding. Timing/grouping unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A217": {
+    "description": "Experimental human-like character poses in eight facings/variants.",
+    "layout": "16x32 observed pitch, 8x3; row sequence/action semantics unverified.",
+    "confidence": "visual-family-verified"
+  },
+  "A218": {
+    "description": "Enlarged experimental character demonstration GIF with background and author labeling.",
+    "layout": "Eight 100ms GIF frames; loop metadata 0; display composition is not a runtime character atlas.",
+    "confidence": "visual-family-verified"
+  },
+  "A220": {
+    "description": "Enlarged experimental character demonstration GIF with background and author labeling.",
+    "layout": "Eight 100ms GIF frames; loop metadata 0; display composition is not a runtime character atlas.",
+    "confidence": "visual-family-verified"
+  },
+  "A219": {
+    "description": "Experimental Teemo/cat in eight facings across three pose rows.",
+    "layout": "16x16 observed cells, 8x3; mapping between rows and GIF timing not verified.",
+    "confidence": "visual-family-verified"
+  }
+}

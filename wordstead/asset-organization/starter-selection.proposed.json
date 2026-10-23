@@ -1,0 +1,164 @@
+{
+  "status": "approved-for-private-preparation",
+  "purpose": "selection-review-only",
+  "intendedUse": "noncommercial",
+  "entitlementEvidence": "User confirmed bundled notices only; no Premium entitlement claimed",
+  "privateExportCreated": true,
+  "artworkCopiedIntoRepository": false,
+  "repositoryTargetPathsCreated": false,
+  "spriteRectanglesUnchanged": true,
+  "publicReleaseApproved": false,
+  "fileCount": 8,
+  "totalSourceBytes": 14447,
+  "logicalFeatureFootprints": null,
+  "animation": "static-only",
+  "audio": "deferred",
+  "font": "system-fallback",
+  "files": [
+    {
+      "auditId": "A033",
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Tilesets/Grass.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-sprites-basic/terrain/Grass.png",
+      "sha256": "97eedc32f4c33005ab2abb26a034ce1b32428da321e3052082c87d320c0e1cbe",
+      "bytes": 3765,
+      "pixelSize": [
+        176,
+        112
+      ],
+      "reason": "Farm board grass",
+      "verifiedSpriteIds": [
+        "terrain.grass.center"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "noncommercial-project-terms-recorded-not-a-release-approval"
+    },
+    {
+      "auditId": "A036",
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Tilesets/Tilled_Dirt.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-sprites-basic/terrain/Tilled_Dirt.png",
+      "sha256": "79cf68c26bd9d2b3c247dbbe3e14ab612885cfc94c7d417c2faed287b4447e43",
+      "bytes": 2972,
+      "pixelSize": [
+        176,
+        112
+      ],
+      "reason": "One soil family: original narrow Tilled_Dirt.png",
+      "verifiedSpriteIds": ["terrain.soil.center"],
+      "unresolvedMapping": "Base fill verified at (0,80,16,16); autotile edge and adjacency maps remain unverified",
+      "publicDeliveryStatus": "noncommercial-project-terms-recorded-not-a-release-approval"
+    },
+    {
+      "auditId": "A013",
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Plants.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-sprites-basic/crops/Basic_Plants.png",
+      "sha256": "8d4d01cddfe409afc92800c8c6ce7bf8b10b3ed82e3ebe76f841931f773806fc",
+      "bytes": 2244,
+      "pixelSize": [
+        96,
+        32
+      ],
+      "reason": "Two Basic Plants crop stages using canonical duplicate",
+      "verifiedSpriteIds": [
+        "crop.grain.stage-yellow",
+        "crop.purple-root.stage-large"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "noncommercial-project-terms-recorded-not-a-release-approval"
+    },
+    {
+      "auditId": "A004",
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Characters/Free Chicken Sprites.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-sprites-basic/animals/Free Chicken Sprites.png",
+      "sha256": "adeae792329df996e903cffc29264eded594725e11c0ffe779e31897d2844aa5",
+      "bytes": 689,
+      "pixelSize": [
+        64,
+        32
+      ],
+      "reason": "Static chicken pose",
+      "verifiedSpriteIds": [
+        "animal.chicken.pose-0"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "noncommercial-project-terms-recorded-not-a-release-approval"
+    },
+    {
+      "auditId": "A005",
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Characters/Free Cow Sprites.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-sprites-basic/animals/Free Cow Sprites.png",
+      "sha256": "6c6b12f26e52afaa3c1e6a0b3172c782ca1c3cc9958c6be365156d00525a604d",
+      "bytes": 1163,
+      "pixelSize": [
+        96,
+        64
+      ],
+      "reason": "Static cow pose",
+      "verifiedSpriteIds": [
+        "animal.cow.pose-0"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "noncommercial-project-terms-recorded-not-a-release-approval"
+    },
+    {
+      "auditId": "A018",
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Free_Chicken_House.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-sprites-basic/buildings/Free_Chicken_House.png",
+      "sha256": "4f3b63af9e228d88916c452dc5401d77f321b98c523f274a3e388654d87d82d3",
+      "bytes": 1113,
+      "pixelSize": [
+        48,
+        48
+      ],
+      "reason": "Static coop; logical occupancy left undecided",
+      "verifiedSpriteIds": [
+        "building.chicken-coop"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "noncommercial-project-terms-recorded-not-a-release-approval"
+    },
+    {
+      "auditId": "A044",
+      "packId": "sprout-ui-basic",
+      "originalPath": "assets/Sprout Lands - UI Pack - Basic pack/emojis-free/emoji style ui/Inventory_Blocks_Spritesheet.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-ui-basic/ui/Inventory_Blocks_Spritesheet.png",
+      "sha256": "adce975022f3b4ae97c1828ad13528d90c730138c561900bdf5b7a41e05867ea",
+      "bytes": 1530,
+      "pixelSize": [
+        144,
+        144
+      ],
+      "reason": "Modular rack slots; public delivery permission unresolved",
+      "verifiedSpriteIds": [
+        "ui.rack.slot.rounded.light",
+        "ui.rack.slot.square.light"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "hold-for-UI-permission-review"
+    },
+    {
+      "auditId": "A089",
+      "packId": "sprout-ui-basic",
+      "originalPath": "assets/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png",
+      "proposedExportPath": "assets/vendor/cup-nooble/sprout-ui-basic/ui/UI Big Play Button.png",
+      "sha256": "0476a6007a829e30fd637201266e8f2b9827a86812ea7d0fd09903349c85fff0",
+      "bytes": 971,
+      "pixelSize": [
+        192,
+        64
+      ],
+      "reason": "Blank buttons with live text; public delivery permission unresolved",
+      "verifiedSpriteIds": [
+        "ui.button.blank.light",
+        "ui.button.blank.partner"
+      ],
+      "unresolvedMapping": null,
+      "publicDeliveryStatus": "hold-for-UI-permission-review"
+    }
+  ]
+}

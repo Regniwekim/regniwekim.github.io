@@ -1,0 +1,104 @@
+{
+  "status": "approved-for-private-selection",
+  "originalsPreserved": true,
+  "groups": [
+    {
+      "canonicalId": "A011",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Furniture.png",
+      "sha256": "e41db496598994f1f55019d626256deb3a2419daed5ddc8fbf60f556b02d2e7a",
+      "bytesPerCopy": 3397,
+      "aliases": [
+        {
+          "id": "A007",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Furniture.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A012",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Grass_Biom_things.png",
+      "sha256": "22938e24b511139f5552795429250fbdbbaeb6f5e849cab91bc83ac0a1f12586",
+      "bytesPerCopy": 6129,
+      "aliases": [
+        {
+          "id": "A008",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Grass Biom things 1.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A013",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_Plants.png",
+      "sha256": "8d4d01cddfe409afc92800c8c6ce7bf8b10b3ed82e3ebe76f841931f773806fc",
+      "bytesPerCopy": 2244,
+      "aliases": [
+        {
+          "id": "A009",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Plants.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A014",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic_tools_and_meterials.png",
+      "sha256": "efb8ba38abb0e999fc54cbfc3d202dd2c0385c98b9bdaec41487317f789bbbd8",
+      "bytesPerCopy": 1474,
+      "aliases": [
+        {
+          "id": "A010",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic tools and meterials.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A017",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Egg_item.png",
+      "sha256": "e71f6f910fbe67db96ab5f192b2131650b8eede89c9f0847c720490e5a968346",
+      "bytesPerCopy": 270,
+      "aliases": [
+        {
+          "id": "A016",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Egg item.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A021",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Simple_Milk_and_grass_item.png",
+      "sha256": "0d84a6f984a199a4d5a4abd30d34450551ced0472224ec4be13310f38dc424b3",
+      "bytesPerCopy": 628,
+      "aliases": [
+        {
+          "id": "A020",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Simple Milk and grass item.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A023",
+      "canonicalOriginalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Wood_Bridge.png",
+      "sha256": "155a91eddb204f8e930158d1428528eb06cc17be9138fcc33b70fa5b83346d12",
+      "bytesPerCopy": 706,
+      "aliases": [
+        {
+          "id": "A022",
+          "originalPath": "assets/Sprout Lands - Sprites - Basic pack/Objects/Wood Bridge.png"
+        }
+      ]
+    },
+    {
+      "canonicalId": "A190",
+      "canonicalOriginalPath": "assets/Sprout Sorry pack/Early Access/Sprout winter/present red.png",
+      "sha256": "b1b497b7d4d5afebe3c7395384f8bfb6f60c18bbf7d7dfce0a5439d9d392083d",
+      "bytesPerCopy": 1354,
+      "aliases": [
+        {
+          "id": "A185",
+          "originalPath": "assets/Sprout Sorry pack/Early Access/Sprout winter/present animation aseprite file.png"
+        }
+      ]
+    }
+  ],
+  "redundantCopies": 8,
+  "potentialExportBytesAvoided": 16202
+}

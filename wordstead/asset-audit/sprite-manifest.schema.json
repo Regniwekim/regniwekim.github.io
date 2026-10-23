@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Wordstead sprite manifest proposal v1",
+  "description": "Source pixel geometry and provenance are independent from logical board cells. Cross references, source bounds, hashes and artTileSpan arithmetic require the companion validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "purpose", "coordinateSystem", "sourcePathBase", "packs", "sources", "sprites", "animations"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schemaVersion": {"const": "1.0"},
+    "purpose": {"enum": ["audit-proposal-not-runtime-approved", "private-local-preview", "runtime-approved"]},
+    "coordinateSystem": {"const": "source-pixels-top-left"},
+    "sourcePathBase": {"const": "wordstead-entry-url"},
+    "packs": {"type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/pack"}},
+    "sources": {"type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/source"}},
+    "sprites": {"type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/sprite"}},
+    "animations": {"type": "object", "propertyNames": {"$ref": "#/$defs/id"}, "additionalProperties": {"$ref": "#/$defs/animation"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "pack": {
+      "type": "object", "additionalProperties": false,
+      "required": ["author", "sourceUrl", "noticePath", "licenseReview"],
+      "properties": {
+        "author": {"type": "string", "minLength": 1},
+        "sourceUrl": {"type": "string", "format": "uri"},
+        "noticePath": {"type": "string", "minLength": 1},
+        "licenseReview": {"enum": ["required-before-integration", "approved-for-selected-use"]}
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "packId", "pixelSize", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "packId": {"$ref": "#/$defs/id"},
+        "pixelSize": {"type": "array", "items": {"type": "integer", "minimum": 1}, "minItems": 2, "maxItems": 2},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "rect": {
+      "type": "object", "additionalProperties": false, "required": ["x", "y", "w", "h"],
+      "properties": {
+        "x": {"type": "integer", "minimum": 0}, "y": {"type": "integer", "minimum": 0},
+        "w": {"type": "integer", "minimum": 1}, "h": {"type": "integer", "minimum": 1}
+      }
+    },
+    "sprite": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "rect", "status", "evidence", "logicalFootprint"],
+      "properties": {
+        "source": {"$ref": "#/$defs/id"},
+        "rect": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/rect"}]},
+        "status": {"enum": ["verified", "manual-review"]},
+        "evidence": {"type": "string", "minLength": 1},
+        "logicalFootprint": {"anyOf": [{"type": "null"}, {
+          "type": "object", "additionalProperties": false, "required": ["columns", "rows", "status"],
+          "description": "Game design metadata, never inferred from pixel size. Null means undecided.",
+          "properties": {"columns": {"type": "integer", "minimum": 1}, "rows": {"type": "integer", "minimum": 1}, "status": {"enum": ["proposed", "approved"]}}
+        }]},
+        "artTileSpan": {
+          "type": "object", "additionalProperties": false, "required": ["tileWidth", "tileHeight", "columns", "rows"],
+          "description": "Optional source-art measurement; does not define board occupancy.",
+          "properties": {"tileWidth": {"type": "integer", "minimum": 1}, "tileHeight": {"type": "integer", "minimum": 1}, "columns": {"type": "integer", "minimum": 1}, "rows": {"type": "integer", "minimum": 1}}
+        },
+        "pivot": {
+          "type": "object", "additionalProperties": false, "required": ["x", "y", "status"],
+          "description": "Optional normalized render anchor inside the untrimmed rectangle; proposed until visually approved.",
+          "properties": {"x": {"type": "number", "minimum": 0, "maximum": 1}, "y": {"type": "number", "minimum": 0, "maximum": 1}, "status": {"enum": ["proposed", "approved"]}}
+        }
+      },
+      "allOf": [{"if": {"properties": {"status": {"const": "verified"}}}, "then": {"properties": {"rect": {"$ref": "#/$defs/rect"}}}}]
+    },
+    "animation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "timingStatus", "loop", "frames", "evidence", "reducedMotionFrame"],
+      "properties": {
+        "status": {"enum": ["verified", "manual-review"]},
+        "timingStatus": {"enum": ["verified", "unverified"]},
+        "loop": {"type": ["boolean", "null"], "description": "Null is unknown, never silently equivalent to true or false."},
+        "frames": {"type": "array", "minItems": 1, "items": {
+          "type": "object", "additionalProperties": false, "required": ["sprite", "durationMs"],
+          "properties": {"sprite": {"$ref": "#/$defs/id"}, "durationMs": {"anyOf": [{"type": "null"}, {"type": "integer", "minimum": 1}]}}
+        }},
+        "evidence": {"type": "string", "minLength": 1},
+        "reducedMotionFrame": {"$ref": "#/$defs/id", "description": "Proposed static fallback policy, not author animation metadata."}
+      },
+      "allOf": [
+        {"if": {"properties": {"timingStatus": {"const": "verified"}}}, "then": {"properties": {"frames": {"items": {"properties": {"durationMs": {"type": "integer", "minimum": 1}}}}}}},
+        {"if": {"properties": {"status": {"const": "verified"}}}, "then": {"properties": {"timingStatus": {"const": "verified"}}}}
+      ]
+    }
+  }
+}

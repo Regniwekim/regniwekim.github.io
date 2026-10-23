@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "privateOriginalHashesVerified": 220,
+  "preservedNoticesVerified": 3,
+  "exactAliasGroupsVerified": 8,
+  "privateExportSheetsVerified": 8,
+  "privateStaticRectanglesVerified": 11,
+  "removedOriginalSourcePathsVerified": 220,
+  "otherGameChanges": false,
+  "existingDestinationOverwriteGuards": "passed",
+  "publicReleaseApproved": false,
+  "schemaValidation": "JSON and data invariants checked; no full standards-engine validation"
+}

@@ -1,0 +1,38 @@
+{
+  "phase": "private-organization-complete-public-release-pending",
+  "recordType": "private-organization-phase-snapshot",
+  "sourceBaselineCommit": "0c05705da9712bad45eac68a9f863e358cd744c4",
+  "ownerApprovals": {
+    "privateStore": "E:/Wordstead-private-assets/cup-nooble",
+    "intendedUse": "noncommercial",
+    "licenseEvidence": "bundled-notices-only",
+    "privateStarterSelection": true,
+    "eightCanonicalAliases": true,
+    "localRemovalOfVerifiedOriginals": true
+  },
+  "privateMasterFiles": 220,
+  "privateMasterBytes": 19837064,
+  "originalPackFoldersRemovedFromWorkingTree": 3,
+  "trackedWorkingTreeDeletions": 220,
+  "retainedLicenseNotices": 3,
+  "privateStarterExport": {
+    "path": "E:/Wordstead-private-assets/cup-nooble/exports/wordstead-starter",
+    "pngSheets": 8,
+    "artworkBytes": 14447,
+    "verifiedStaticSpriteRectangles": 11,
+    "publicReleaseApproved": false
+  },
+  "atCompletionOfPrivateOrganization": {
+    "committed": false,
+    "pushed": false,
+    "historyChanged": false,
+    "hostingChanged": false
+  },
+  "subsequentAuthorization": "Owner requested a detailed commit and pull request for the scoped audit and organization changes; branch push is authorized. Merge, history rewriting and public game-art release remain unapproved.",
+  "remainingDecisions": [
+    "Public UI browser/source delivery permission or an alternative UI",
+    "Logical feature footprints, overhang and render pivots before game integration",
+    "Separate concrete authorization for repository history/remote remediation",
+    "Separate authorization for merge or public game-art release"
+  ]
+}
