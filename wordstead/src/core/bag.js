@@ -1,4 +1,5 @@
 export const RACK_CAPACITY = 7;
+export const MAX_RACK_CAPACITY = 9;
 export const LETTER_DISTRIBUTION = Object.freeze({
   A: 9, B: 2, C: 2, D: 4, E: 12, F: 2, G: 3, H: 2, I: 9,
   J: 1, K: 1, L: 4, M: 2, N: 6, O: 8, P: 2, Q: 1, R: 6,
@@ -67,10 +68,11 @@ export function createBag(seed, bagOrder) {
 }
 
 /** Draw from the front; draws consume no RNG. Neither input array is changed. */
-export function replenishRack(rack, bag) {
-  if (!Array.isArray(rack) || rack.length > RACK_CAPACITY) {
-    throw new RangeError('Rack capacity is seven tiles.');
+export function replenishRack(rack, bag, capacity = RACK_CAPACITY) {
+  if (!Number.isSafeInteger(capacity) || capacity < RACK_CAPACITY || capacity > MAX_RACK_CAPACITY
+    || !Array.isArray(rack) || rack.length > capacity) {
+    throw new RangeError('Rack capacity must be seven to nine, without overflow.');
   }
-  const count = Math.min(RACK_CAPACITY - rack.length, bag.length);
+  const count = Math.min(capacity - rack.length, bag.length);
   return { rack: [...rack, ...bag.slice(0, count)], bag: bag.slice(count) };
 }

@@ -4,12 +4,17 @@ import { evaluateTerritory, claimTerritory, getTerritoryScore } from '../core/te
 import { evaluatePlacement, getStartingSquare } from '../core/placement.js';
 import { createPuzzle, commitWord } from '../core/puzzle.js';
 import { createSession, evaluateExchange,
-  exchangeTiles, endSession, getStrokes } from '../core/session.js';
+  exchangeTiles, endSession, getStrokes, getRackCapacity, getExchangeCredits, getChargedExchanges } from '../core/session.js';
+import { getPuzzleScore, isFeatureCell, FEATURE_TYPES, summarizeFeatures } from '../core/features.js';
+import { MAX_RACK_CAPACITY } from '../core/bag.js';
+import { DEFAULT_FARM_SEED, DEFAULT_FARM_DENSITY } from '../core/farm-layout.js';
+import { createFarmSession } from '../core/farm-fixture.js';
 import { createDraft, evaluateDraft, commitSessionDraft, undoDraft } from '../core/draft.js';
 import { createEnclosureSession } from '../core/session-fixture.js';
 import { demoDictionary, DEMO_WORDS } from '../core/demo-vocabulary.js';
 import { drawBoard, pointerToCell, revealSelection } from '../rendering/board.js';
 import { initializeTileInput } from './tile-input.js';
+import { renderRackSlots } from './rack.js';
 
 /** Three isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox() {
@@ -25,7 +30,7 @@ export function initializeSandbox() {
     return { state, selected: getStartingSquare(board), recentClaims: [], latestAward: 0,
       word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [], draft: createDraft() };
   }
-  const sessions = { rack: session(null, createSession()), words: session(), freeform: session() };
+  const sessions = { rack: session(null, createSession({ farmSeed: DEFAULT_FARM_SEED })), words: session(), freeform: session() };
   let mode = 'rack';
   let preview = null;
   let boardView = null;
@@ -36,7 +41,7 @@ export function initializeSandbox() {
     word: wordInput.value, ...active().selected, orientation: find('orientation').value,
   });
 
-  const rackButtons = Array.from({ length: 7 }, (_, slot) => {
+  const rackButtons = Array.from({ length: MAX_RACK_CAPACITY }, (_, slot) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'rack-tile';
@@ -64,44 +69,39 @@ export function initializeSandbox() {
 
   function renderRack() {
     const { state, exchanging, exchangeIds } = active();
-    const score = getTerritoryScore(state.puzzle.territory);
-    find('goal-label').textContent = `Territory goal: ${score} / ${state.target} points`;
+    const score = getPuzzleScore(state.puzzle).totalPoints;
+    const capacity = getRackCapacity(state);
+    const credits = getExchangeCredits(state);
+    find('goal-label').textContent = `Puzzle score: ${score} / ${state.target} points`;
     find('goal-progress').max = state.target;
     find('goal-progress').value = score;
-    find('rack-count').textContent = `${state.rack.length} / 7`;
+    find('rack-count').textContent = `${state.rack.length} / ${capacity}`;
+    find('free-credits').textContent = credits;
+    find('charged-exchanges').textContent = getChargedExchanges(state);
     find('bag-count').textContent = state.bag.length;
     find('exchange-count').textContent = state.exchangeCount;
     find('strokes').textContent = getStrokes(state);
     find('run-info').textContent = state.source === 'scripted'
-      ? 'Scripted QA fixture · full standard bag in a controlled order · restart repeats this fixture.'
-      : `Letter seed: ${state.seed} · seed controls letter order only.`;
+      ? `Scripted ${state.farmFixture ? FEATURE_TYPES[state.farmFixture].label + ' farm' : 'rack'} QA fixture · full standard bag in a controlled order · restart repeats this fixture.`
+      : `Letter seed: ${state.seed} · Farm seed: ${state.farm?.seed ?? 'none'} · density: ${state.farm?.density ?? 0}. Seeds are independent.`;
     const metrics = `${state.puzzle.wordCount} accepted words, ${state.exchangeCount} exchanges, ${getStrokes(state)} strokes.`;
-    find('run-status').textContent = state.status === 'won' ? `Victory! ${score} territory points. ${metrics} Restart or create a new puzzle.`
+    find('run-status').textContent = state.status === 'won' ? `Victory! ${score} total points. ${metrics} Restart or create a new puzzle.`
       : state.status === 'ended' ? `Run ended by player. ${metrics} Restart or create a new puzzle.`
         : state.status === 'exhausted' ? `Resources exhausted: rack and bag empty. ${metrics} Restart or create a new puzzle.`
-          : 'Run in progress. Exchanges cost one provisional stroke each.';
+          : `Run in progress. ${credits} free exchange credits; otherwise an exchange costs one provisional stroke.`;
     const used = new Set(active().draft.tiles.map((tile) => tile.tileId));
-    rackButtons.forEach((button, slot) => {
-      const tile = state.rack[slot];
-      const selected = tile && (exchanging ? exchangeIds.includes(tile.id) : tileInput.selected?.tileId === tile.id);
-      const draftTile = active().draft.tiles.find((item) => item.tileId === tile?.id);
-      button.textContent = tile ? tile.letter ?? (draftTile ? `◇${draftTile.letter}` : '◇') : '–';
-      button.disabled = !tile || state.status !== 'playing';
-      button.setAttribute('aria-pressed', String(Boolean(selected)));
-      button.setAttribute('aria-label', `Slot ${slot + 1}: ${tile ? `${tileLabel(tile)}, physical tile ${tile.id}` : 'empty'}${selected ? exchanging ? ', selected for exchange' : ', selected for placement' : ''}${draftTile ? `, provisionally at row ${draftTile.row + 1}, column ${draftTile.column + 1}${draftTile.assignedLetter ? `, assigned ${draftTile.letter}` : ''}` : ''}`);
-      button.dataset.used = String(used.has(tile?.id));
-      button.dataset.empty = String(!tile);
-      button.dataset.tileId = tile?.id ?? '';
-    });
+    renderRackSlots(find('rack'), rackButtons, { state, draft: active().draft,
+      selectedTileId: tileInput.selected?.tileId, exchanging, exchangeIds });
     find('start-exchange').hidden = exchanging;
     find('start-exchange').disabled = state.status !== 'playing' || !state.rack.length || !state.bag.length || used.size > 0;
     find('confirm-exchange').hidden = !exchanging;
     find('cancel-exchange').hidden = !exchanging;
+    find('cancel-exchange').disabled = state.status !== 'playing';
     const check = evaluateExchange(state, exchangeIds);
     find('confirm-exchange').disabled = !check.legal;
     find('end-run').disabled = state.status !== 'playing';
     find('exchange-feedback').textContent = exchanging
-      ? `${exchangeIds.length} selected · ${state.bag.length} in bag. ${check.legal ? 'Confirm to draw replacements; costs one stroke.' : check.reason.message}`
+      ? `${exchangeIds.length} selected · ${state.bag.length} in bag. ${check.legal ? credits > 0 ? 'Confirm to use one free exchange credit; no stroke charged.' : 'Confirm to draw replacements; costs one stroke.' : check.reason.message}`
       : used.size ? 'Return or clear all draft tiles before exchanging.'
         : state.status === 'playing' && !state.bag.length ? 'Bag empty. You may still play useful rack tiles or end this run. No complete legal-move solver is implemented.' : '';
     find('undo-draft').disabled = !used.size || state.status !== 'playing' || exchanging;
@@ -119,6 +119,10 @@ export function initializeSandbox() {
       selectedTileId: mode === 'rack' ? tileInput.selected?.tileId : null, drop: mode === 'rack' ? tileInput.drop : null };
     drawBoard(canvas, boardView);
     find('territory-score').textContent = getTerritoryScore(territory);
+    const score = getPuzzleScore(puzzle());
+    find('farm-score').textContent = score.bonusPoints;
+    find('farm-score').title = `${score.cropPoints} crop points + ${score.fertilityPoints} fertility points`;
+    find('farm-metric').hidden = mode !== 'rack';
     find('word-count').textContent = wordCount;
     find('latest-award').textContent = `+${latestAward}`;
     find('enclosed-count').textContent = evaluation.enclosed.length;
@@ -135,6 +139,7 @@ export function initializeSandbox() {
     const cell = board.cells[index];
     const drafted = mode === 'rack' && active().draft.tiles.find((tile) => tile.row === selected.row && tile.column === selected.column);
     const status = drafted ? `draft letter ${drafted.letter}, physical tile ${drafted.tileId}${drafted.assignedLetter ? ', assigned blank' : ''}`
+      : isFeatureCell(cell) ? `${FEATURE_TYPES[cell.type].label}, ${territory.claimed[index] ? 'captured; capture bonus already activated' : 'uncaptured; bonus not yet activated'}. ${FEATURE_TYPES[cell.type].effect} Reserved for this feature; letters cannot be placed here`
       : isLetterCell(cell) ? `committed letter ${cell.letter}${cell.blank ? ', assigned blank' : ''}${territory.claimed[index] ? ', previously claimed underneath' : ''}`
       : territory.claimed[index] ? `${recentClaims.includes(index) ? 'newly' : 'previously'} claimed land${evaluation.exterior.includes(index) ? ', now exterior' : ''}`
         : evaluation.enclosed.includes(index) ? 'enclosed, unclaimed land' : 'exterior land';
@@ -144,7 +149,7 @@ export function initializeSandbox() {
     find('commit-word').disabled = mode === 'freeform' || exchanging || !preview?.legal;
     find('placement-feedback').textContent = preview
       ? preview.legal
-        ? `Valid preview: ${preview.newPositions.length} new, ${preview.reusedPositions.length} reused letters. Would claim ${previewTerritory.points} cells (+${previewTerritory.points}). Commit word to accept.`
+        ? `Valid preview: ${preview.newPositions.length} new, ${preview.reusedPositions.length} reused letters. Would claim ${previewTerritory.points} cells (+${previewTerritory.points + summarizeFeatures(board, previewTerritory.newlyClaimed).bonusPoints} total points). Benefits activate only on commitment.`
         : `${mode === 'rack' ? 'Draft not ready' : 'Invalid preview'} [${preview.reason.code}]: ${preview.reason.message}`
       : mode === 'rack' ? active().state.status !== 'playing' ? 'Run finished. Restart or create a new puzzle.'
         : 'Select a rack tile and place it on the board. Draft edits spend nothing.'
@@ -196,8 +201,11 @@ export function initializeSandbox() {
     tileInput.reset();
     if (mode === 'rack' && !rackState) {
       const current = active().state;
-      rackState = current.source === 'scripted' ? createEnclosureSession()
-        : createSession({ rows: dimensions.rows, columns: dimensions.columns, seed: current.seed, target: current.target });
+      rackState = current.farmFixture ? createFarmSession(current.farmFixture)
+        : current.source === 'scripted' ? createEnclosureSession()
+          : createSession({ rows: dimensions.rows, columns: dimensions.columns, seed: current.seed, target: current.target,
+            farmSeed: current.farm?.seed ?? null, farmDensity: current.farm?.density,
+            farmWeights: current.farm?.weights });
     }
     sessions[mode] = session({ rows: dimensions.rows, columns: dimensions.columns }, rackState);
     preview = null;
@@ -217,9 +225,15 @@ export function initializeSandbox() {
     find('target').required = mode === 'rack';
     find('seed').disabled = mode !== 'rack';
     find('target').disabled = mode !== 'rack';
+    for (const id of ['farm-seed', 'farm-density']) {
+      find(id).disabled = mode !== 'rack';
+      find(id).required = mode === 'rack';
+    }
     if (mode === 'rack') {
       find('seed').value = active().state.seed;
       find('target').value = active().state.target;
+      find('farm-seed').value = active().state.farm?.seed ?? DEFAULT_FARM_SEED;
+      find('farm-density').value = active().state.farm?.density ?? DEFAULT_FARM_DENSITY;
     }
   }
 
@@ -279,7 +293,10 @@ export function initializeSandbox() {
     preview = null;
     const formed = result.evaluation.words.map((run) => run.text).join(', ');
     wordInput.value = '';
-    render(`Accepted placement ${puzzle().wordCount}: ${formed}. Claimed ${result.newlyClaimed.length} new cells. +${result.points} territory points.`);
+    const rewards = result.farmRewards;
+    const captured = rewards?.features.map(({ type }) => FEATURE_TYPES[type].label).join(', ');
+    const farmMessage = captured ? ` Captured: ${captured}. +${rewards.cropPoints} crop points, +${rewards.fertilityPoints} fertility points; rack capacity +${rewards.rackCapacityGained}; free exchange credits +${rewards.buildings}.` : '';
+    render(`Accepted placement ${puzzle().wordCount}: ${formed}. Claimed ${result.newlyClaimed.length} new cells. +${result.points} total points.${farmMessage}`);
   });
   find('example').addEventListener('click', () => {
     if (mode !== 'words') return;
@@ -293,6 +310,12 @@ export function initializeSandbox() {
     changeMode('rack');
     reset({ rows: 7, columns: 7 }, createEnclosureSession());
     render('Scripted rack QA example ready. Place C, A, R in row 4, columns 4–6, then commit. Follow CAR, CAB, RAT, BAT below.');
+  });
+  find('farm-example').addEventListener('click', () => {
+    const type = find('farm-example-type').value;
+    changeMode('rack');
+    reset({ rows: 7, columns: 7 }, createFarmSession(type));
+    render(`${FEATURE_TYPES[type].label} farm QA ready at (5, 5). Build CAR, CAB, RAT, BAT using rack tiles. ${FEATURE_TYPES[type].effect}`);
   });
   find('start-exchange').addEventListener('click', () => {
     if (mode !== 'rack' || active().state.status !== 'playing' || active().draft.tiles.length) return;
@@ -317,7 +340,7 @@ export function initializeSandbox() {
     active().exchanging = false;
     active().exchangeIds = [];
     preview = null;
-    render(`Exchange complete. Returned ${result.returned.map(tileLabel).join(', ')}; drew ${result.replacements.map(tileLabel).join(', ')}. Exchanges ${result.state.exchangeCount}; strokes ${getStrokes(result.state)}.`);
+    render(`Exchange complete. Returned ${result.returned.map(tileLabel).join(', ')}; drew ${result.replacements.map(tileLabel).join(', ')}. ${result.freeExchange ? 'Used one free exchange credit; no stroke charged.' : 'Charged one stroke.'} Exchanges ${result.state.exchangeCount}; strokes ${getStrokes(result.state)}.`);
   });
   find('end-run').addEventListener('click', () => {
     if (mode !== 'rack') return;
@@ -387,7 +410,8 @@ export function initializeSandbox() {
     event.preventDefault();
     const dimensions = { rows: Number(find('rows').value), columns: Number(find('columns').value) };
     try {
-      const rackState = mode === 'rack' ? createSession({ ...dimensions, seed: find('seed').value, target: Number(find('target').value) }) : null;
+      const rackState = mode === 'rack' ? createSession({ ...dimensions, seed: find('seed').value, target: Number(find('target').value),
+        farmSeed: find('farm-seed').value, farmDensity: Number(find('farm-density').value) }) : null;
       reset(dimensions, rackState);
     } catch (error) { render(error.message); }
   });

@@ -1,31 +1,41 @@
-import { createBag, replenishRack, shuffleTiles } from './bag.js';
+import { createBag, replenishRack, shuffleTiles, RACK_CAPACITY, MAX_RACK_CAPACITY } from './bag.js';
 import { createPuzzle, commitWord } from './puzzle.js';
 import { evaluatePlacement } from './placement.js';
-import { getTerritoryScore } from './territory.js';
+import { getPuzzleScore, getCapturedFeatures, summarizeFeatures } from './features.js';
+import { generateFarm, DEFAULT_FARM_DENSITY, DEFAULT_FARM_WEIGHTS } from './farm-layout.js';
 
 // Temporary, unbalanced target for the small demonstration vocabulary.
 export const DEFAULT_TARGET = 1;
 export const DEFAULT_SEED = 'wordstead-2c';
 
 export function createSession({ rows = 15, columns = 15, seed = DEFAULT_SEED,
-  target = DEFAULT_TARGET, bagOrder } = {}) {
+  target = DEFAULT_TARGET, bagOrder, farmSeed = null,
+  farmDensity = DEFAULT_FARM_DENSITY, farmWeights = DEFAULT_FARM_WEIGHTS } = {}) {
   if (!Number.isSafeInteger(target) || target <= 0) {
     throw new RangeError('Territory target must be a positive safe integer.');
   }
   const { bag, rngState } = createBag(seed, bagOrder);
+  const puzzle = createPuzzle({ rows, columns });
+  // Opt-in keeps existing no-feature API callers and scripted fixtures unchanged.
+  const farm = farmSeed === null ? null : { seed: farmSeed, density: farmDensity, weights: { ...farmWeights } };
+  if (farm) puzzle.board = generateFarm(puzzle.board, farm);
   return {
-    puzzle: createPuzzle({ rows, columns }), ...replenishRack([], bag),
-    seed, rngState, target, exchangeCount: 0, status: 'playing',
+    puzzle, ...replenishRack([], bag), farm,
+    seed, rngState, target, exchangeCount: 0, freeExchangesUsed: 0, status: 'playing',
     source: bagOrder === undefined ? 'seeded' : 'scripted',
   };
 }
 
 export function getStrokes(state) {
-  return state.puzzle.wordCount + state.exchangeCount;
+  return state.puzzle.wordCount + getChargedExchanges(state);
 }
 
+export const getChargedExchanges = (state) => state.exchangeCount - (state.freeExchangesUsed ?? 0);
+export const getRackCapacity = (state) => Math.min(MAX_RACK_CAPACITY, RACK_CAPACITY + getCapturedFeatures(state.puzzle).livestock);
+export const getExchangeCredits = (state) => getCapturedFeatures(state.puzzle).buildings - (state.freeExchangesUsed ?? 0);
+
 function statusAfterAction(state) {
-  if (getTerritoryScore(state.puzzle.territory) >= state.target) return 'won';
+  if (getPuzzleScore(state.puzzle).totalPoints >= state.target) return 'won';
   return state.rack.length === 0 && state.bag.length === 0 ? 'exhausted' : 'playing';
 }
 
@@ -102,11 +112,16 @@ export function commitSessionWord(state, proposal, dictionary, assignments) {
     cells[index] = { ...cells[index], tileId: tile.id, blank };
   }
   const spent = new Set(evaluation.rack.allocations.map(({ tile }) => tile.id));
-  const resources = replenishRack(state.rack.filter((tile) => !spent.has(tile.id)), state.bag);
+  const nextPuzzle = { ...result.state, board: { ...result.state.board, cells } };
+  const capacity = getRackCapacity({ puzzle: nextPuzzle });
+  const resources = replenishRack(state.rack.filter((tile) => !spent.has(tile.id)), state.bag, capacity);
   const next = { ...state, ...resources,
-    puzzle: { ...result.state, board: { ...result.state.board, cells } } };
+    puzzle: nextPuzzle };
   next.status = statusAfterAction(next);
-  return { ...result, state: next, evaluation, consumedTiles: evaluation.rack.allocations.map(({ tile }) => tile) };
+  const farmRewards = { ...summarizeFeatures(nextPuzzle.board, result.newlyClaimed),
+    rackCapacityGained: capacity - getRackCapacity(state) };
+  return { ...result, points: result.points + farmRewards.bonusPoints, basePoints: result.points,
+    farmRewards, state: next, evaluation, consumedTiles: evaluation.rack.allocations.map(({ tile }) => tile) };
 }
 
 export function evaluateExchange(state, tileIds) {
@@ -135,8 +150,10 @@ export function exchangeTiles(state, tileIds) {
   let replacement = 0;
   const rack = state.rack.map((tile) => selected.has(tile.id) ? replacements[replacement++] : tile);
   const shuffled = shuffleTiles([...state.bag.slice(returned.length), ...returned], state.rngState);
-  return { accepted: true, state: { ...state, ...shuffled, rack, exchangeCount: state.exchangeCount + 1 },
-    returned, replacements, reason: null };
+  const freeExchange = getExchangeCredits(state) > 0;
+  return { accepted: true, state: { ...state, ...shuffled, rack, exchangeCount: state.exchangeCount + 1,
+    freeExchangesUsed: (state.freeExchangesUsed ?? 0) + Number(freeExchange) },
+    returned, replacements, freeExchange, reason: null };
 }
 
 export function endSession(state) {

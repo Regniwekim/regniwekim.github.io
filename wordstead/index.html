@@ -22,14 +22,14 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 2C.1 · Development prototype</span>
+        <span class="development-label">Milestone 2D · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
           <p class="eyebrow">A spatial word puzzle &amp; cozy farm builder</p>
           <h1>Wordstead</h1>
           <p class="tagline">Build a farm, one word at a time.</p>
-          <p>Build connected words with seven tiles and claim the land they enclose. Reach your territory target using as few words and exchanges as possible. This prototype uses a <strong>small, provisional vocabulary</strong> and an unbalanced target. Farm bonuses and final grades come later.</p>
+          <p>Build connected words and capture the farm features they enclose. Crops and fertile ground earn bonus points; livestock expands your rack and buildings grant free exchanges. Reach your score target using as few words and exchanges as possible. This prototype uses a <strong>small, provisional vocabulary</strong> and temporary balance values.</p>
         </div>
         <section class="sandbox" aria-labelledby="board-title">
           <div class="board-heading">
@@ -40,7 +40,8 @@
           <p id="starting-square"></p>
           <dl id="main-metrics" class="metrics" aria-label="Placement statistics">
             <div id="word-metrics"><dt>Accepted placements</dt><dd id="word-count">0</dd></div>
-            <div><dt>Territory score</dt><dd id="territory-score">0</dd></div>
+            <div><dt>Base territory points</dt><dd id="territory-score">0</dd></div>
+            <div id="farm-metric"><dt>Farm bonus points</dt><dd id="farm-score">0</dd></div>
             <div><dt>Latest award</dt><dd id="latest-award">+0</dd></div>
           </dl>
 
@@ -52,6 +53,8 @@
               <div><dt>Rack / capacity</dt><dd id="rack-count">7 / 7</dd></div>
               <div><dt>Bag remaining</dt><dd id="bag-count">93</dd></div>
               <div><dt>Exchanges</dt><dd id="exchange-count">0</dd></div>
+              <div><dt>Charged exchanges</dt><dd id="charged-exchanges">0</dd></div>
+              <div><dt>Free credits</dt><dd id="free-credits">0</dd></div>
               <div><dt>Total strokes</dt><dd id="strokes">0</dd></div>
             </dl>
             <p id="run-status" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -81,7 +84,7 @@
                 <h3 id="word-title">Your rack</h3>
                 <div id="rack-controls">
                   <p id="rack-help" class="hint">Select then tap a cell, or drag. Tap a draft tile to move it. Tap its selected rack slot to return. Blanks (◇) ask for a letter.</p>
-                  <div id="rack" class="rack" role="group" aria-label="Seven rack slots" aria-describedby="rack-help"></div>
+                  <div id="rack" class="rack" role="group" aria-label="7 rack slots" aria-describedby="rack-help"></div>
                 </div>
                 <form id="word-form">
                   <label>Word<input id="word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="vocabulary-note"></label>
@@ -132,13 +135,17 @@
                 <li><span class="swatch proposed" aria-hidden="true">×</span>Conflict</li>
                 <li><span class="swatch recent" aria-hidden="true">?</span>Prospective claim</li>
                 <li><span class="swatch exterior" aria-hidden="true">☆</span>Starting square</li>
+                <li><span class="swatch exterior" aria-hidden="true">C</span>Crop · sprout</li>
+                <li><span class="swatch exterior" aria-hidden="true">L</span>Livestock · animal</li>
+                <li><span class="swatch exterior" aria-hidden="true">B</span>Building · roof</li>
+                <li><span class="swatch exterior" aria-hidden="true">F</span>Fertile ground · furrows</li>
               </ul>
             </div>
             <div class="controls">
 
               <section aria-labelledby="cell-title">
                 <h3 id="cell-title">Select a cell</h3>
-                <p class="hint">Coordinates start at 1 in this sandbox.</p>
+                <p class="hint">Coordinates start at 1. Select a farm cell by tapping or with arrows to inspect its effect and capture status below. Farm cells are reserved for features.</p>
                 <form id="coordinates">
                   <div class="field-pair">
                     <label>Row<input id="cell-row" type="number" min="1" max="15" value="1" step="1" required></label>
@@ -155,8 +162,10 @@
                 <form id="dimensions">
                   <div id="rack-setup">
                     <label>Letter seed<input id="seed" type="text" value="wordstead-2c" required></label>
-                    <label>Territory target<input id="target" type="number" min="1" step="1" value="1" required></label>
-                    <p class="hint">Seed controls letter order only. Default target 1 is temporary and unbalanced. New puzzles use these settings; restart repeats the active run.</p>
+                    <label>Farm seed<input id="farm-seed" type="text" value="wordstead-farm-2d" required></label>
+                    <label>Farm density<input id="farm-density" type="number" min="0" max="0.25" step="0.01" value="0.08" required></label>
+                    <label>Total score target<input id="target" type="number" min="1" step="1" value="1" required></label>
+                    <p class="hint">Seeds independently control letter order and farm layout. Density is the fraction of eligible interior cells (0 disables features). Default target 1 is temporary and unbalanced. Layouts may be unsolvable. New puzzles use these settings; restart repeats the active run.</p>
                   </div>
                   <div class="field-pair">
                     <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
@@ -174,6 +183,13 @@
             <p>In rack mode, place C, A, R at (4, 4–6), then commit CAR. Place A and B at (5–6, 4), then commit CAB. Place A and T at (5–6, 6), then commit RAT. Place A at (6, 5), then commit BAT. Coordinates are 1-based. Shared letters are reused automatically; no typing is needed. In the word lab, enter the full words instead.</p>
             <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
           </details>
+          <details class="rules"><summary>Development diagnostics: farm capture fixtures</summary>
+            <label>Center feature<select id="farm-example-type"><option value="crop">Crop</option><option value="fertile">Fertile ground</option><option value="livestock">Livestock</option><option value="building">Building</option></select></label>
+            <button id="farm-example" class="secondary" type="button">Load scripted farm QA example</button>
+            <p>These separate 7×7 fixtures place one feature at (5, 5) and use the same full bag and CAR, CAB, RAT, BAT sequence above. The original rack fixture remains unchanged. Select the feature to inspect it. Before BAT commits it remains uncaptured and rewards stay inactive.</p>
+            <p>Crop: +1 base and +3 bonus, score 4 and victory. Fertile: +1 base and +1 bonus, score 2 and victory. Livestock: score 1, rack expands from 7 to 8 using one extra bag tile. Building: score 1 and one free exchange credit. Its next successful exchange increases exchanges but keeps strokes at 4; the following exchange raises strokes to 5. Utility fixtures use target 20 to keep playing.</p>
+            <p>Restart repeats the selected fixture. New puzzle restores ordinary seeded play. Credits do not bypass bag requirements; invalid moves and previews award nothing. Captured features retain their icon and receive + (new) or ✓ (older); ? is preview only.</p>
+          </details>
           <details class="rules"><summary>Provisional demonstration word list</summary>
             <p>This hand-selected vocabulary is incomplete. A missing English word may be rejected. It is not an official Scrabble dictionary and uses no external service.</p>
             <p id="vocabulary"></p>
@@ -187,7 +203,7 @@
           <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
         </section>
       </main>
-      <footer><p>Milestone 2C.1 · Finite letters &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 2D · Farm features &amp; bonuses · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>
