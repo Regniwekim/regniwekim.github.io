@@ -5,7 +5,7 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 3A
+## Current status: Milestone 3B
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -18,10 +18,17 @@ but are reserved against letter placement in this prototype.
 The default **Rack-limited puzzle** draws seven physical tiles from a seeded
 100-tile bag, replenishes after accepted words, permits exchanges, and finishes
 when the total score target is reached. Captured livestock adds rack slots (up to
-nine); buildings grant free exchange credits. Word count is the primary efficiency
-measure; each charged exchange adds one provisional stroke. Build words directly from physical
+nine); buildings grant free exchange credits. The page tracks accepted words;
+each charged exchange adds one stroke. Build words directly from physical
 rack tiles using click/tap, Pointer Events dragging, or keyboard controls. Both old
 labs remain available.
+
+Finished rack runs now show actual results and offer **Copy Results** with a
+manual-copy fallback. Wordstead remains entirely static and client-side: no
+grading, rankings, persistence, analytics, accounts, or backend services.
+Milestone 3B deliberately supersedes the planned efficiency grading in the
+design skeleton and grade/share-art references in the exploratory visual guide
+for the current implementation; neither source document is rewritten.
 
 This is **not the full game**. Normal play uses **78,626 words** from the licensed
 **ESDB American English size-60** list, version `esdb-en-us-60-1e5b7d3-ws1`,
@@ -242,6 +249,48 @@ legacy feature-free behavior and original fixtures. Restart preserves the active
 farm seed/settings as well as letter order. Layouts have no solver or difficulty
 guarantee; some may have no reachable solution.
 
+## Results and sharing
+
+Only terminal rack sessions produce results. An accepted word reaching the target
+shows **Harvest Complete!**; **End unfinished run** shows **Farm Unfinished**;
+the existing empty-rack-and-empty-bag condition shows **Out of Tiles**. A preview
+never finishes a run. There is still no exhaustive no-legal-moves solver.
+
+The cream results section sits below the rack. It prominently displays actual farm
+points versus target, accepted word placements, and total strokes. Expand **Score,
+exchanges & farm captured** for base territory, crop/fertility/combined farm bonus
+points, total/free/charged exchanges, and counts of captured crops, fertile cells,
+livestock and buildings. Its context identifies Free Play (or scripted QA) and
+board dimensions. The target is a victory requirement, with no performance grade
+or implied ranking. **View Results** near the run status provides an explicit jump;
+finishing never automatically moves focus or scrolls the page.
+
+The final board and captured features remain visible, pannable and inspectable by
+pointer, arrows or coordinates; gameplay mutations stay disabled. The existing
+**Restart Puzzle** control is below the results and repeats the original active
+configuration, independent of setup edits. **New Puzzle** links to Board setup;
+review/edit the settings there and use its submit button to create a fresh run.
+Restart/new runs clear the old results, text and clipboard feedback. The two
+diagnostic labs keep separate sessions and do not display rack results; returning
+to a finished rack run restores its own summary.
+
+`src/core/results.js` derives a frozen terminal summary via `getSessionResults()`
+using the existing scoring, capture, stroke and charged-exchange helpers. It stores
+no additional score or capture history. `formatResultsShare()` produces fixed
+plain-text newlines: WORDSTEAD, the correct finish heading, score/target, words,
+exchanges, strokes, territory plus total farm bonus, tagline and
+`https://games.regniwekim.com/wordstead/`. The default text excludes played words,
+letters, positions, board layout, unrevealed tiles and seeds/settings. It makes no
+daily-puzzle or identical-puzzle claim and encodes no session in the URL.
+
+**Copy Results** requests the browser Clipboard API only on activation. Success
+appears after the write completes. If unavailable or denied, a useful status opens
+**Share text / manual copy** with the same result in a labeled read-only textarea.
+That disclosure is also available before copying. **Select share text** selects
+it on explicit activation; use the device’s Copy command or Ctrl+C/Command+C.
+Copying, inspecting and opening disclosures never change the run. Nothing opens
+an external service and nothing is saved on refresh.
+
 ## Typed-word controls (Legal word placement lab only)
 
 1. Enter a word (ASCII lowercase normalizes to uppercase) and select horizontal or
@@ -345,6 +394,31 @@ counts **90, 88, 86, 85**. BAT claims exactly (5, 5), index 32, and wins at targ
 must leave count 3, score 0, and bag 86. After victory commitment/exchanges are
 blocked, including the lab's optional CARS extension. Restart repeats this fixture.
 
+### Results QA
+
+- Complete the unchanged rack fixture above. Before BAT commits, no results appear;
+  after commitment expect **Harvest Complete!**, **1 / 1**, **4 words**, **0 exchanges**
+  and **4 strokes**. Copy and paste into a text editor; all those numbers must match.
+- Open the manual-copy disclosure and select/copy its text with the keyboard. Test
+  with clipboard access unavailable/denied: failure must expand that same text,
+  explain manual copying and never claim success.
+- Repeat the crop/fertile fixtures below: expect **4 / 4** (1 base +3 crop) and
+  **2 / 2** (1 base +1 fertility), four words/strokes and one captured feature each.
+- In the building fixture, complete a free exchange and a charged exchange, then
+  end the run. Expect **Farm Unfinished**, **1 / 20**, four words, two exchanges,
+  one free exchange used, one charged exchange, five strokes and one building.
+  The share text must agree. End a fresh run too: all counters/points are zero.
+- Inspect the finished farm, pan/enlarge it, and move the cursor with arrows.
+  Verify no letters or totals change. Tab through Copy, manual selection, Restart
+  and New Puzzle; use Enter/Space to activate controls and check visible focus.
+- Edit the setup fields before Restart: the active original fixture/configuration
+  must repeat. New Puzzle must use Board setup and remove old results. Switch to
+  both labs and back: only the rack's own finished results may reappear.
+- Check narrow/wide layouts, direct loading/refresh, return navigation and browser
+  errors. Exhaustion is tested in Node by consuming a full real bag on a long test
+  board with an injected dictionary; no browser no-moves solver or exhaustion
+  shortcut is added.
+
 ### Draft editing, blanks and gesture QA
 
 - Load the rack fixture, place C then A, and try R on a diagonal, across a gap,
@@ -436,12 +510,14 @@ src/
     puzzle.js               Minimal state and atomic accepted-word transition
     bag.js                  Standard physical tiles, explicit seeded shuffle/draw
     session.js              Automatic/explicit rack commits, exchanges and status
+    results.js              Immutable terminal summary and spoiler-free share text
     draft.js                Reversible physical drafts, continuity and run inference
     session-fixture.js      Complete scripted bag and four enclosure QA moves
   rendering/board.js        Shared Canvas view and coordinate transforms
   ui/sandbox.js             DOM controller and isolated development sessions
   ui/tile-input.js          Selection, blank dialog and transactional pointer input
   ui/startup.js             Loading/error/retry gate before gameplay initialization
+  ui/results.js             Result presentation, clipboard feedback and manual copy
   vocabulary/               Static parser, memoized loader and generated manifest
 styles/main.css             Local responsive presentation
 vocabulary/                 Committed word list, generation report and browser credits
@@ -486,6 +562,13 @@ capacity cap and partial refills, physical conservation, accumulated free credit
 charged strokes, deterministic layouts, protected cells, rectangular/small boards,
 seed independence and seven/eight/nine-slot presentation checks.
 
+Results tests cover actual victory/ending/exhaustion transitions, preview isolation,
+all score components, multiple/zero feature captures, livestock/buildings, free and
+charged exchanges, immutability, terminal mutation locks, deterministic spoiler-free
+text and the static URL. Event-surface tests cover clipboard success timing,
+unavailable/denied fallback, selection, restart/new/mode clearing and stale async
+copy completions. They do not substitute for browser or real-device touch QA.
+
 Vocabulary tests cover deterministic transforms, metadata export settings, character,
 case and length filtering, malformed input, committed checksums/counts, synchronous
 membership, inflections/two-letter words, memoized loading, failure/retry and an
@@ -506,12 +589,12 @@ The injected synchronous `has(uppercaseWord) -> boolean` dependency now uses the
 licensed ESDB list in normal play, without rewriting placement rules. The implemented
 session wrapper consumes `evaluation.newPositions` and delegates to `commitWord`;
 matching reused tiles cost nothing. Farm rewards extend that same atomic
-transition after territory claiming. Future final grading can consume accepted
-word count, exchange count and target; its rubric and exchange cost need playtesting.
+transition after territory claiming. Results report actual accepted words,
+exchange accounting and target without grading or comparison.
 Feature-layout randomness is explicit and separate from letter seeds.
 
 Tournament dictionary compatibility, complete no-legal-move detection,
-final grades, campaign/daily modes, persistence, leaderboards, final
+campaign/daily modes, persistence, leaderboards, final
 Sprout Lands integration, decorative animation, and sound remain deferred. The
 core expects valid in-memory boards/territory from its constructors; saved-state
 validation/deserialization is outside this milestone. Practical board sizes depend

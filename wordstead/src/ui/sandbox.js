@@ -15,11 +15,13 @@ import { demoDictionary } from '../core/demo-vocabulary.js';
 import { drawBoard, pointerToCell, revealSelection } from '../rendering/board.js';
 import { initializeTileInput } from './tile-input.js';
 import { renderRackSlots } from './rack.js';
+import { initializeResults } from './results.js';
 
 /** Three isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox({ dictionary, vocabulary }) {
   if (typeof dictionary?.has !== 'function') throw new TypeError('Load the gameplay vocabulary before initialization.');
   const find = (id) => document.getElementById(id);
+  const resultsView = initializeResults({ find });
   const canvas = find('board');
   const viewport = find('board-viewport');
   const rowInput = find('cell-row');
@@ -87,9 +89,9 @@ export function initializeSandbox({ dictionary, vocabulary }) {
       ? `Scripted ${state.farmFixture ? FEATURE_TYPES[state.farmFixture].label + ' farm' : 'rack'} QA fixture · full standard bag in a controlled order · restart repeats this fixture.`
       : `Letter seed: ${state.seed} · Farm seed: ${state.farm?.seed ?? 'none'} · density: ${state.farm?.density ?? 0}. Seeds are independent.`;
     const metrics = `${state.puzzle.wordCount} accepted words, ${state.exchangeCount} exchanges, ${getStrokes(state)} strokes.`;
-    find('run-status').textContent = state.status === 'won' ? `Victory! ${score} total points. ${metrics} Restart or create a new puzzle.`
-      : state.status === 'ended' ? `Run ended by player. ${metrics} Restart or create a new puzzle.`
-        : state.status === 'exhausted' ? `Resources exhausted: rack and bag empty. ${metrics} Restart or create a new puzzle.`
+    find('run-status').textContent = state.status === 'won' ? `Harvest Complete! ${score} / ${state.target} farm points. ${metrics} Results are below the rack; use View Results to find them.`
+      : state.status === 'ended' ? `Farm Unfinished. ${score} / ${state.target} farm points. ${metrics} Results are below the rack; use View Results to find them.`
+        : state.status === 'exhausted' ? `Out of Tiles: rack and bag empty. ${score} / ${state.target} farm points. ${metrics} Results are below the rack; use View Results to find them.`
           : `Run in progress. ${credits} free exchange credits; otherwise an exchange costs one provisional stroke.`;
     const used = new Set(active().draft.tiles.map((tile) => tile.tileId));
     renderRackSlots(find('rack'), rackButtons, { state, draft: active().draft,
@@ -148,7 +150,9 @@ export function initializeSandbox({ dictionary, vocabulary }) {
         : evaluation.enclosed.includes(index) ? 'enclosed, unclaimed land' : 'exterior land';
     find('selection-status').textContent = `Row ${selected.row + 1}, column ${selected.column + 1}: ${status}.`;
     canvas.setAttribute('aria-label', `Interactive letter fence board. Row ${selected.row + 1}, column ${selected.column + 1}: ${status}.`);
-    for (const control of find('word-controls').querySelectorAll('input, select, button')) control.disabled = exchanging;
+    for (const control of find('word-controls').querySelectorAll('input, select, button')) {
+      control.disabled = exchanging || (mode === 'rack' && active().state.status !== 'playing');
+    }
     find('commit-word').disabled = mode === 'freeform' || exchanging || !preview?.legal;
     find('placement-feedback').textContent = preview
       ? preview.legal
@@ -171,6 +175,7 @@ export function initializeSandbox({ dictionary, vocabulary }) {
         ? `${active().draft.tiles.length} draft tiles remain in their original rack slots. Repair the draft to evaluate the completed word. Nothing spent.`
         : `Spend: ${preview.rack.allocations.map(({ letter, blank, row, column }) => `${blank ? `blank → ${letter}` : letter} at (${row + 1}, ${column + 1})`).join(', ') || 'none'}. Reuse from board (free): ${preview.reusedPositions.map(({ letter, row, column }) => `${letter} at (${row + 1}, ${column + 1})`).join(', ') || 'none'}. Missing: ${preview.rack.missingLetters.map(({ letter, count }) => `${letter} ×${count}`).join(', ') || 'none'}. Preview spends nothing.` : '';
     if (mode === 'rack') renderRack();
+    resultsView.render(mode === 'rack' ? active().state : null);
     tileInput.render();
     if (message) find('action-status').textContent = message;
   }
@@ -266,7 +271,7 @@ export function initializeSandbox({ dictionary, vocabulary }) {
     find('rack-play').hidden = mode !== 'rack';
     find('rack-setup').hidden = mode !== 'rack';
     find('example').hidden = mode !== 'words';
-    find('create-board').textContent = mode === 'rack' ? 'New puzzle' : 'Create empty board';
+    find('create-board').textContent = mode === 'rack' ? 'New Puzzle' : 'Create empty board';
     find('board-help').textContent = mode === 'rack'
       ? 'Select a rack tile, then tap an empty cell or use board arrows and Enter/Space. Tap a draft tile to move it. Drag from rack or draft tiles; swipe empty or committed cells to pan. Escape cancels selection.' : legal
       ? 'Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan.'
