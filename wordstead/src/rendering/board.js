@@ -16,7 +16,8 @@ export function pointerToCell(canvas, board, cellSize, clientX, clientY) {
 }
 
 /** Draw precomputed territory states; never infer enclosure from pixels. */
-export function drawBoard(canvas, { board, territory, evaluation, recentClaims, selected, cellSize }) {
+export function drawBoard(canvas, { board, territory, evaluation, recentClaims, selected, cellSize,
+  preview = null, previewTerritory = null, startingSquare = null }) {
   const width = GUTTER + board.columns * cellSize;
   const height = GUTTER + board.rows * cellSize;
   const dpr = window.devicePixelRatio || 1;
@@ -41,6 +42,8 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
 
   const enclosed = new Set(evaluation.enclosed);
   const recent = new Set(recentClaims);
+  const proposed = new Map((preview?.positions ?? []).filter((p) => p.index !== undefined).map((p) => [p.index, p]));
+  const prospective = new Set(previewTerritory?.newlyClaimed ?? []);
   board.cells.forEach((cell, index) => {
     const x = GUTTER + (index % board.columns) * cellSize;
     const y = GUTTER + Math.floor(index / board.columns) * cellSize;
@@ -72,6 +75,38 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
       context.setLineDash([3, 3]);
       context.strokeRect(x + 7, y + 7, cellSize - 14, cellSize - 14);
       context.setLineDash([]);
+    }
+    if (!letter && startingSquare?.row === Math.floor(index / board.columns)
+      && startingSquare?.column === index % board.columns) {
+      context.fillStyle = INK;
+      context.font = `${Math.round(cellSize * 0.4)}px system-ui, sans-serif`;
+      context.fillText('☆', x + cellSize / 2, y + cellSize / 2);
+    }
+    if (prospective.has(index)) {
+      context.fillStyle = '#dce9b6';
+      context.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+      context.fillStyle = INK;
+      context.font = `700 ${Math.round(cellSize * 0.4)}px system-ui, sans-serif`;
+      context.fillText('?', x + cellSize / 2, y + cellSize / 2);
+    }
+    const ghost = proposed.get(index);
+    if (ghost) {
+      const conflict = ghost.status === 'conflict' || ghost.status === 'blocked';
+      context.strokeStyle = preview.legal ? '#354c43' : '#8c3936';
+      context.lineWidth = 2;
+      context.setLineDash(ghost.status === 'reused' ? [] : [4, 3]);
+      context.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
+      context.setLineDash([]);
+      if (ghost.status === 'new') {
+        context.fillStyle = '#fffdf6';
+        context.fillRect(x + 8, y + 8, cellSize - 16, cellSize - 16);
+        context.fillStyle = INK;
+        context.font = `700 ${Math.round(cellSize * 0.5)}px system-ui, sans-serif`;
+        context.fillText(ghost.letter, x + cellSize / 2, y + cellSize / 2);
+      }
+      context.fillStyle = INK;
+      context.font = '700 11px system-ui, sans-serif';
+      context.fillText(conflict ? `×${ghost.letter}` : ghost.status === 'reused' ? '=' : 'p', x + cellSize - 11, y + 9);
     }
     if (selected.row === Math.floor(index / board.columns) && selected.column === index % board.columns) {
       context.strokeStyle = INK;

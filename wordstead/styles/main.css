@@ -12,6 +12,8 @@
   box-sizing: border-box;
 }
 
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
 }
@@ -142,7 +144,7 @@ h3 {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
   gap: 0.5rem;
   margin-block: 1.25rem;
 }
@@ -190,6 +192,20 @@ button {
 button:hover {
   background: #354c43;
 }
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mode-control { max-width: 25rem; margin-top: 1rem; }
+.placement-actions, #word-form { display: grid; gap: 0.6rem; }
+#word { text-transform: uppercase; }
+#placement-feedback { font-size: 0.9rem; border-left: 3px solid var(--fern); padding-left: 0.6rem; }
+#placement-feedback[data-legality="invalid"] { border-color: #8c3936; }
+#formed-words { padding-left: 1.2rem; font-size: 0.85rem; }
+.proposed { background: #fffdf6; border: 2px dashed #354c43; }
+#vocabulary { overflow-wrap: anywhere; }
 
 button.secondary {
   color: #354c43;
