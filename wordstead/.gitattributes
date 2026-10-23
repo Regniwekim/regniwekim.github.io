@@ -1,0 +1,5 @@
+# Vocabulary checksums describe these exact UTF-8 / LF bytes on every platform.
+/vocabulary/*.txt text eol=lf
+/vocabulary/*.json text eol=lf
+/src/vocabulary/manifest.js text eol=lf
+/licenses/esdb/Copyright text eol=lf whitespace=-blank-at-eol

@@ -22,16 +22,22 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 2D · Development prototype</span>
+        <span class="development-label">Milestone 3A · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
           <p class="eyebrow">A spatial word puzzle &amp; cozy farm builder</p>
           <h1>Wordstead</h1>
           <p class="tagline">Build a farm, one word at a time.</p>
-          <p>Build connected words and capture the farm features they enclose. Crops and fertile ground earn bonus points; livestock expands your rack and buildings grant free exchanges. Reach your score target using as few words and exchanges as possible. This prototype uses a <strong>small, provisional vocabulary</strong> and temporary balance values.</p>
+          <p>Build connected words and capture the farm features they enclose. Crops and fertile ground earn bonus points; livestock expands your rack and buildings grant free exchanges. Reach your score target using as few words and exchanges as possible. This prototype uses an American English word list and temporary balance values.</p>
         </div>
-        <section class="sandbox" aria-labelledby="board-title">
+        <div class="vocabulary-loading">
+          <p id="vocabulary-status" role="status" aria-live="polite" aria-atomic="true">Loading English vocabulary… Gameplay will be ready shortly.</p>
+          <button id="retry-vocabulary" class="secondary" type="button" hidden>Retry vocabulary loading</button>
+          <p class="hint">ESDB American English 60 · English word list, not an official Scrabble dictionary. <a href="./vocabulary/">Word-list credits, license &amp; acceptance policy</a></p>
+        </div>
+        <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
+        <section id="game" class="sandbox" aria-labelledby="board-title" aria-busy="true" inert>
           <div class="board-heading">
             <div><p class="eyebrow">Letters &amp; land</p><h2 id="board-title">A little room to grow</h2></div>
             <p id="board-summary">Board initialization pending.</p>
@@ -121,7 +127,7 @@
                 <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true">No preview.</p>
                 <p id="rack-feedback" class="hint"></p>
                 <ul id="formed-words" aria-label="Complete formed words"></ul>
-                <p id="vocabulary-note" class="hint">Provisional, incomplete demonstration vocabulary; not an official Scrabble dictionary. See the word list below.</p>
+                <p id="vocabulary-note" class="hint">Preparing ESDB American English 60.</p>
               </section>
               <ul class="legend" aria-label="Board key">
                 <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
@@ -179,7 +185,7 @@
           </div>
           <details class="rules"><summary>Development diagnostics: four words, one enclosure</summary>
             <button id="rack-example" class="secondary" type="button">Load scripted rack QA example</button>
-            <p>The scripted QA example switches to Rack-limited puzzle, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. It is not an ordinary seeded random puzzle. The unrestricted example remains in Legal word placement lab.</p>
+            <p>The scripted QA example switches to Rack-limited puzzle, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. It uses the preserved hand-selected demo vocabulary for QA. New puzzle returns to ESDB. The unrestricted example remains in Legal word placement lab.</p>
             <p>In rack mode, place C, A, R at (4, 4–6), then commit CAR. Place A and B at (5–6, 4), then commit CAB. Place A and T at (5–6, 6), then commit RAT. Place A at (6, 5), then commit BAT. Coordinates are 1-based. Shared letters are reused automatically; no typing is needed. In the word lab, enter the full words instead.</p>
             <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
           </details>
@@ -190,20 +196,15 @@
             <p>Crop: +1 base and +3 bonus, score 4 and victory. Fertile: +1 base and +1 bonus, score 2 and victory. Livestock: score 1, rack expands from 7 to 8 using one extra bag tile. Building: score 1 and one free exchange credit. Its next successful exchange increases exchanges but keeps strokes at 4; the following exchange raises strokes to 5. Utility fixtures use target 20 to keep playing.</p>
             <p>Restart repeats the selected fixture. New puzzle restores ordinary seeded play. Credits do not bypass bag requirements; invalid moves and previews award nothing. Captured features retain their icon and receive + (new) or ✓ (older); ? is preview only.</p>
           </details>
-          <details class="rules"><summary>Provisional demonstration word list</summary>
-            <p>This hand-selected vocabulary is incomplete. A missing English word may be rejected. It is not an official Scrabble dictionary and uses no external service.</p>
-            <p id="vocabulary"></p>
-          </details>
           <details class="rules"><summary>How to test an enclosure</summary>
             <p>Choose Freeform enclosure lab. It keeps a separate board and permits unrestricted letter toggling and manual claims for diagnostics. Switching back restores legal play without lab edits.</p>
             <p>Place letters in rows 2 and 4, columns 2–4. Add letters at row 3, columns 2 and 4. The empty center (row 3, column 3) is enclosed and earns one point when claimed. Claim again to verify +0.</p>
             <p>All four board edges give outside access. Only letters block orthogonal paths; empty cells cannot pass diagonally. Detection updates after every edit. Claims persist if you reopen a fence or cover claimed land with a letter.</p>
             <p>A + marks cells from the latest claim. Another claim or letter edit changes earlier claims to ✓. Nothing is saved on refresh.</p>
           </details>
-          <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
         </section>
       </main>
-      <footer><p>Milestone 2D · Farm features &amp; bonuses · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 3A · ESDB vocabulary · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

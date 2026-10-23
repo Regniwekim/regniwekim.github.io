@@ -1,7 +1,7 @@
 import { createDictionary } from './dictionary.js';
 
-// Hand-selected ordinary words for mechanics demonstrations. Provisional and
-// incomplete: this is NOT an official Scrabble dictionary or a third-party list.
+// Preserved QA fixture for mechanics demonstrations and regression tests only.
+// Incomplete: this is NOT an official Scrabble dictionary or the gameplay list.
 export const DEMO_WORDS = Object.freeze([
   'AN', 'AS', 'AT', 'BE', 'BY', 'DO', 'GO', 'HE', 'IF', 'IN', 'IS', 'IT',
   'ME', 'MY', 'NO', 'OF', 'ON', 'OR', 'OX', 'SO', 'TO', 'UP', 'US', 'WE',

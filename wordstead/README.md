@@ -5,7 +5,7 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 2D
+## Current status: Milestone 3A
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -23,10 +23,14 @@ measure; each charged exchange adds one provisional stroke. Build words directly
 rack tiles using click/tap, Pointer Events dragging, or keyboard controls. Both old
 labs remain available.
 
-This is **not the full game**. Membership uses
-a hand-selected, provisional, incomplete local vocabulary, **not an official
-Scrabble dictionary**. No external word service or third-party dictionary is used.
-The complete demonstration list is available in the page's expandable word list.
+This is **not the full game**. Normal play uses **78,626 words** from the licensed
+**ESDB American English size-60** list, version `esdb-en-us-60-1e5b7d3-ws1`,
+**not an official Scrabble dictionary**. A local 750,727-byte static file loads
+once before gameplay; failure keeps play disabled and offers retry. Words validate
+synchronously and work offline after loading. No external word service or per-word
+requests are used. See [source, policy and regeneration](docs/vocabulary.md),
+[browser credits](vocabulary/index.html), [upstream notice](licenses/esdb/Copyright)
+and [measured validation](docs/vocabulary-validation.md).
 
 Milestone 1's configurable board and Milestone 2A's enclosure/territory modules
 remain unchanged. **Legal word placement lab** keeps unrestricted word entry and
@@ -59,8 +63,9 @@ and farm seeds, farm density, independent 1–30 board dimensions, and a positiv
 **New puzzle** applies these settings to a fresh seeded run. **Restart puzzle**
 repeats the active run's original settings and tile order (including the scripted
 fixture), regardless of edits in the setup form. The initial board is 15×15;
-the temporary default target is **1**, explicitly unbalanced for the limited
-vocabulary. Different seeds are not guaranteed equally difficult or solvable.
+the temporary default target remains **1**, explicitly unbalanced. Vocabulary
+integration does not rebalance it. Different seeds are not guaranteed equally
+difficult or solvable.
 
 Seven to nine persistent DOM rack buttons show letters or **◇** for blanks; empty slots
 show a dash. Duplicate letters have independent physical IDs and slot labels.
@@ -318,6 +323,13 @@ other tiles in canonical alphabetical/ID order. First rack: C A R A B T A;
 the next draw is A. Seed label `enclosure-qa` initializes exchange randomness only
 for this controlled initial order.
 
+All scripted rack/farm examples and the word lab's **Set up 7×7 example** use the
+preserved hand-selected demo vocabulary, labeled **QA fixture only** below formed
+words. Restart and mode switching retain each run's dictionary. **New puzzle** or
+**Create empty board** starts a fresh run with ESDB. The demo list remains available
+to diagnostic imports in `src/core/demo-vocabulary.js`; no word suggestions or
+expandable full list appear during ordinary play.
+
 Without typing or choosing orientation:
 
 1. Place C, A, R at (4, 4), (4, 5), (4, 6); commit CAR.
@@ -419,7 +431,7 @@ src/
     enclosure.js            Existing iterative exterior flood fill (2A)
     territory.js            Preview, immutable claims and derived score (2A)
     dictionary.js           ASCII normalization and replaceable has(word) boundary
-    demo-vocabulary.js      Provisional local word list
+    demo-vocabulary.js      Preserved hand-selected QA fixture only
     placement.js            Geometry, connectivity and affected complete words
     puzzle.js               Minimal state and atomic accepted-word transition
     bag.js                  Standard physical tiles, explicit seeded shuffle/draw
@@ -429,7 +441,11 @@ src/
   rendering/board.js        Shared Canvas view and coordinate transforms
   ui/sandbox.js             DOM controller and isolated development sessions
   ui/tile-input.js          Selection, blank dialog and transactional pointer input
+  ui/startup.js             Loading/error/retry gate before gameplay initialization
+  vocabulary/               Static parser, memoized loader and generated manifest
 styles/main.css             Local responsive presentation
+vocabulary/                 Committed word list, generation report and browser credits
+scripts/                    Development-only vocabulary generation and benchmark
 tests/                      Built-in Node model tests and explicit fixtures
 ```
 
@@ -470,6 +486,15 @@ capacity cap and partial refills, physical conservation, accumulated free credit
 charged strokes, deterministic layouts, protected cells, rectangular/small boards,
 seed independence and seven/eight/nine-slot presentation checks.
 
+Vocabulary tests cover deterministic transforms, metadata export settings, character,
+case and length filtering, malformed input, committed checksums/counts, synchronous
+membership, inflections/two-letter words, memoized loading, failure/retry and an
+inert startup gate. Expanded-list regressions cover physical drafts, blank provenance,
+cross-words, repeated previews, atomic commitments, farm fixtures and seeded
+exchanges. Run `node scripts/benchmark-vocabulary.js` for preparation/lookup timing.
+Generation and a byte-for-byte `--check` are documented in
+[the vocabulary guide](docs/vocabulary.md#reproduce-and-verify).
+
 Run `node --check` on affected JavaScript and `git diff --check`. For browser
 validation use the manual examples above; inspect console/network errors and test
 all three modes, direct loading/refresh, return navigation, narrow/wide layouts, pointer,
@@ -477,15 +502,15 @@ keyboard, and touch behavior. No automated browser framework is installed.
 
 ## Limits and future integration points
 
-Replace the injected synchronous `has(uppercaseWord) -> boolean` dependency with a
-properly licensed dictionary without rewriting placement rules. The implemented
+The injected synchronous `has(uppercaseWord) -> boolean` dependency now uses the
+licensed ESDB list in normal play, without rewriting placement rules. The implemented
 session wrapper consumes `evaluation.newPositions` and delegates to `commitWord`;
 matching reused tiles cost nothing. Farm rewards extend that same atomic
 transition after territory claiming. Future final grading can consume accepted
 word count, exchange count and target; its rubric and exchange cost need playtesting.
 Feature-layout randomness is explicit and separate from letter seeds.
 
-Official dictionary, complete no-legal-move detection,
+Tournament dictionary compatibility, complete no-legal-move detection,
 final grades, campaign/daily modes, persistence, leaderboards, final
 Sprout Lands integration, decorative animation, and sound remain deferred. The
 core expects valid in-memory boards/territory from its constructors; saved-state
@@ -494,8 +519,12 @@ on memory; UI dimensions are capped at 30. No complete game schema is claimed.
 
 Open playtest questions include reserved-cell placement policy, feature density
 and weights, point values, the nine-slot cap, automatic free-credit use, and useful
-targets for the limited vocabulary. Multi-cell buildings, animated animals,
+targets with the expanded vocabulary. Multi-cell buildings, animated animals,
 growing/harvesting timers, upgrades and advanced feature interactions are deferred.
+
+Vocabulary updates can change word acceptance and whether old puzzles are solvable.
+Future daily puzzle definitions must pin a stable dictionary version; this milestone
+adds no daily infrastructure.
 
 ## Static hosting
 

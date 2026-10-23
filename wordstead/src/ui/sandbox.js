@@ -11,24 +11,26 @@ import { DEFAULT_FARM_SEED, DEFAULT_FARM_DENSITY } from '../core/farm-layout.js'
 import { createFarmSession } from '../core/farm-fixture.js';
 import { createDraft, evaluateDraft, commitSessionDraft, undoDraft } from '../core/draft.js';
 import { createEnclosureSession } from '../core/session-fixture.js';
-import { demoDictionary, DEMO_WORDS } from '../core/demo-vocabulary.js';
+import { demoDictionary } from '../core/demo-vocabulary.js';
 import { drawBoard, pointerToCell, revealSelection } from '../rendering/board.js';
 import { initializeTileInput } from './tile-input.js';
 import { renderRackSlots } from './rack.js';
 
 /** Three isolated in-memory sessions, one shared renderer and input surface. */
-export function initializeSandbox() {
+export function initializeSandbox({ dictionary, vocabulary }) {
+  if (typeof dictionary?.has !== 'function') throw new TypeError('Load the gameplay vocabulary before initialization.');
   const find = (id) => document.getElementById(id);
   const canvas = find('board');
   const viewport = find('board-viewport');
   const rowInput = find('cell-row');
   const columnInput = find('cell-column');
   const wordInput = find('word');
-  function session(dimensions, rackState = null) {
+  function session(dimensions, rackState = null, qa = false) {
     const state = rackState ?? createPuzzle(dimensions);
     const board = rackState ? state.puzzle.board : state.board;
     return { state, selected: getStartingSquare(board), recentClaims: [], latestAward: 0,
-      word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [], draft: createDraft() };
+      word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [], draft: createDraft(),
+      dictionary: qa ? demoDictionary : dictionary, vocabularyName: qa ? 'Hand-selected demo · QA fixture only' : vocabulary.name };
   }
   const sessions = { rack: session(null, createSession({ farmSeed: DEFAULT_FARM_SEED })), words: session(), freeform: session() };
   let mode = 'rack';
@@ -109,6 +111,7 @@ export function initializeSandbox() {
   }
 
   function render(message) {
+    find('vocabulary-note').textContent = `${active().vocabularyName}. English word list; not an official Scrabble dictionary. Credits and acceptance policy are linked above.`;
     const { selected, recentClaims, latestAward, exchanging } = active();
     const { board, territory, wordCount } = puzzle();
     const evaluation = evaluateTerritory(board, territory);
@@ -174,8 +177,8 @@ export function initializeSandbox() {
 
   function updatePreview(message) {
     preview = mode === 'freeform' || active().exchanging ? null : mode === 'rack'
-      ? active().draft.tiles.length ? evaluateDraft(active().state, active().draft, demoDictionary) : null
-      : evaluatePlacement(puzzle().board, proposal(), demoDictionary);
+      ? active().draft.tiles.length ? evaluateDraft(active().state, active().draft, active().dictionary) : null
+      : evaluatePlacement(puzzle().board, proposal(), active().dictionary);
     render(typeof message === 'string' ? message : undefined);
   }
 
@@ -197,7 +200,7 @@ export function initializeSandbox() {
     render(`${removing ? 'Removed test letter' : 'Placed test letter A'} at row ${row + 1}, column ${column + 1}.`);
   }
 
-  function reset(dimensions = puzzle().board, rackState = null) {
+  function reset(dimensions = puzzle().board, rackState = null, qa = active().dictionary === demoDictionary) {
     tileInput.reset();
     if (mode === 'rack' && !rackState) {
       const current = active().state;
@@ -207,7 +210,7 @@ export function initializeSandbox() {
             farmSeed: current.farm?.seed ?? null, farmDensity: current.farm?.density,
             farmWeights: current.farm?.weights });
     }
-    sessions[mode] = session({ rows: dimensions.rows, columns: dimensions.columns }, rackState);
+    sessions[mode] = session({ rows: dimensions.rows, columns: dimensions.columns }, rackState, qa);
     preview = null;
     wordInput.value = '';
     find('orientation').value = 'horizontal';
@@ -279,8 +282,8 @@ export function initializeSandbox() {
   find('clear-preview').addEventListener('click', () => { preview = null; render('Preview cleared. No letters or claims changed.'); });
   find('commit-word').addEventListener('click', () => {
     if (mode === 'freeform' || active().exchanging || !preview) return;
-    const result = mode === 'rack' ? commitSessionDraft(active().state, active().draft, demoDictionary)
-      : commitWord(active().state, proposal(), demoDictionary);
+    const result = mode === 'rack' ? commitSessionDraft(active().state, active().draft, active().dictionary)
+      : commitWord(active().state, proposal(), active().dictionary);
     if (!result.accepted) {
       preview = result.evaluation;
       render(`Placement rejected: ${result.evaluation.reason.message}`);
@@ -300,7 +303,7 @@ export function initializeSandbox() {
   });
   find('example').addEventListener('click', () => {
     if (mode !== 'words') return;
-    reset({ rows: 7, columns: 7 });
+    reset({ rows: 7, columns: 7 }, null, true);
     wordInput.value = 'CAR';
     find('orientation').value = 'horizontal';
     updatePreview();
@@ -308,13 +311,13 @@ export function initializeSandbox() {
   });
   find('rack-example').addEventListener('click', () => {
     changeMode('rack');
-    reset({ rows: 7, columns: 7 }, createEnclosureSession());
+    reset({ rows: 7, columns: 7 }, createEnclosureSession(), true);
     render('Scripted rack QA example ready. Place C, A, R in row 4, columns 4–6, then commit. Follow CAR, CAB, RAT, BAT below.');
   });
   find('farm-example').addEventListener('click', () => {
     const type = find('farm-example-type').value;
     changeMode('rack');
-    reset({ rows: 7, columns: 7 }, createFarmSession(type));
+    reset({ rows: 7, columns: 7 }, createFarmSession(type), true);
     render(`${FEATURE_TYPES[type].label} farm QA ready at (5, 5). Build CAR, CAB, RAT, BAT using rack tiles. ${FEATURE_TYPES[type].effect}`);
   });
   find('start-exchange').addEventListener('click', () => {
@@ -412,7 +415,7 @@ export function initializeSandbox() {
     try {
       const rackState = mode === 'rack' ? createSession({ ...dimensions, seed: find('seed').value, target: Number(find('target').value),
         farmSeed: find('farm-seed').value, farmDensity: Number(find('farm-density').value) }) : null;
-      reset(dimensions, rackState);
+      reset(dimensions, rackState, false);
     } catch (error) { render(error.message); }
   });
   find('cell-size').addEventListener('change', () => {
@@ -459,7 +462,6 @@ export function initializeSandbox() {
       }
     }
   });
-  find('vocabulary').textContent = DEMO_WORDS.join(', ');
   window.addEventListener('resize', () => render());
   changeMode('rack');
   render('Rack-limited puzzle ready. Select a physical rack tile, then place it on the board.');

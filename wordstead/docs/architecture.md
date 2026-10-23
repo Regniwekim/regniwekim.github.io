@@ -1,5 +1,7 @@
 # Wordstead architecture
 
+Milestone 3A prepares a pinned, licensed ESDB vocabulary before browser gameplay,
+preserving the synchronous dictionary boundary and all existing rules.
 Milestone 2D adds reserved farm cells, derived capture rewards, independent seeded
 layouts, expandable racks and free exchange credits to the atomic rack transition.
 Milestone 2C.1 adds reversible physical tile drafts to rack play. Milestone 2C wraps
@@ -70,11 +72,13 @@ or asynchronous/nonboolean membership is a programming error and throws TypeErro
 unknown words are ordinary structured placement rejections. No core fetch, DOM,
 storage, or network access occurs. Tests supply controlled dictionaries.
 
-`DEMO_WORDS` is a frozen, hand-selected local demonstration list; `demoDictionary`
-wraps it. This provisional incomplete vocabulary is **not an official Scrabble
-dictionary**. It contains CAR/CAB/RAT/BAT, single-letter extensions, and ordinary
-cross-words, and is displayed in the UI. A properly licensed future list replaces
-this dependency without changing placement rules. No third-party list is bundled.
+`DEMO_WORDS` remains a frozen, hand-selected QA fixture; `demoDictionary` wraps it.
+All existing tests and scripted browser examples retain it, including CAR/CAB/RAT/BAT.
+Normal rack and word-lab runs now use **ESDB American English 60**, pinned version
+`esdb-en-us-60-1e5b7d3-ws1` with 78,626 entries. Neither is an official Scrabble
+dictionary. [Vocabulary policy and provenance](vocabulary.md) document the exact
+filters, limitations, notices, checksum and reproducible development-only export.
+No placement/draft/session/farm rule needed modification.
 
 ### Placement evaluation: `placement.js`
 
@@ -193,7 +197,7 @@ Model data comes from constructors/transitions and is treated as immutable.
 
 Target must be a positive safe integer (RangeError otherwise). Seed validation
 comes from `bag.js` (TypeError). Defaults are 15×15, string seed `wordstead-2c`,
-and a temporary **unbalanced target 1** practical for the provisional vocabulary.
+and a temporary **unbalanced target 1**, unchanged by vocabulary integration.
 `wordCount` stays in the existing puzzle only; `getPuzzleScore(puzzle)` derives
 total score from claims plus captured feature definitions. `getStrokes(state)`
 derives words + exchanges − freeExchangesUsed. `getChargedExchanges` returns
@@ -465,13 +469,36 @@ needs word, dictionary, or rack knowledge.
 
 ## Browser boundary
 
-`main.js` bootstraps `ui/sandbox.js`. The controller owns three separate in-memory
+`main.js` uses `ui/startup.js` to keep the HTML game container inert and busy while
+`vocabulary/loader.js` fetches the local versioned text with its pinned Fetch
+integrity hash. A visible status and retry button remain outside the inert game.
+Before enabling anything, `vocabulary/format.js` checks the version/header,
+uppercase ASCII entries, 2–30 lengths, count, uniqueness and sort order; the
+unchanged `createDictionary()` then prepares one private Set. The loader memoizes
+both concurrent and successful calls, so one successful load/parse serves the
+whole page. Loading failures expose no dictionary, create no session or listeners,
+keep play inert and allow an explicit retry. There is no fallback list. Preparation
+and total load durations are returned for diagnostics, without adding telemetry.
+
+Only after preparation does startup call `initializeSandbox({ dictionary, vocabulary })`
+and release the interaction gate. Offline play works for that loaded page; offline
+reload, service workers, custom compression and persistent caching are not added.
+Word checks never make network requests. The core has no Fetch or async API.
+
+The controller owns three separate in-memory
 sessions: `rack` (default), `words` and `freeform`. Rack owns a core session and
 physical draft; labs own the original puzzle state. Each has independent board
 selection, latest award and recent claim indices. The word lab retains typed
 word/orientation input. Mode switching preserves each session, clears transient
 input, and reconstructs the rack preview on return. Resets/dimension changes affect only the
 active session; refresh clears all three. There is no path to import lab edits into play.
+Each session also owns a dictionary reference and display name, shared by preview
+and commitment. Normal sessions receive ESDB. Loading a scripted rack/farm or word
+lab example resets that run with `demoDictionary`, labeled QA fixture only. Restart
+repeats its vocabulary; mode changes preserve it. A new puzzle/empty board resets
+the active run to ESDB. There is no dictionary selector or mid-run replacement.
+The page displays a concise version and links to local credits, license and policy;
+it no longer renders a full word list or offers suggestions.
 It translates intent, calls pure transitions, then refreshes DOM and Canvas.
 There is no duplicate flood fill, framework, game loop, event bus, storage,
 browser random generator, or animation loop.
@@ -598,7 +625,7 @@ exact-before-blank allocation, permanent blank reuse, partial refills/exhaustion
 single/multi/invalid exchanges, draw-before-return order, frozen-state atomicity,
 dictionary/claim exceptions, stale previews, target/win locks, and explicit endings.
 Controlled resource tests consume a full real bag on a long board using an injected
-test dictionary; the browser always uses the unchanged provisional vocabulary.
+test dictionary; normal browser play now uses the pinned ESDB vocabulary.
 
 Draft tests additionally pin incremental geometry without premature dictionary checks,
 committed bridges and endpoint reuse, singleton two-axis words, every perpendicular
@@ -629,24 +656,28 @@ Existing regression fixtures and expected results remain unchanged.
 ## Limits and deferred work
 
 Only English A–Z assignments and standard blanks are modeled. The unrestricted
-word lab uses the same provisional dictionary; freeform toggles A and allows removal.
-Full saved-state validation/persistence, official dictionary, exhaustive move
+word lab normally uses ESDB; explicit QA examples retain the demo dictionary.
+Freeform toggles A and allows removal.
+Full saved-state validation/persistence, tournament dictionary compatibility, exhaustive move
 solver, final grades, daily/campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
-Future work can inject a licensed membership source without changing the session
-wrapper. Farm bonuses extend the atomic transition after territory claiming;
+Vocabulary changes must use a distinct pinned ID and regenerate the artifact,
+manifest, report and notices after reviewing upstream terms. They may change old
+puzzle solvability even with identical seeds; future daily definitions must pin a
+stable vocabulary version. No daily infrastructure is added.
+Farm bonuses extend the atomic transition after territory claiming;
 future final grading can consume word/exchange counters and target.
 Layout randomness stays explicit and separate from letter-order seeds;
 extend state only alongside tested requirements. Enclosure/claims need no rewrite.
 
 Open playtest questions include the reserved-cell policy, density/weights, point
-values, automatic credit consumption, rack cap and useful targets with the small
+values, automatic credit consumption, rack cap and useful targets with the expanded
 vocabulary. Multi-cell structures, animated livestock, crop timers/harvesting,
 seasons, upgrades and advanced interactions remain deferred with final artwork.
 
 All runtime files remain relative under `wordstead/`, directly loadable and
 refreshable on GitHub Pages without server rewrites or Node runtime. Existing
 crawler restrictions remain. This change leaves the root arcade, shared assets,
-other games, hosting configuration, asset audits, notices, design skeleton, and
+other games, hosting configuration, asset audits, existing asset notices, design skeleton, and
 visual guide unchanged.

@@ -4,7 +4,7 @@ import { evaluatePlacement } from './placement.js';
 import { getPuzzleScore, getCapturedFeatures, summarizeFeatures } from './features.js';
 import { generateFarm, DEFAULT_FARM_DENSITY, DEFAULT_FARM_WEIGHTS } from './farm-layout.js';
 
-// Temporary, unbalanced target for the small demonstration vocabulary.
+// Temporary, unbalanced target; unchanged by vocabulary integration.
 export const DEFAULT_TARGET = 1;
 export const DEFAULT_SEED = 'wordstead-2c';
 
