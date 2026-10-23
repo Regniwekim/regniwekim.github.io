@@ -22,7 +22,7 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 3A · Development prototype</span>
+        <span class="development-label">Milestone 3B · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
@@ -64,6 +64,7 @@
               <div><dt>Total strokes</dt><dd id="strokes">0</dd></div>
             </dl>
             <p id="run-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <a id="results-link" class="results-link" href="#results" hidden>View Results ↓</a>
           </section>
           <dl id="freeform-metrics" class="metrics" aria-label="Enclosure diagnostics" hidden>
             <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
@@ -74,7 +75,6 @@
               <button id="claim" type="button">Claim enclosed land</button>
               <button id="inspect" class="secondary" type="button">Inspect enclosure</button>
             </div>
-            <button id="reset" class="secondary" type="button">Restart puzzle</button>
           </div>
           <p id="action-status" class="action-status" role="status" aria-live="polite" aria-atomic="true">Starting puzzle…</p>
           <div class="board-layout">
@@ -129,6 +129,48 @@
                 <ul id="formed-words" aria-label="Complete formed words"></ul>
                 <p id="vocabulary-note" class="hint">Preparing ESDB American English 60.</p>
               </section>
+              <section id="results" class="results-card" aria-labelledby="results-title" tabindex="-1" hidden>
+                <p id="results-context" class="eyebrow"></p>
+                <h2 id="results-title"></h2>
+                <dl class="results-primary">
+                  <div class="results-score"><dt>Farm Points</dt><dd id="results-points"></dd></div>
+                  <div><dt>Words Placed</dt><dd id="results-words"></dd></div>
+                  <div><dt>Total Strokes</dt><dd id="results-strokes"></dd></div>
+                </dl>
+                <p class="hint">Your final farm is here to explore. Pan the board or select a cell to inspect it.</p>
+                <details id="results-breakdown" class="results-breakdown">
+                  <summary>Score, exchanges &amp; farm captured</summary>
+                  <dl class="results-statistics">
+                    <div><dt>Base territory points</dt><dd id="results-territory"></dd></div>
+                    <div><dt>Total farm bonus points</dt><dd id="results-bonus"></dd></div>
+                    <div><dt>Crop bonus points</dt><dd id="results-crop-bonus"></dd></div>
+                    <div><dt>Fertility bonus points</dt><dd id="results-fertility-bonus"></dd></div>
+                    <div><dt>Total exchanges</dt><dd id="results-exchanges"></dd></div>
+                    <div><dt>Free exchanges used</dt><dd id="results-free-exchanges"></dd></div>
+                    <div><dt>Charged exchanges</dt><dd id="results-charged-exchanges"></dd></div>
+                  </dl>
+                  <h3>Farm Captured</h3>
+                  <dl class="results-statistics">
+                    <div><dt>Crops</dt><dd id="results-crops"></dd></div>
+                    <div><dt>Fertile cells</dt><dd id="results-fertile"></dd></div>
+                    <div><dt>Livestock</dt><dd id="results-livestock"></dd></div>
+                    <div><dt>Buildings</dt><dd id="results-buildings"></dd></div>
+                  </dl>
+                </details>
+                <button id="copy-results" type="button" disabled>Copy Results</button>
+                <p id="copy-status" class="hint" role="status" aria-live="polite" aria-atomic="true"></p>
+                <details id="manual-copy">
+                  <summary>Share text / manual copy</summary>
+                  <label for="share-text">Spoiler-free results</label>
+                  <textarea id="share-text" rows="10" readonly spellcheck="false" aria-describedby="share-help"></textarea>
+                  <p id="share-help" class="hint">Select the text, then use your device’s Copy command (Ctrl+C or Command+C on a keyboard). Only totals are shared; words, tiles and farm layout stay here.</p>
+                  <button id="select-results" class="secondary" type="button">Select share text</button>
+                </details>
+              </section>
+              <div class="actions session-actions">
+                <button id="reset" class="secondary" type="button">Restart Puzzle</button>
+                <a id="new-puzzle-link" class="button-link secondary" href="#view-title" hidden>New Puzzle</a>
+              </div>
               <ul class="legend" aria-label="Board key">
                 <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
                 <li><span class="swatch enclosed" aria-hidden="true">▫</span>Enclosed, unclaimed</li>
@@ -163,7 +205,7 @@
                 <button id="toggle-letter" type="button" hidden>Toggle selected letter</button>
               </section>
               <section aria-labelledby="view-title">
-                <h3 id="view-title">Board setup</h3>
+                <h3 id="view-title" tabindex="-1">Board setup</h3>
                 <label>Cell display size<select id="cell-size"><option value="44">Standard · 44px</option><option value="56">Large · 56px</option><option value="72">Extra large · 72px</option></select></label>
                 <form id="dimensions">
                   <div id="rack-setup">
@@ -177,7 +219,7 @@
                     <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
                     <label>Columns<input id="columns" type="number" min="1" max="30" value="15" step="1" required></label>
                   </div>
-                  <button id="create-board" class="secondary" type="submit">New puzzle</button>
+                  <button id="create-board" class="secondary" type="submit">New Puzzle</button>
                 </form>
                 <p class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
               </section>
@@ -204,7 +246,7 @@
           </details>
         </section>
       </main>
-      <footer><p>Milestone 3A · ESDB vocabulary · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 3B · Results &amp; sharing · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

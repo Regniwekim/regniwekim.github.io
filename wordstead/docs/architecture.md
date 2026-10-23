@@ -1,5 +1,7 @@
 # Wordstead architecture
 
+Milestone 3B adds derived terminal results, deterministic spoiler-free text and
+client-side clipboard/manual sharing. It adds no gameplay state or victory logic.
 Milestone 3A prepares a pinned, licensed ESDB vocabulary before browser gameplay,
 preserving the synchronous dictionary boundary and all existing rules.
 Milestone 2D adds reserved farm cells, derived capture rewards, independent seeded
@@ -345,6 +347,30 @@ livestock/building targets 20 permit subsequent turns and exchanges. A
 `farmFixture` type identifies restart configuration, not gameplay reward state.
 See README for repeatable browser steps.
 
+### Terminal results and share text: `results.js`
+
+`getSessionResults(session)` returns `null` unless existing status is `won`, `ended`
+or `exhausted`. It never infers victory from points, previews or rendered cells.
+The detached, frozen snapshot includes `status`, `target`, `wordCount`,
+`exchangeCount`, `freeExchangesUsed`, `chargedExchanges`, `strokes`, all five
+`getPuzzleScore()` fields, frozen `captured: { crops, fertile, livestock, buildings }`
+counts from `getCapturedFeatures()`, and frozen `board: { rows, columns }`.
+`getStrokes()` and `getChargedExchanges()` remain the accounting authorities.
+There is no saved result, second score, mutable capture record or invented history.
+
+`RESULT_HEADINGS` maps terminal statuses to Harvest Complete!, Farm Unfinished and
+Out of Tiles. `formatResultsShare(results)` accepts a terminal snapshot, rejects
+absent/nonterminal results, and uses explicit fields and `\n` separators for consistent
+plain text. It includes score/target, words/exchanges/strokes, territory plus combined
+farm bonuses, tagline and the fixed `https://games.regniwekim.com/wordstead/` URL.
+It omits words played, letters, positions, layouts, unrevealed tiles and seeds.
+There are no daily IDs, comparison claims or encoded session links.
+
+This milestone deliberately supersedes planned efficiency grading in the design
+skeleton and grade/share-art references in the visual guide for the current
+implementation. Those documents remain unchanged. The target only determines
+victory; no grade, par, ranking, global comparison or performance threshold exists.
+
 ### Reversible drafts: `draft.js`
 
 Draft state is separate from the committed session:
@@ -570,6 +596,33 @@ and bag count. `ui/rack.js` maintains the persistent physical buttons as capacit
 changes, including empty/disabled states. Setup adds independent farm seed and
 density fields; restart reconstructs the original farm/settings or QA fixture.
 
+`ui/results.js` receives the active rack session from the controller after its
+ordinary transition/render. Both panel and share textarea use the same core
+snapshot; labs supply `null`. Session identity avoids rebuilding results or
+resetting disclosures/clipboard status during board inspection. Restart/new/mode
+changes clear all old presentation and share text, and returning to rack mode
+derives its own summary again. A revision token ignores asynchronous clipboard
+success/failure from a previous run or mode. No result operation mutates gameplay.
+
+The compact cream panel below the rack uses a semantic heading and definition
+lists, with points/target, words and strokes prominent and a disclosure for detailed
+scoring, exchange and feature counts. Existing run-status live text announces the
+finish and points to a View Results anchor. Reveal does not move focus or scroll;
+the anchor is explicit navigation. The board retains its letters/claim mask,
+panning, size controls and pointer/keyboard/coordinate inspection. Finished-run
+mutation controls remain disabled. The one existing Restart Puzzle button now
+sits below results and still reconstructs original settings; New Puzzle navigates
+to the existing setup form rather than creating another setup workflow.
+
+Copy Results invokes `navigator.clipboard.writeText` only from its click handler.
+It disables repeated activation while pending, confirms only after success, and
+on unavailable/denied access opens a labeled read-only textarea with useful manual
+instructions. The textarea disclosure is always available for finished runs.
+Select share text focuses/selects only on explicit activation. There is no legacy
+copy command, external website opening, persistent storage or server request.
+Existing focus styles, 44px controls, wrapping layout and absence of animation
+also apply to results.
+
 Canvas backing dimensions scale with device pixel ratio; the drawing transform
 maps back to CSS view units. `pointerToCell` inverts the actual displayed bounding
 rectangle and the 28px label gutter to find logical coordinates, independent of
@@ -653,13 +706,23 @@ layouts, density/weights/protected cells, and independence from letter RNG.
 Rack view tests check seven/eight/nine visible physical slots and empty states.
 Existing regression fixtures and expected results remain unchanged.
 
+Results tests additionally pin won/ended/exhausted transitions, target-reaching
+preview isolation, every score component, zero/multiple captures, livestock and
+buildings, free/charged exchanges, counters, frozen deterministic output, spoiler
+exclusion, newlines, headings and the fixed URL. UI event-surface tests cover pending
+copy timing, success, synchronous/unavailable and asynchronous/denied failures,
+manual selection, inspection without state changes, restart/new/mode clearing and
+stale async completions. The README's Results QA section extends the unchanged
+enclosure/crop/fertile/building fixture checks. Exhaustion uses the existing type
+of controlled full-bag drain with a test dictionary, not a no-moves solver.
+
 ## Limits and deferred work
 
 Only English A–Z assignments and standard blanks are modeled. The unrestricted
 word lab normally uses ESDB; explicit QA examples retain the demo dictionary.
 Freeform toggles A and allows removal.
 Full saved-state validation/persistence, tournament dictionary compatibility, exhaustive move
-solver, final grades, daily/campaign,
+solver, daily/campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
 Vocabulary changes must use a distinct pinned ID and regenerate the artifact,
@@ -667,7 +730,7 @@ manifest, report and notices after reviewing upstream terms. They may change old
 puzzle solvability even with identical seeds; future daily definitions must pin a
 stable vocabulary version. No daily infrastructure is added.
 Farm bonuses extend the atomic transition after territory claiming;
-future final grading can consume word/exchange counters and target.
+results consume the existing word/exchange counters and target without grading.
 Layout randomness stays explicit and separate from letter-order seeds;
 extend state only alongside tested requirements. Enclosure/claims need no rewrite.
 
