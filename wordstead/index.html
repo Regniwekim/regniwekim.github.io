@@ -22,7 +22,7 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 3B · Development prototype</span>
+        <span class="development-label">Milestone 3C.3 · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
@@ -223,8 +223,13 @@
                     <label>Letter seed<input id="seed" type="text" value="wordstead-2c" required></label>
                     <label>Farm seed<input id="farm-seed" type="text" value="wordstead-farm-2d" required></label>
                     <label>Farm density<input id="farm-density" type="number" min="0" max="0.25" step="0.01" value="0.08" required></label>
-                    <label>Total score target<input id="target" type="number" min="1" step="1" value="1" required></label>
-                    <p class="hint">Seeds independently control letter order and farm layout. Density is the fraction of eligible interior cells (0 disables features). Default target 1 is temporary and unbalanced. Layouts may be unsolvable. New puzzles use these settings; restart repeats the active run.</p>
+                    <label>Target mode<select id="target-mode"><option value="automatic">Automatic — Experimental</option><option value="manual">Manual</option></select></label>
+                    <label id="manual-target" hidden>Total score target<input id="target" type="number" min="1" step="1" value="1" disabled></label>
+                    <div id="automatic-target">
+                      <button id="calculate-target" class="secondary" type="button">Calculate Target</button>
+                      <p id="target-preview" role="status" aria-live="polite" aria-atomic="true"></p>
+                    </div>
+                    <p class="hint">Seeds independently control letter order and farm layout. Density is the fraction of eligible interior cells (0 disables features). Calculate and review an automatic target, or choose Manual. New puzzles use these settings; restart repeats the active run.</p>
                   </div>
                   <div class="field-pair">
                     <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
@@ -257,7 +262,7 @@
           </details>
         </section>
       </main>
-      <footer><p>Milestone 3B · Results &amp; sharing · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 3C.3 · Experimental targets · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

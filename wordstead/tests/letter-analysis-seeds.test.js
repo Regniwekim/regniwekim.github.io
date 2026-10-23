@@ -152,9 +152,9 @@ test('committed profile and notice regenerate byte for byte from the exact licen
   assert.match(generated.notice, /is hereby granted without fee/);
   assert.equal(loadBaseline(source.prepared).identity.vocabularyId, source.prepared.identity.vocabularyId);
   assert.equal(measureFlexibility(analyzeRack(parseRack('AEIRSTN'), source.prepared), generated.profile.baseline).overall > 0, true);
-  // The browser entry point has no imports of development analysis or its artifact.
+  // 3C.3 imports compact target coefficients, preserving isolation from the trie/baseline sampler.
   for (const path of ['../src/main.js', '../src/vocabulary/loader.js', '../src/ui/sandbox.js']) {
-    assert.doesNotMatch(readFileSync(new URL(path, import.meta.url), 'utf8'), /analysis\/|letter-analysis/);
+    assert.doesNotMatch(readFileSync(new URL(path, import.meta.url), 'utf8'), /analysis\/(?:rack|seeds|vocabulary)\.js|letter-analysis\/profile/);
   }
 });
 

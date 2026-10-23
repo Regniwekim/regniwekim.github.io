@@ -5,7 +5,7 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 3B gameplay; 3C.1–3C.2 development analysis
+## Current status: Milestone 3C.3 experimental automatic targets
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -42,14 +42,22 @@ and [measured validation](docs/vocabulary-validation.md).
 Milestone **3C.1** adds development-only vocabulary statistics, physical-rack
 constructibility, sampled 7/8/9-tile baselines and deterministic letter-seed reports.
 Run `node scripts/analyze-letters.js --help`; see [methods and measured results](docs/letter-analysis.md).
-It does not change gameplay, targets or browser dependencies.
+Its authoritative trie, measurements and sampled baselines remain development tools.
 
 Milestone **3C.2** adds independent geometric board-opportunity estimates:
 eligible scoring upper bounds, rectangular candidate fences, feature obstruction,
 effort/spans, ranked/Pareto views and bounded greedy portfolios. Run
 `node scripts/analyze-board.js --help`; see [methods, CLI and measured batches](docs/board-analysis.md).
 These are geometric opportunities, without claims about playable word sequences
-or solvability. Automatic target generation remains deferred to 3C.3.
+or solvability. Both original analysis methods and their artifacts are unchanged.
+
+Milestone **3C.3** combines bounded board opportunities with a compact approximation
+of seeded rack flexibility to propose **Automatic — Experimental** score targets.
+The default puzzle resolves to **12 farm points**. Manual targets remain available;
+the integer core constructor and every scripted fixture retain their original behavior.
+Run `node scripts/analyze-targets.js --help`; see [formula, calibration, held-out
+findings, browser measurements and limitations](docs/automatic-targets.md).
+Analytical calibration does not establish human difficulty or guaranteed solvability.
 
 Milestone 1's configurable board and Milestone 2A's enclosure/territory modules
 remain unchanged. **Legal word placement lab** keeps unrestricted word entry and
@@ -78,13 +86,18 @@ Wordstead yet; adding its card is outside this milestone.
 ## Rack-limited puzzle controls
 
 The default mode is **Rack-limited puzzle**. **Board setup** provides separate letter
-and farm seeds, farm density, independent 1–30 board dimensions, and a positive integer total score target.
+and farm seeds, farm density, independent 1–30 board dimensions, and target mode.
+**Automatic — Experimental** is the normal default. **Calculate Target** previews
+the current setup before **New Puzzle** starts it. Editing settings invalidates the
+preview; submitting an uncalculated automatic setup first displays its estimate
+without replacing the active puzzle. An unavailable estimate asks you to change
+settings or choose **Manual**, which exposes the existing positive integer control.
 **New puzzle** applies these settings to a fresh seeded run. **Restart puzzle**
 repeats the active run's original settings and tile order (including the scripted
-fixture), regardless of edits in the setup form. The initial board is 15×15;
-the temporary default target remains **1**, explicitly unbalanced. Vocabulary
-integration does not rebalance it. Different seeds are not guaranteed equally
-difficult or solvable.
+fixture), regardless of edits in the setup form. The initial board is 15×15,
+automatically targeting **12**. Targets stay fixed through words, previews,
+exchanges and farm captures. The legacy `createSession()` default remains 1 for
+API compatibility. Different seeds are not guaranteed equally difficult or solvable.
 
 Seven to nine persistent DOM rack buttons show letters or **◇** for blanks; empty slots
 show a dash. Duplicate letters have independent physical IDs and slot labels.
@@ -543,11 +556,11 @@ src/
   ui/startup.js             Loading/error/retry gate before gameplay initialization
   ui/results.js             Result presentation, clipboard feedback and manual copy
   vocabulary/               Static parser, memoized loader and generated manifest
-  analysis/                 Pure development-only lexical and geometric board analysis
+  analysis/                 Pure analysis, compact automatic targets and session wrapper
 styles/main.css             Local responsive presentation
 vocabulary/                 Committed word list, generation report and browser credits
 data/letter-analysis/       Versioned generated profile, baselines and ESDB notice
-scripts/                    Development-only vocabulary, letter and board analysis tools
+scripts/                    Development-only vocabulary, letter, board and target tools
 tests/                      Built-in Node model tests and explicit fixtures
 ```
 
@@ -603,6 +616,15 @@ cross-words, repeated previews, atomic commitments, farm fixtures and seeded
 exchanges. Run `node scripts/benchmark-vocabulary.js` for preparation/lookup timing.
 Generation and a byte-for-byte `--check` are documented in
 [the vocabulary guide](docs/vocabulary.md#reproduce-and-verify).
+
+Automatic-target tests cover bounded geometry and an independent candidate scan,
+all source identities, byte-for-byte coefficient regeneration, held-out lexical
+error, seed sensitivity, integer bounds, structured unavailable results, real
+seeded victory, fixed targets through transitions, restart, manual bypass, current
+setup previews, results/copy compatibility and the complete browser import graph.
+The two earlier development-only import assertions now permit the compact target
+path while continuing to exclude trie construction, baseline sampling and full
+development reports. See [target validation commands](docs/automatic-targets.md#reproduce).
 
 Run `node --check` on affected JavaScript and `git diff --check`. For browser
 validation use the manual examples above; inspect console/network errors and test
