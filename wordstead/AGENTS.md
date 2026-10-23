@@ -9,6 +9,12 @@ These instructions extend the repository root `AGENTS.md` within `wordstead/`.
 - Read [README.md](README.md), [the design skeleton](docs/design-skeleton.md),
   and [architecture](docs/architecture.md) before changing functionality. The
   design skeleton is authoritative for rules; do not infer rules from artwork.
+- Before changing visual presentation, read the [visual identity guide (v0.1)](docs/visual-guide-v0.1.md).
+  Prioritize readable letter glyphs, clear placement and enclosure feedback,
+  mobile usability, semantic controls, and restrained motion. Palette, logo,
+  typography, and art production choices remain exploratory proposals. Do not
+  treat this guide as permission to publish assets; current audit, organization,
+  and license records determine verified asset and distribution boundaries.
 - `src/core/` owns browser-independent state and rules. `src/main.js` currently
   owns browser initialization and DOM status. Future Canvas rendering belongs
   in `src/rendering/`; DOM controls and input belong in `src/ui/` when needed.
