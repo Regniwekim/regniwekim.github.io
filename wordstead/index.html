@@ -81,12 +81,6 @@
             <div class="board-panel">
               <p id="board-help">Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan; cells stay at least 44px wide.</p>
               <div class="board-stage">
-                <div id="board-viewport" class="board-viewport">
-                  <div class="board-surface">
-                    <canvas id="board" tabindex="0" role="group" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use arrow keys to select a cell, then Enter or Space to place a selected rack tile.</canvas>
-                    <div id="draft-handles"></div>
-                  </div>
-                </div>
                 <details id="results" class="results-card" aria-labelledby="results-title" tabindex="-1" hidden>
                   <summary class="results-window-heading">
                     <h2>
@@ -134,6 +128,12 @@
                     </details>
                   </div>
                 </details>
+                <div id="board-viewport" class="board-viewport">
+                  <div class="board-surface">
+                    <canvas id="board" tabindex="0" role="group" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use arrow keys to select a cell, then Enter or Space to place a selected rack tile.</canvas>
+                    <div id="draft-handles"></div>
+                  </div>
+                </div>
               </div>
               <section id="word-controls" aria-labelledby="word-title">
                 <h3 id="word-title">Your rack</h3>

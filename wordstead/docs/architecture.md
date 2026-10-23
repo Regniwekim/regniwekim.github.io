@@ -606,8 +606,11 @@ derives its own summary again. A revision token ignores asynchronous clipboard
 success/failure from a previous run or mode. No result operation mutates gameplay.
 
 The compact cream window is a native `details` disclosure, positioned over the
-board viewport within `.board-stage`. It opens for a terminal session, and its
-sticky summary header provides keyboard-accessible collapse/expand controls. The
+board viewport within `.board-stage`. The disclosure precedes the viewport in DOM
+order. While collapsed it uses normal flow above the scroll pane, so no part of
+its header covers playable cells or requires extra canvas panning margins. It
+opens for a terminal session, and its sticky summary header provides
+keyboard-accessible collapse/expand controls. The
 window height stays within the board stage with internal scrolling for details
 and manual-copy text. It uses a semantic heading and definition lists, with
 points/target and words prominent and a disclosure for detailed scoring, exchange

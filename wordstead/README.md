@@ -257,8 +257,9 @@ the existing empty-rack-and-empty-bag condition shows **Out of Tiles**. A previe
 never finishes a run. There is still no exhaustive no-legal-moves solver.
 
 The cream results window opens over the board. Activate its **Collapse results**
-header to reveal the farm, then **Show results** to expand it again. It prominently
-displays actual farm points versus target and accepted word placements. Expand **Score,
+header to move it above the board's scroll area and reveal the entire farm,
+including the first row. **Show results** expands it over the board again. It
+prominently displays actual farm points versus target and accepted word placements. Expand **Score,
 exchanges & farm captured** for base territory, crop/fertility/combined farm bonus
 points, total/free/charged exchanges, and counts of captured crops, fertile cells,
 livestock and buildings. Its context identifies Free Play (or scripted QA) and
@@ -406,6 +407,10 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
 - Collapse and expand the window by pointer and keyboard; inspect and pan the farm
   while collapsed. **View Results** must reopen it. **More Games** must open the
   arcade in a separate tab while the finished farm remains in the original tab.
+- At a narrow width, collapse results and pan to the top-left and top-right board
+  corners at both 44px and 72px cell sizes. Tap the first-row cells and confirm
+  their coordinates are selected. The header must sit entirely above the scroll
+  area; keyboard selection must also reveal these cells without covering them.
 - Open the manual-copy disclosure and select/copy its text with the keyboard. Test
   with clipboard access unavailable/denied: failure must expand that same text,
   explain manual copying and never claim success.
