@@ -52,12 +52,36 @@ function allocateRack(rack, positions) {
   return { allocations, missingLetters: [...missing].map(([letter, count]) => ({ letter, count })) };
 }
 
+/** Validate an exact physical allocation; never substitute another tile. */
+function allocateExplicitRack(rack, positions, assignments) {
+  const allocations = [];
+  const used = new Set();
+  const invalid = () => ({ allocations: [], missingLetters: [],
+    reason: { code: 'INVALID_TILE_ALLOCATION',
+      message: 'Supply each new cell with one distinct current rack tile and its matching letter; blanks need an A–Z assignment.' } });
+  if (!Array.isArray(assignments) || assignments.length !== positions.length) return invalid();
+  for (const position of positions) {
+    const matches = assignments.filter((item) => item?.row === position.row && item?.column === position.column);
+    if (matches.length !== 1) return invalid();
+    const assignment = matches[0];
+    const tile = rack.find((item) => item.id === assignment.tileId);
+    if (!tile || used.has(tile.id) || assignment.letter !== position.letter
+      || (tile.letter === null ? assignment.assignedLetter !== position.letter
+        : tile.letter !== position.letter || assignment.assignedLetter != null)) return invalid();
+    used.add(tile.id);
+    allocations.push({ ...position, tile, blank: tile.letter === null });
+  }
+  return { allocations, missingLetters: [] };
+}
+
 /** Preserve geometry/dictionary results and reason precedence, then check resources. */
-export function evaluateSessionPlacement(state, proposal, dictionary) {
+export function evaluateSessionPlacement(state, proposal, dictionary, assignments) {
   const evaluation = evaluatePlacement(state.puzzle.board, proposal, dictionary);
-  const rack = allocateRack(state.rack, evaluation.newPositions);
+  const rack = assignments === undefined ? allocateRack(state.rack, evaluation.newPositions)
+    : allocateExplicitRack(state.rack, evaluation.newPositions, assignments);
   const finished = closedReason(state);
   if (finished) return { ...evaluation, legal: false, reason: finished, rack };
+  if (evaluation.legal && rack.reason) return { ...evaluation, legal: false, reason: rack.reason, rack };
   if (!evaluation.legal || !rack.missingLetters.length) return { ...evaluation, rack };
   const missing = rack.missingLetters.map(({ letter, count }) => `${letter} ×${count}`).join(', ');
   return { ...evaluation, legal: false, rack,
@@ -66,8 +90,8 @@ export function evaluateSessionPlacement(state, proposal, dictionary) {
 }
 
 /** Revalidate and delegate the sole word/claim engine before publishing any state. */
-export function commitSessionWord(state, proposal, dictionary) {
-  const evaluation = evaluateSessionPlacement(state, proposal, dictionary);
+export function commitSessionWord(state, proposal, dictionary, assignments) {
+  const evaluation = evaluateSessionPlacement(state, proposal, dictionary, assignments);
   const rejected = (ev) => ({ accepted: false, state, evaluation: ev, points: 0, newlyClaimed: [] });
   if (!evaluation.legal) return rejected(evaluation);
   const result = commitWord(state.puzzle, proposal, dictionary);

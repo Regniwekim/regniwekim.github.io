@@ -5,7 +5,7 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 2C
+## Current status: Milestone 2C.1
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -16,7 +16,9 @@ per newly claimed cell, with total score derived from the existing claim mask.
 The default **Rack-limited puzzle** draws seven physical tiles from a seeded
 100-tile bag, replenishes after accepted words, permits exchanges, and finishes
 when the territory target is reached. Word count is the primary efficiency
-measure; each exchange adds one provisional stroke. Both old labs remain available.
+measure; each exchange adds one provisional stroke. Build words directly from physical
+rack tiles using click/tap, Pointer Events dragging, or keyboard controls. Both old
+labs remain available.
 
 This is **not the full game**. Membership uses
 a hand-selected, provisional, incomplete local vocabulary, **not an official
@@ -57,22 +59,82 @@ fixture), regardless of edits in the setup form. The initial board is 15×15;
 the temporary default target is **1**, explicitly unbalanced for the limited
 vocabulary. Different seeds are not guaranteed equally difficult or solvable.
 
-Seven individual DOM rack buttons show letters or **◇** for blanks. Empty slots
-show a dash. Focus, dashed preview-use outlines, and exchange selection checkmarks
-supplement color. On narrow screens the rack wraps to two rows, keeping targets
-at least 44px. Type the desired word; new cells must be supplied by the rack.
-Matching existing letters cost nothing. Preview text lists tiles to spend,
-missing multiplicities, free reused letters with locations, and blank assignments.
-Previews, clearing them, selecting cells, and rerendering never draw or spend tiles.
+Seven persistent DOM rack buttons show letters or **◇** for blanks; empty slots
+show a dash. Duplicate letters have independent physical IDs and slot labels.
+Select a tile, then click/tap an empty board cell. The tile appears as a dashed
+**p** draft, and its original rack slot shows a dashed inset and **↗**. The rack
+still owns the tile until commitment. Select another tile to continue; selection
+alone never changes the draft. Activate an already-selected available tile or
+**Cancel selection** / Escape to deselect it.
 
-**Exchange tiles** pauses word placement. Select one or more rack buttons (mouse,
-touch, or Tab then Space/Enter), inspect the selected count/bag restriction, then
-**Confirm exchange** or **Cancel exchange**. The bag must have at least the selected
-count. Replacements are drawn before selected tiles return; the remaining pool is
-then deterministically shuffled. Returned tiles cannot be their own immediate
-replacements. Selection order does not affect the result. Each completed exchange
-costs **one stroke**, regardless of tile count, and changes no words or territory.
-Cancellation costs nothing. Feedback reports returned and replacement tiles.
+You can also drag from a rack button or a drafted board tile. Movement must exceed
+8 CSS pixels to become a drag. A lightweight tile ghost follows the pointer;
+**+** / **×** outlines and text identify eligible/rejected drop cells. Release on
+an eligible cell to place or move. Release outside the visible board to cancel;
+release on that tile's original rack slot to return it. Invalid drops, pointer
+cancellation, lost capture, blur and Escape preserve the draft exactly. There is
+no edge auto-scroll during dragging: pan to the destination first, or use tapping
+or keyboard controls.
+
+The scrollable board keeps cells at 44, 56 or 72 CSS pixels. Empty and committed
+cells retain native touch scrolling, including while a rack tile is selected.
+Movement beyond the tap threshold or pointer cancellation suppresses board taps.
+Only rack buttons and drafted tile handles reserve touch gestures for dragging.
+On phones the rack wraps four/three slots immediately below the board; Commit,
+Undo and Clear follow the rack. No native HTML drag-and-drop is required.
+
+**Construction and legality are separate.** The first draft tile can occupy any
+available cell, with direction undecided. A second tile establishes a row or
+column; additions must keep a single contiguous run. Existing committed letters
+can bridge draft tiles. Empty gaps, diagonal additions, branches, occupied cells
+and out-of-bounds positions are rejected without losing selection or resources.
+Temporary text such as C or CA remains editable. Only the completed move must
+cross the starting square (first word), connect to existing letters (later turns)
+and pass the existing vocabulary and cross-word checks.
+
+Words and direction are inferred from the complete contiguous board/draft run;
+no word entry or orientation picker appears in rack mode. Old letters at either
+end or between tiles are reused for free. One new tile can extend CAT into CATS,
+form a vertical word, or change words in both axes. All affected words are listed
+and checked; an accepted placement still counts once.
+
+Tap a drafted tile to pick it up, then tap another cell to move it. **Return
+selected tile**, a second activation of its selected original rack slot, or a drag
+back to that slot returns it without an exchange. **Undo last placement** returns
+the most recently placed or moved tile (it does not rewind a move to its old cell).
+**Clear draft** returns all pending tiles. An arbitrary return may leave a gap;
+remaining tiles stay visible and editable, with commitment disabled until repaired.
+If only one tile remains, direction becomes undecided again. No other tile is
+silently removed.
+
+Selecting a blank opens an A–Z button dialog usable with touch, Tab and Enter/Space.
+Assign it before dragging; no letter is guessed. The draft displays its chosen
+letter plus **◇**. Select the drafted blank and use **Change blank letter** to
+reassign it. Movement retains the assignment and physical ID. A specifically
+chosen blank is consumed even when the rack contains an ordinary matching letter.
+Its blank provenance is permanent after commitment.
+
+**Commit word** enables only for a complete legal draft with valid physical tile
+allocations. Commitment reconstructs and revalidates the current draft, consumes
+those exact IDs, places letters with provenance, claims land, refills and advances
+the word count once. Failure preserves both the entire session and draft. Previews,
+selection, edits and cancellation never draw, shuffle, claim or count.
+
+**Keyboard:** Tab to a rack tile, then Enter/Space selects it and focuses the board.
+Arrow keys move the board cursor; Enter/Space places the selected tile or picks up
+a draft tile at the cursor. Repeat with another rack tile. Board keys never commit;
+use the semantic Commit button. Undo, Clear, Return, Cancel and blank assignment
+are also semantic controls. Row/Column plus **Select cell** moves only the cursor,
+so coordinate edits do not move an assembled draft. Live text announces logical
+coordinates, physical identity, assignment, direction, legality, words and points.
+
+**Exchange tiles** uses a separate selection mode. Return or clear all draft tiles
+first; the exchange action is disabled and explains this policy while a draft
+exists. Entering exchange cancels placement selection. Select one or more rack
+buttons, then **Confirm exchange** or **Cancel exchange**. The bag must have at
+least the selected count. Replacements are drawn before returns, then the remaining
+pool is deterministically shuffled. Each completed exchange costs one provisional
+stroke. Cancellation costs nothing.
 
 The page shows rack/bag counts, territory points/target, progress, accepted word
 placements, exchanges, and derived **strokes = wordCount + exchangeCount**. Victory
@@ -102,8 +164,9 @@ point values:
 
 Each tile has a stable ID separate from its letter; duplicates are distinct
 resources. Blanks have `letter: null` in the rack/bag. Enter their desired A–Z
-letter normally. The temporary automatic policy spends exact matches first,
-then blanks, in word/rack order. Manual physical-tile allocation is deferred.
+letter in the assignment dialog. Normal play allocates the explicitly selected
+physical tiles; the legacy automatic API still prefers exact matches before blanks
+in word/rack order for diagnostic callers and regression tests.
 Committed cells retain `tileId` and `blank` alongside compatible letter occupancy;
 an assigned blank is permanent and behaves as its letter in later words/fences.
 Canvas marks it **◇**; selected-cell text also identifies it.
@@ -121,7 +184,7 @@ for `newPositions`, delegates to existing `commitWord`, adds provenance, consume
 and replenishes, and derives status. Rejections return the exact input state;
 board, claims, rack, bag order, RNG, counters and progress all remain unchanged.
 
-## Word placement controls (both word modes)
+## Typed-word controls (Legal word placement lab only)
 
 1. Enter a word (ASCII lowercase normalizes to uppercase) and select horizontal or
    vertical orientation. No punctuation, spaces inside words, blank symbols, or
@@ -202,12 +265,39 @@ other tiles in canonical alphabetical/ID order. First rack: C A R A B T A;
 the next draw is A. Seed label `enclosure-qa` initializes exchange randomness only
 for this controlled initial order.
 
-Apply the same four moves in the table above. They consume **3, 2, 2, 1** tiles,
+Without typing or choosing orientation:
+
+1. Place C, A, R at (4, 4), (4, 5), (4, 6); commit CAR.
+2. Place A, B at (5, 4), (6, 4); commit CAB, reusing C.
+3. Place A, T at (5, 6), (6, 6); commit RAT, reusing R.
+4. Place A at (6, 5); commit BAT, reusing B and T.
+
+Choose specific rack buttons for every new cell; duplicate A buttons are distinct.
+These moves consume **3, 2, 2, 1** tiles,
 respectively; shared corners are free. Refills leave seven tiles each time and bag
 counts **90, 88, 86, 85**. BAT claims exactly (5, 5), index 32, and wins at target 1:
-4 words, 0 exchanges, 4 strokes, score 1. Before committing BAT, repeated previews
+4 words, 0 exchanges, 4 strokes, score 1. Before committing BAT, repeated selection/cancellation and rerenders
 must leave count 3, score 0, and bag 86. After victory commitment/exchanges are
 blocked, including the lab's optional CARS extension. Restart repeats this fixture.
+
+### Draft editing, blanks and gesture QA
+
+- Load the rack fixture, place C then A, and try R on a diagonal, across a gap,
+  onto another draft, or on a committed cell. Useful feedback appears; neither the
+  draft nor the bag changes. CA can remain pending until R completes CAR.
+- Return A from the middle of CAR; C and R remain visible with a gap warning.
+  Replace that same A to repair it. Move/return a tile by both tapping and dragging;
+  undo and clear must restore the correct original rack slots.
+- For a reproducible blank test, create a 7×7 puzzle with seed **blank-qa-636**.
+  The rack is N A T N H ◇ C. Assign the blank O, place it at (4, 4), reassign A,
+  then place C at (4, 3) and T at (4, 5). Commit CAT. The ordinary A must remain
+  in the rack, and the committed A must display ◇ and report assigned blank.
+- Try outside releases, returning to a different slot, Escape, pointer cancellation
+  and losing focus mid-drag; pending tiles must be restored exactly. Try exchanges
+  with a draft and after clearing. End/restart and switch all three modes.
+- On a phone, pan empty/committed cells while a tile is selected: no letter should
+  be placed by scrolling. Test a rack-origin touch drag and a drafted tile drag,
+  as well as tap placement. Real-device behavior remains a manual QA requirement.
 
 ### Cross-words, invalid moves, and input (unrestricted word lab)
 
@@ -255,10 +345,12 @@ src/
     placement.js            Geometry, connectivity and affected complete words
     puzzle.js               Minimal state and atomic accepted-word transition
     bag.js                  Standard physical tiles, explicit seeded shuffle/draw
-    session.js              Rack-aware commits, exchanges, strokes and run status
+    session.js              Automatic/explicit rack commits, exchanges and status
+    draft.js                Reversible physical drafts, continuity and run inference
     session-fixture.js      Complete scripted bag and four enclosure QA moves
   rendering/board.js        Shared Canvas view and coordinate transforms
-  ui/sandbox.js             DOM/input controller and isolated development sessions
+  ui/sandbox.js             DOM controller and isolated development sessions
+  ui/tile-input.js          Selection, blank dialog and transactional pointer input
 styles/main.css             Local responsive presentation
 tests/                      Built-in Node model tests and explicit fixtures
 ```
@@ -287,7 +379,12 @@ preview isolation, counters, claim history, and the four-word integration exampl
 Milestone 2C tests cover the exact distribution/identity conservation, deterministic
 shuffle, repeated-letter allocation, blanks, immutable rejection, stale previews,
 low/empty bag draws and exchanges, status locks, forfeits, reproducible restarts,
-and the rack-limited four-word victory fixture.
+and the rack-limited four-word victory fixture. Draft tests cover both axes,
+committed bridges, temporary gaps/repair, complete-run inference, multiple cross-words,
+exact IDs, explicit blank preference, stale/invalid allocations, atomic failures
+and the four-word tile-only fixture. Event-surface tests exercise mouse/touch pointer
+thresholds, compatibility-click suppression, invalid drops, cancellation/lost capture,
+blank dialogs, selection, movement and returns without adding a DOM dependency.
 
 Run `node --check` on affected JavaScript and `git diff --check`. For browser
 validation use the manual examples above; inspect console/network errors and test
@@ -304,7 +401,7 @@ transition after territory claiming. Future final grading can consume accepted
 word count, exchange count and target; its rubric and exchange cost need playtesting.
 Keep future feature-layout randomness explicit and separate from letter seeds.
 
-Official dictionary, complete no-legal-move detection, manual blank allocation,
+Official dictionary, complete no-legal-move detection,
 farm bonuses, final grades, campaign/daily modes, persistence, leaderboards, final
 Sprout Lands integration, decorative animation, and sound remain deferred. The
 core expects valid in-memory boards/territory from its constructors; saved-state

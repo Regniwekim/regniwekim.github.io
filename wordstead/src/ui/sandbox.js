@@ -3,11 +3,13 @@ import { isLetterCell, setLetter } from '../core/letters.js';
 import { evaluateTerritory, claimTerritory, getTerritoryScore } from '../core/territory.js';
 import { evaluatePlacement, getStartingSquare } from '../core/placement.js';
 import { createPuzzle, commitWord } from '../core/puzzle.js';
-import { createSession, evaluateSessionPlacement, commitSessionWord, evaluateExchange,
+import { createSession, evaluateExchange,
   exchangeTiles, endSession, getStrokes } from '../core/session.js';
+import { createDraft, evaluateDraft, commitSessionDraft, undoDraft } from '../core/draft.js';
 import { createEnclosureSession } from '../core/session-fixture.js';
 import { demoDictionary, DEMO_WORDS } from '../core/demo-vocabulary.js';
 import { drawBoard, pointerToCell, revealSelection } from '../rendering/board.js';
+import { initializeTileInput } from './tile-input.js';
 
 /** Three isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox() {
@@ -21,11 +23,12 @@ export function initializeSandbox() {
     const state = rackState ?? createPuzzle(dimensions);
     const board = rackState ? state.puzzle.board : state.board;
     return { state, selected: getStartingSquare(board), recentClaims: [], latestAward: 0,
-      word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [] };
+      word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [], draft: createDraft() };
   }
   const sessions = { rack: session(null, createSession()), words: session(), freeform: session() };
   let mode = 'rack';
   let preview = null;
+  let boardView = null;
   let cellSize = Number(find('cell-size').value);
   const active = () => sessions[mode];
   const puzzle = () => mode === 'rack' ? active().state.puzzle : active().state;
@@ -49,6 +52,15 @@ export function initializeSandbox() {
     return button;
   });
   const tileLabel = (tile) => tile.letter ?? '◇ (blank)';
+  const tileInput = initializeTileInput({ canvas, viewport, rackButtons,
+    enabled: () => mode === 'rack' && !active().exchanging && active().state.status === 'playing',
+    getState: () => sessions.rack.state, getDraft: () => sessions.rack.draft,
+    setDraft: (draft) => { sessions.rack.draft = draft; }, getCellSize: () => cellSize,
+    selectCell: (cell) => { active().selected = cell; },
+    refresh: (message) => { if (mode === 'rack') updatePreview(message); else render(message); },
+    redraw: () => {
+      if (boardView) drawBoard(canvas, { ...boardView, drop: tileInput.drop, selectedTileId: tileInput.selected?.tileId });
+    } });
 
   function renderRack() {
     const { state, exchanging, exchangeIds } = active();
@@ -68,19 +80,21 @@ export function initializeSandbox() {
       : state.status === 'ended' ? `Run ended by player. ${metrics} Restart or create a new puzzle.`
         : state.status === 'exhausted' ? `Resources exhausted: rack and bag empty. ${metrics} Restart or create a new puzzle.`
           : 'Run in progress. Exchanges cost one provisional stroke each.';
-    const used = new Set(preview?.rack?.allocations.map(({ tile }) => tile.id) ?? []);
+    const used = new Set(active().draft.tiles.map((tile) => tile.tileId));
     rackButtons.forEach((button, slot) => {
       const tile = state.rack[slot];
-      const selected = tile && exchangeIds.includes(tile.id);
-      button.textContent = tile ? tile.letter ?? '◇' : '–';
-      button.disabled = !tile;
+      const selected = tile && (exchanging ? exchangeIds.includes(tile.id) : tileInput.selected?.tileId === tile.id);
+      const draftTile = active().draft.tiles.find((item) => item.tileId === tile?.id);
+      button.textContent = tile ? tile.letter ?? (draftTile ? `◇${draftTile.letter}` : '◇') : '–';
+      button.disabled = !tile || state.status !== 'playing';
       button.setAttribute('aria-pressed', String(Boolean(selected)));
-      button.setAttribute('aria-label', `Slot ${slot + 1}: ${tile ? tileLabel(tile) : 'empty'}${selected ? ', selected for exchange' : ''}${used.has(tile?.id) ? ', required by preview' : ''}${!exchanging ? ', activate Exchange tiles to select' : ''}`);
+      button.setAttribute('aria-label', `Slot ${slot + 1}: ${tile ? `${tileLabel(tile)}, physical tile ${tile.id}` : 'empty'}${selected ? exchanging ? ', selected for exchange' : ', selected for placement' : ''}${draftTile ? `, provisionally at row ${draftTile.row + 1}, column ${draftTile.column + 1}${draftTile.assignedLetter ? `, assigned ${draftTile.letter}` : ''}` : ''}`);
       button.dataset.used = String(used.has(tile?.id));
       button.dataset.empty = String(!tile);
+      button.dataset.tileId = tile?.id ?? '';
     });
     find('start-exchange').hidden = exchanging;
-    find('start-exchange').disabled = state.status !== 'playing' || !state.rack.length || !state.bag.length;
+    find('start-exchange').disabled = state.status !== 'playing' || !state.rack.length || !state.bag.length || used.size > 0;
     find('confirm-exchange').hidden = !exchanging;
     find('cancel-exchange').hidden = !exchanging;
     const check = evaluateExchange(state, exchangeIds);
@@ -88,7 +102,10 @@ export function initializeSandbox() {
     find('end-run').disabled = state.status !== 'playing';
     find('exchange-feedback').textContent = exchanging
       ? `${exchangeIds.length} selected · ${state.bag.length} in bag. ${check.legal ? 'Confirm to draw replacements; costs one stroke.' : check.reason.message}`
-      : state.status === 'playing' && !state.bag.length ? 'Bag empty. You may still play useful rack tiles or end this run. No complete legal-move solver is implemented.' : '';
+      : used.size ? 'Return or clear all draft tiles before exchanging.'
+        : state.status === 'playing' && !state.bag.length ? 'Bag empty. You may still play useful rack tiles or end this run. No complete legal-move solver is implemented.' : '';
+    find('undo-draft').disabled = !used.size || state.status !== 'playing' || exchanging;
+    find('clear-draft').disabled = !used.size || state.status !== 'playing' || exchanging;
   }
 
   function render(message) {
@@ -97,8 +114,10 @@ export function initializeSandbox() {
     const evaluation = evaluateTerritory(board, territory);
     const previewTerritory = preview?.legal ? evaluateTerritory(preview.proposedBoard, territory) : null;
     const startingSquare = mode !== 'freeform' ? getStartingSquare(board) : null;
-    drawBoard(canvas, { board, territory, evaluation, recentClaims, selected, cellSize,
-      preview, previewTerritory, startingSquare });
+    boardView = { board, territory, evaluation, recentClaims, selected, cellSize,
+      preview, previewTerritory, startingSquare, draft: mode === 'rack' ? active().draft : null,
+      selectedTileId: mode === 'rack' ? tileInput.selected?.tileId : null, drop: mode === 'rack' ? tileInput.drop : null };
+    drawBoard(canvas, boardView);
     find('territory-score').textContent = getTerritoryScore(territory);
     find('word-count').textContent = wordCount;
     find('latest-award').textContent = `+${latestAward}`;
@@ -114,17 +133,24 @@ export function initializeSandbox() {
     columnInput.value = selected.column + 1;
     const index = getCellIndex(board, selected.row, selected.column);
     const cell = board.cells[index];
-    const status = isLetterCell(cell) ? `committed letter ${cell.letter}${cell.blank ? ', assigned blank' : ''}${territory.claimed[index] ? ', previously claimed underneath' : ''}`
+    const drafted = mode === 'rack' && active().draft.tiles.find((tile) => tile.row === selected.row && tile.column === selected.column);
+    const status = drafted ? `draft letter ${drafted.letter}, physical tile ${drafted.tileId}${drafted.assignedLetter ? ', assigned blank' : ''}`
+      : isLetterCell(cell) ? `committed letter ${cell.letter}${cell.blank ? ', assigned blank' : ''}${territory.claimed[index] ? ', previously claimed underneath' : ''}`
       : territory.claimed[index] ? `${recentClaims.includes(index) ? 'newly' : 'previously'} claimed land${evaluation.exterior.includes(index) ? ', now exterior' : ''}`
         : evaluation.enclosed.includes(index) ? 'enclosed, unclaimed land' : 'exterior land';
     find('selection-status').textContent = `Row ${selected.row + 1}, column ${selected.column + 1}: ${status}.`;
+    canvas.setAttribute('aria-label', `Interactive letter fence board. Row ${selected.row + 1}, column ${selected.column + 1}: ${status}.`);
     for (const control of find('word-controls').querySelectorAll('input, select, button')) control.disabled = exchanging;
     find('commit-word').disabled = mode === 'freeform' || exchanging || !preview?.legal;
     find('placement-feedback').textContent = preview
       ? preview.legal
         ? `Valid preview: ${preview.newPositions.length} new, ${preview.reusedPositions.length} reused letters. Would claim ${previewTerritory.points} cells (+${previewTerritory.points}). Commit word to accept.`
-        : `Invalid preview [${preview.reason.code}]: ${preview.reason.message}`
-      : 'No preview. Enter a word and choose a starting cell, then preview.';
+        : `${mode === 'rack' ? 'Draft not ready' : 'Invalid preview'} [${preview.reason.code}]: ${preview.reason.message}`
+      : mode === 'rack' ? active().state.status !== 'playing' ? 'Run finished. Restart or create a new puzzle.'
+        : 'Select a rack tile and place it on the board. Draft edits spend nothing.'
+        : 'No preview. Enter a word and choose a starting cell, then preview.';
+    find('draft-direction').textContent = mode === 'rack' && preview
+      ? `Draft direction: ${preview.structural.orientation ?? 'undecided (one tile)'}. ${preview.structural.coherent ? 'Straight and contiguous.' : preview.structural.reason.message}` : '';
     find('placement-feedback').dataset.legality = preview ? (preview.legal ? 'valid' : 'invalid') : '';
     find('formed-words').replaceChildren(...(preview?.words ?? []).map((run) => {
       const item = document.createElement('li');
@@ -133,21 +159,24 @@ export function initializeSandbox() {
       return item;
     }));
     find('rack-feedback').textContent = mode === 'rack' && preview
-      ? `Spend: ${preview.rack.allocations.map(({ letter, blank, row, column }) => `${blank ? `blank → ${letter}` : letter} at (${row + 1}, ${column + 1})`).join(', ') || 'none'}. Reuse from board (free): ${preview.reusedPositions.map(({ letter, row, column }) => `${letter} at (${row + 1}, ${column + 1})`).join(', ') || 'none'}. Missing: ${preview.rack.missingLetters.map(({ letter, count }) => `${letter} ×${count}`).join(', ') || 'none'}. Preview spends nothing.` : '';
+      ? !preview.structural.coherent
+        ? `${active().draft.tiles.length} draft tiles remain in their original rack slots. Repair the draft to evaluate the completed word. Nothing spent.`
+        : `Spend: ${preview.rack.allocations.map(({ letter, blank, row, column }) => `${blank ? `blank → ${letter}` : letter} at (${row + 1}, ${column + 1})`).join(', ') || 'none'}. Reuse from board (free): ${preview.reusedPositions.map(({ letter, row, column }) => `${letter} at (${row + 1}, ${column + 1})`).join(', ') || 'none'}. Missing: ${preview.rack.missingLetters.map(({ letter, count }) => `${letter} ×${count}`).join(', ') || 'none'}. Preview spends nothing.` : '';
     if (mode === 'rack') renderRack();
+    tileInput.render();
     if (message) find('action-status').textContent = message;
   }
 
-  function updatePreview() {
+  function updatePreview(message) {
     preview = mode === 'freeform' || active().exchanging ? null : mode === 'rack'
-      ? evaluateSessionPlacement(active().state, proposal(), demoDictionary)
+      ? active().draft.tiles.length ? evaluateDraft(active().state, active().draft, demoDictionary) : null
       : evaluatePlacement(puzzle().board, proposal(), demoDictionary);
-    render();
+    render(typeof message === 'string' ? message : undefined);
   }
 
   function select(cell) {
     active().selected = cell;
-    if (mode !== 'freeform' && wordInput.value.trim()) updatePreview();
+    if (mode === 'words' && wordInput.value.trim()) updatePreview();
     else render();
     revealSelection(viewport, cell, cellSize);
   }
@@ -164,6 +193,7 @@ export function initializeSandbox() {
   }
 
   function reset(dimensions = puzzle().board, rackState = null) {
+    tileInput.reset();
     if (mode === 'rack' && !rackState) {
       const current = active().state;
       rackState = current.source === 'scripted' ? createEnclosureSession()
@@ -194,6 +224,7 @@ export function initializeSandbox() {
   }
 
   function changeMode(nextMode) {
+    tileInput.reset();
     active().word = wordInput.value;
     active().orientation = find('orientation').value;
     active().exchanging = false;
@@ -205,6 +236,12 @@ export function initializeSandbox() {
     preview = null;
     const legal = mode !== 'freeform';
     find('word-controls').hidden = !legal;
+    find('word-form').hidden = mode !== 'words';
+    find('clear-preview').hidden = mode !== 'words';
+    find('rack-controls').hidden = mode !== 'rack';
+    find('rack-context').hidden = mode !== 'rack';
+    find('word-title').textContent = mode === 'rack' ? 'Your rack' : 'Place a word';
+    find('draft-actions').hidden = mode !== 'rack';
     find('freeform-actions').hidden = legal;
     find('toggle-letter').hidden = legal;
     find('word-metrics').hidden = !legal;
@@ -213,10 +250,12 @@ export function initializeSandbox() {
     find('rack-setup').hidden = mode !== 'rack';
     find('example').hidden = mode !== 'words';
     find('create-board').textContent = mode === 'rack' ? 'New puzzle' : 'Create empty board';
-    find('board-help').textContent = legal
+    find('board-help').textContent = mode === 'rack'
+      ? 'Select a rack tile, then tap an empty cell or use board arrows and Enter/Space. Tap a draft tile to move it. Drag from rack or draft tiles; swipe empty or committed cells to pan. Escape cancels selection.' : legal
       ? 'Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan.'
       : 'Diagnostic lab: tap to toggle A. Arrow keys select; Enter or Space toggles. Claims are manual. This session is separate from legal play.';
     syncSetup();
+    if (mode === 'rack') updatePreview();
     render(`${find('mode').selectedOptions[0].textContent} resumed. Each mode keeps its own board and progress.`);
   }
   find('mode').addEventListener('change', () => changeMode(find('mode').value));
@@ -226,7 +265,7 @@ export function initializeSandbox() {
   find('clear-preview').addEventListener('click', () => { preview = null; render('Preview cleared. No letters or claims changed.'); });
   find('commit-word').addEventListener('click', () => {
     if (mode === 'freeform' || active().exchanging || !preview) return;
-    const result = mode === 'rack' ? commitSessionWord(active().state, proposal(), demoDictionary)
+    const result = mode === 'rack' ? commitSessionDraft(active().state, active().draft, demoDictionary)
       : commitWord(active().state, proposal(), demoDictionary);
     if (!result.accepted) {
       preview = result.evaluation;
@@ -234,6 +273,7 @@ export function initializeSandbox() {
       return;
     }
     active().state = result.state;
+    if (mode === 'rack') { active().draft = result.draft; tileInput.reset(); }
     active().recentClaims = result.newlyClaimed;
     active().latestAward = result.points;
     preview = null;
@@ -252,12 +292,11 @@ export function initializeSandbox() {
   find('rack-example').addEventListener('click', () => {
     changeMode('rack');
     reset({ rows: 7, columns: 7 }, createEnclosureSession());
-    wordInput.value = 'CAR';
-    updatePreview();
-    render('Scripted rack QA example ready: CAR previewed, nothing spent. Follow CAR, CAB, RAT, BAT below.');
+    render('Scripted rack QA example ready. Place C, A, R in row 4, columns 4–6, then commit. Follow CAR, CAB, RAT, BAT below.');
   });
   find('start-exchange').addEventListener('click', () => {
-    if (mode !== 'rack' || active().state.status !== 'playing') return;
+    if (mode !== 'rack' || active().state.status !== 'playing' || active().draft.tiles.length) return;
+    tileInput.reset();
     active().exchanging = true;
     active().exchangeIds = [];
     preview = null;
@@ -285,10 +324,26 @@ export function initializeSandbox() {
     const result = endSession(active().state);
     if (!result.accepted) return;
     active().state = result.state;
+    active().draft = createDraft();
+    tileInput.reset();
     active().exchanging = false;
     active().exchangeIds = [];
     preview = null;
     render('Unfinished run ended. Restart or create a new puzzle to play again.');
+  });
+  find('undo-draft').addEventListener('click', () => {
+    if (mode !== 'rack' || active().exchanging || active().state.status !== 'playing') return;
+    tileInput.reset();
+    active().draft = undoDraft(active().draft);
+    updatePreview();
+    render('Most recently placed or moved tile returned to its original rack slot.');
+  });
+  find('clear-draft').addEventListener('click', () => {
+    if (mode !== 'rack' || active().exchanging || active().state.status !== 'playing') return;
+    tileInput.reset();
+    active().draft = createDraft();
+    updatePreview();
+    render('Draft cleared. Every tile remains in its original rack slot; nothing spent.');
   });
   find('coordinates').addEventListener('submit', (event) => {
     event.preventDefault();
@@ -298,13 +353,13 @@ export function initializeSandbox() {
   });
   // Unsubmitted coordinate edits must not leave a committable preview of the old cell.
   for (const input of [rowInput, columnInput]) input.addEventListener('input', () => {
+    if (mode === 'rack') return; // Coordinates move the cursor, never move an assembled draft.
     preview = null;
     find('commit-word').disabled = true;
     find('placement-feedback').textContent = 'Select cell to apply these coordinates, then preview.';
     find('placement-feedback').dataset.legality = '';
     find('formed-words').replaceChildren();
     find('rack-feedback').textContent = '';
-    if (mode === 'rack') renderRack();
     const { selected, recentClaims } = active();
     const { board, territory } = puzzle();
     drawBoard(canvas, { board, territory, selected, recentClaims, cellSize,
@@ -345,18 +400,22 @@ export function initializeSandbox() {
   // A tap selects (or toggles in the lab); panning never edits or commits.
   let press = null;
   canvas.addEventListener('pointerdown', (event) => {
-    if (event.isPrimary && event.button === 0) press = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    if (event.isPrimary && event.button === 0) press = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+  });
+  canvas.addEventListener('pointermove', (event) => {
+    if (press?.id === event.pointerId && Math.hypot(event.clientX - press.x, event.clientY - press.y) > 8) press.moved = true;
   });
   canvas.addEventListener('pointercancel', () => { press = null; });
   canvas.addEventListener('pointerup', (event) => {
     const start = press;
     press = null;
-    if (!start || start.id !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) return;
+    if (!start || start.moved || start.id !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) return;
     const cell = pointerToCell(canvas, puzzle().board, cellSize, event.clientX, event.clientY);
     if (!cell) return;
     select(cell);
     canvas.focus({ preventScroll: true });
     if (mode === 'freeform') toggleSelected();
+    else if (mode === 'rack') tileInput.activateCell(cell);
   });
   canvas.addEventListener('keydown', (event) => {
     const movements = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
@@ -369,11 +428,15 @@ export function initializeSandbox() {
         column: Math.max(0, Math.min(board.columns - 1, selected.column + dc)) });
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      if (!event.repeat) mode === 'freeform' ? toggleSelected() : updatePreview();
+      if (!event.repeat) {
+        if (mode === 'freeform') toggleSelected();
+        else if (mode === 'rack') tileInput.activateCell(active().selected);
+        else updatePreview();
+      }
     }
   });
   find('vocabulary').textContent = DEMO_WORDS.join(', ');
   window.addEventListener('resize', () => render());
   changeMode('rack');
-  render('Rack-limited puzzle ready. Enter a word using your rack, select its start and preview.');
+  render('Rack-limited puzzle ready. Select a physical rack tile, then place it on the board.');
 }
