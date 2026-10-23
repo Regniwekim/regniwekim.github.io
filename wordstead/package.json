@@ -1,0 +1,13 @@
+{
+  "name": "wordstead",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A build-free spatial word puzzle and farm builder.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
