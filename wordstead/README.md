@@ -4,6 +4,19 @@
 puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md) is
 the authoritative description of the planned game.
 
+## Visual direction
+
+The [visual identity and asset production guide (v0.1)](docs/visual-guide-v0.1.md)
+records Wordstead's exploratory pixel-art direction, working palette, legibility
+hierarchy, mobile layout, tile states, motion guidelines, and visual production
+backlog. Its palette, branding and asset choices are **proposals**, not final
+implementation or distribution approval. The [design skeleton](docs/design-skeleton.md)
+governs gameplay rules, while the [asset audit](ASSET-AUDIT.md),
+[organization records](asset-organization/README.md), and
+[license scope](docs/license.md) govern verified source details and permission
+boundaries. Earlier to-do items about auditing the packs in the visual guide
+have since been addressed by those records.
+
 ## Current status: Milestone 1
 
 The application is a deliberately minimal development page, **not yet a playable
@@ -32,6 +45,7 @@ wordstead/
 ├── docs/
 │   ├── architecture.md        # Implemented boundaries and planned flow
 │   ├── design-skeleton.md     # Authoritative gameplay design
+│   ├── visual-guide-v0.1.md   # Exploratory visual identity and production guide
 │   └── license.md             # Existing third-party license scope
 ├── asset-audit/               # Existing audit metadata and tools
 ├── asset-organization/        # Existing organization records and tools
