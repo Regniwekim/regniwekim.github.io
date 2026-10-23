@@ -1,0 +1,172 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #263e32;
+  background: #f7f6ef;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  color: #2f5942;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible,
+main:focus-visible {
+  outline: 3px solid #426c39;
+  outline-offset: 5px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.75rem;
+  left: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.page-shell {
+  width: min(100% - 2rem, 58rem);
+  margin-inline: auto;
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid #d5dccf;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-block: 0.5rem;
+}
+
+.development-label {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #c6d3bf;
+  border-radius: 2rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+main {
+  padding-block: 2.5rem 1.5rem;
+}
+
+.introduction {
+  max-width: 38rem;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #53664f;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+}
+
+h1,
+h2 {
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.75rem, 10vw, 4.5rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.tagline {
+  margin-block: 0.75rem;
+  font-size: clamp(1.1rem, 3vw, 1.35rem);
+}
+
+.introduction-copy,
+#board-description,
+footer {
+  color: #55624f;
+}
+
+.application-placeholder {
+  display: flex;
+  min-height: 21rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  border: 1px dashed #9eaf93;
+  border-radius: 1rem;
+  background: #eef1e7;
+  text-align: center;
+}
+
+.plot-mark {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 1.5rem;
+  transform: rotate(-8deg);
+}
+
+.plot-mark span {
+  width: 0.55rem;
+  height: 2rem;
+  border-radius: 0.3rem;
+  background: #9cb28a;
+}
+
+.application-placeholder h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+#board-description {
+  max-width: 27rem;
+  margin-block: 0.75rem 1rem;
+}
+
+.board-summary {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+footer {
+  padding-block: 0.5rem 1.5rem;
+  font-size: 0.8rem;
+}
+
+@media (min-width: 48rem) {
+  main {
+    padding-top: 4rem;
+  }
+
+  .application-placeholder {
+    min-height: 24rem;
+  }
+}
