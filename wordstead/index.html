@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Wordstead's development sandbox for testing letter fences and territory claims.">
-    <title>Wordstead · Enclosure sandbox</title>
+    <meta name="description" content="Wordstead's word placement prototype: build connected words and enclose land.">
+    <title>Wordstead · Word placement prototype</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./styles/main.css">
     <script type="module" src="./src/main.js"></script>
@@ -15,36 +15,46 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 2A · Development sandbox</span>
+        <span class="development-label">Milestone 2B · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
           <p class="eyebrow">A spatial word puzzle &amp; cozy farm builder</p>
           <h1>Wordstead</h1>
-          <p class="tagline">Every enclosure starts with a letter.</p>
-          <p>Experiment with letter fences and claim the land inside. This sandbox allows unrestricted test placements and removals. These are <strong>not legal Wordstead word placements</strong>; word rules are still to come.</p>
+          <p class="tagline">Build a farm, one word at a time.</p>
+          <p>Build connected words and claim the land they enclose. Preview before you commit; placed letters stay on the board. This prototype uses a <strong>small, provisional vocabulary</strong>. Rack, bag, and farm bonuses come later.</p>
         </div>
         <section class="sandbox" aria-labelledby="board-title">
           <div class="board-heading">
-            <div><p class="eyebrow">Enclosure lab</p><h2 id="board-title">A little room to grow</h2></div>
+            <div><p class="eyebrow">Word &amp; enclosure lab</p><h2 id="board-title">A little room to grow</h2></div>
             <p id="board-summary">Board initialization pending.</p>
           </div>
+          <label class="mode-control">Development mode<select id="mode"><option value="words">Legal word placement</option><option value="freeform">Freeform enclosure lab</option></select></label>
+          <p id="starting-square"></p>
+          <dl id="word-metrics" class="metrics" aria-label="Placement statistics">
+            <div><dt>Accepted placements</dt><dd id="word-count">0</dd></div>
+            <div><dt>Latest award</dt><dd id="latest-award">+0</dd></div>
+          </dl>
           <dl class="metrics" aria-label="Territory statistics">
             <div><dt>Territory score</dt><dd id="territory-score">0</dd></div>
+          </dl>
+          <dl id="freeform-metrics" class="metrics" aria-label="Enclosure diagnostics" hidden>
             <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
             <div><dt>Ready to claim</dt><dd id="claimable-count">0</dd></div>
           </dl>
           <div class="actions">
-            <button id="claim" type="button">Claim enclosed land</button>
-            <button id="inspect" class="secondary" type="button">Inspect enclosure</button>
-            <button id="reset" class="secondary" type="button">Reset board &amp; claims</button>
+            <div id="freeform-actions" class="actions" hidden>
+              <button id="claim" type="button">Claim enclosed land</button>
+              <button id="inspect" class="secondary" type="button">Inspect enclosure</button>
+            </div>
+            <button id="reset" class="secondary" type="button">Reset puzzle</button>
           </div>
           <p id="action-status" class="action-status" role="status" aria-live="polite" aria-atomic="true">Starting sandbox…</p>
           <div class="board-layout">
             <div class="board-panel">
-              <p id="board-help">Tap a cell to toggle A. On the focused board, use arrow keys to select and Enter or Space to toggle. Swipe or scroll to pan; cells stay at least 44px wide.</p>
+              <p id="board-help">Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan; cells stay at least 44px wide.</p>
               <div id="board-viewport" class="board-viewport">
-                <canvas id="board" tabindex="0" role="img" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use the row and column controls below to select and toggle cells.</canvas>
+                <canvas id="board" tabindex="0" role="img" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use the row and column controls below to select the starting cell.</canvas>
               </div>
               <ul class="legend" aria-label="Board key">
                 <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
@@ -52,9 +62,30 @@
                 <li><span class="swatch recent" aria-hidden="true">+</span>Newly claimed</li>
                 <li><span class="swatch claimed" aria-hidden="true">✓</span>Previously claimed</li>
                 <li><span class="swatch letter" aria-hidden="true">A</span>Letter fence</li>
+                <li><span class="swatch proposed" aria-hidden="true">p</span>Proposed letter</li>
+                <li><span class="swatch letter" aria-hidden="true">=</span>Reused letter</li>
+                <li><span class="swatch proposed" aria-hidden="true">×</span>Conflict</li>
+                <li><span class="swatch recent" aria-hidden="true">?</span>Prospective claim</li>
+                <li><span class="swatch exterior" aria-hidden="true">☆</span>Starting square</li>
               </ul>
             </div>
             <div class="controls">
+              <section id="word-controls" aria-labelledby="word-title">
+                <h3 id="word-title">Place a word</h3>
+                <form id="word-form">
+                  <label>Word<input id="word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="vocabulary-note"></label>
+                  <label>Orientation<select id="orientation"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
+                  <button class="secondary" type="submit">Preview word</button>
+                </form>
+                <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true">No preview.</p>
+                <ul id="formed-words" aria-label="Complete formed words"></ul>
+                <div class="placement-actions">
+                  <button id="commit-word" type="button" disabled>Commit word</button>
+                  <button id="clear-preview" class="secondary" type="button">Clear preview</button>
+                  <button id="example" class="secondary" type="button">Set up 7×7 example</button>
+                </div>
+                <p id="vocabulary-note" class="hint">Provisional, incomplete demonstration vocabulary; not an official Scrabble dictionary. See the word list below.</p>
+              </section>
               <section aria-labelledby="cell-title">
                 <h3 id="cell-title">Select a cell</h3>
                 <p class="hint">Coordinates start at 1 in this sandbox.</p>
@@ -66,7 +97,7 @@
                   <button class="secondary" type="submit">Select cell</button>
                 </form>
                 <p id="selection-status" role="status" aria-live="polite" aria-atomic="true">No cell selected yet.</p>
-                <button id="toggle-letter" type="button">Toggle selected letter</button>
+                <button id="toggle-letter" type="button" hidden>Toggle selected letter</button>
               </section>
               <section aria-labelledby="view-title">
                 <h3 id="view-title">Board setup</h3>
@@ -82,7 +113,16 @@
               </section>
             </div>
           </div>
+          <details class="rules"><summary>Four words, one enclosure</summary>
+            <p>Choose Legal word placement, then Set up 7×7 example (resets this puzzle). Preview and commit CAR at (4, 4) horizontal; CAB at (4, 4) vertical; RAT at (4, 6) vertical; BAT at (6, 4) horizontal. Coordinates are 1-based; press Select cell after editing them.</p>
+            <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
+          </details>
+          <details class="rules"><summary>Provisional demonstration word list</summary>
+            <p>This hand-selected vocabulary is incomplete. A missing English word may be rejected. It is not an official Scrabble dictionary and uses no external service.</p>
+            <p id="vocabulary"></p>
+          </details>
           <details class="rules"><summary>How to test an enclosure</summary>
+            <p>Choose Freeform enclosure lab. It keeps a separate board and permits unrestricted letter toggling and manual claims for diagnostics. Switching back restores legal play without lab edits.</p>
             <p>Place letters in rows 2 and 4, columns 2–4. Add letters at row 3, columns 2 and 4. The empty center (row 3, column 3) is enclosed and earns one point when claimed. Claim again to verify +0.</p>
             <p>All four board edges give outside access. Only letters block orthogonal paths; empty cells cannot pass diagonally. Detection updates after every edit. Claims persist if you reopen a fence or cover claimed land with a letter.</p>
             <p>A + marks cells from the latest claim. Another claim or letter edit changes earlier claims to ✓. Nothing is saved on refresh.</p>
@@ -90,7 +130,7 @@
           <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
         </section>
       </main>
-      <footer><p>Milestone 2A · Enclosure &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 2B · Words &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

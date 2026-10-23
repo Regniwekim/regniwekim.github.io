@@ -1,0 +1,45 @@
+import { createDictionary } from './dictionary.js';
+
+// Hand-selected ordinary words for mechanics demonstrations. Provisional and
+// incomplete: this is NOT an official Scrabble dictionary or a third-party list.
+export const DEMO_WORDS = Object.freeze([
+  'AN', 'AS', 'AT', 'BE', 'BY', 'DO', 'GO', 'HE', 'IF', 'IN', 'IS', 'IT',
+  'ME', 'MY', 'NO', 'OF', 'ON', 'OR', 'OX', 'SO', 'TO', 'UP', 'US', 'WE',
+  'ACE', 'ACT', 'ADD', 'AGE', 'AIR', 'AND', 'ANT', 'APE', 'ARC', 'ARE', 'ARM',
+  'ART', 'ASH', 'ATE', 'BAD', 'BAG', 'BAR', 'BAT', 'BED', 'BEE', 'BET', 'BIG',
+  'BIT', 'BOW', 'BOX', 'BOY', 'BUD', 'BUG', 'BUN', 'BUS', 'BUT', 'BUY',
+  'CAB', 'CAN', 'CAP', 'CAR', 'CAT', 'COT', 'COW', 'CUB', 'CUP', 'CUT',
+  'DAY', 'DEN', 'DEW', 'DID', 'DIG', 'DOG', 'DOT', 'DRY', 'DUE', 'EAR', 'EAT',
+  'EGG', 'ELM', 'END', 'ERA', 'EVE', 'EWE', 'EYE', 'FAR', 'FAT', 'FED', 'FEE',
+  'FEW', 'FIG', 'FIN', 'FIT', 'FIX', 'FLY', 'FOG', 'FOR', 'FOX', 'FUN', 'FUR',
+  'GAP', 'GAS', 'GEL', 'GEM', 'GET', 'GOT', 'GUM', 'GUT', 'GUY', 'HAD', 'HAM',
+  'HAS', 'HAT', 'HAY', 'HEN', 'HER', 'HID', 'HIM', 'HIS', 'HIT', 'HOG', 'HOP',
+  'HOT', 'HOW', 'HUG', 'HUT', 'ICE', 'INK', 'INN', 'ITS', 'IVY', 'JAM', 'JAR',
+  'JET', 'JOB', 'JOG', 'JOY', 'JUG', 'KEY', 'KID', 'KIT', 'LAP', 'LAW', 'LAY',
+  'LED', 'LEG', 'LET', 'LID', 'LIE', 'LIP', 'LOG', 'LOT', 'LOW', 'MAD', 'MAN',
+  'MAP', 'MAT', 'MET', 'MIX', 'MOP', 'MOW', 'MUD', 'MUG', 'NAP', 'NET', 'NEW',
+  'NOD', 'NOR', 'NOT', 'NOW', 'NUT', 'OAK', 'OAR', 'OAT', 'ODD', 'OFF', 'OLD',
+  'ONE', 'ORE', 'OUR', 'OUT', 'OWL', 'OWN', 'PAD', 'PAN', 'PAT', 'PAW', 'PAY',
+  'PEA', 'PEG', 'PEN', 'PET', 'PIE', 'PIG', 'PIN', 'PIT', 'POD', 'POP', 'POT',
+  'PUT', 'RAG', 'RAM', 'RAN', 'RAP', 'RAT', 'RAW', 'RAY', 'RED', 'RIB', 'RID',
+  'RIG', 'RIM', 'RIP', 'ROB', 'ROD', 'ROT', 'ROW', 'RUB', 'RUG', 'RUN', 'RYE',
+  'SAD', 'SAP', 'SAT', 'SAW', 'SAY', 'SEA', 'SEE', 'SET', 'SEW', 'SHE', 'SHY',
+  'SIP', 'SIR', 'SIT', 'SKI', 'SKY', 'SOB', 'SOD', 'SON', 'SOW', 'SOY', 'SPA',
+  'SPY', 'SUB', 'SUM', 'SUN', 'TAB', 'TAG', 'TAN', 'TAP', 'TAR', 'TAX', 'TEA',
+  'TEN', 'THE', 'TIE', 'TIN', 'TIP', 'TOE', 'TON', 'TOO', 'TOP', 'TOW', 'TOY',
+  'TRY', 'TUB', 'TUG', 'TWO', 'USE', 'VAN', 'VAT', 'VET', 'VIA', 'VOW', 'WAR',
+  'WAS', 'WAX', 'WAY', 'WEB', 'WED', 'WET', 'WHO', 'WHY', 'WIN', 'WIT', 'WON',
+  'WOW', 'YAK', 'YAM', 'YAP', 'YES', 'YET', 'YOU', 'ZAP', 'ZIP', 'ZOO',
+  'BARN', 'BATS', 'BEAN', 'BEAR', 'BIRD', 'BOAT', 'CABS', 'CARS', 'CART',
+  'CARTS', 'CATS', 'COAT', 'CORN', 'COWS', 'CROP', 'CROPS', 'DART', 'DOGS',
+  'DOOR', 'FARM', 'FARMS', 'FAST', 'FEED', 'FENCE', 'FIELD', 'FIRE', 'FISH',
+  'FOOD', 'GATE', 'GOAT', 'GROW', 'HARE', 'HATS', 'HOME', 'LAND', 'LATE',
+  'LEAF', 'LION', 'MOON', 'NEST', 'OATS', 'PATH', 'PEAR', 'PIGS', 'PLANT',
+  'RAIN', 'RATE', 'RATS', 'READ', 'REED', 'REST', 'RISE', 'ROAD', 'ROOF',
+  'ROOT', 'ROSE', 'ROWS', 'SAND', 'SEAT', 'SEED', 'SHEEP', 'SOIL', 'STAR',
+  'STARS', 'STEM', 'STONE', 'SUNS', 'TEAR', 'TENT', 'TILE', 'TIME', 'TOAD',
+  'TREE', 'TREES', 'VINE', 'WATER', 'WEED', 'WIND', 'WING', 'WOOD', 'WORD',
+  'WORDS', 'YARD',
+]);
+
+export const demoDictionary = createDictionary(DEMO_WORDS);
