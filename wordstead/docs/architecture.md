@@ -1,5 +1,10 @@
 # Wordstead architecture
 
+Milestone 3C.2 adds independent, pure board-opportunity analysis with rectangular
+geometric fences, scoring upper bounds, obstruction, effort, ranked/Pareto views
+and bounded greedy portfolios. It uses unchanged core generation and feature
+definitions. No browser, gameplay, target or letter-analysis integration is added.
+
 Milestone 3C.1 adds development-only lexical analysis in `src/analysis/`, using
 the existing vocabulary parser/manifest and unchanged core bag generator. No
 browser entry point imports it; Milestone 3B gameplay and target 1 remain intact.
@@ -698,8 +703,45 @@ runtime vocabulary, backend or gameplay imports are added. See
 Analysis tests add fixture statistics, independent full-dictionary rack scans,
 blanks/multiplicity, immutable physical resources, sampled/empty distributions,
 schema/vocabulary/bag compatibility, CLI errors and byte-for-byte regeneration.
-Later milestones can consume versioned data or these APIs; no board opportunity,
-target calculation or difficulty grade is implemented here.
+Later milestones can consume versioned data or these APIs. This lexical model
+does not itself perform board analysis, target calculation or difficulty grading.
+
+### Board opportunity analysis (3C.2)
+
+`analysis/board-composition.js` validates analysis inputs, measures board/feature
+distribution and eligible-interior score bounds, and prepares masks/prefix sums.
+The starting square, outside perimeter, letters and historical claims never
+contribute potential points. Bonuses come from existing `FEATURE_TYPES`; utility
+counts stay separate from points and use core rack-capacity constants.
+
+`analysis/board-rectangles.js` measures/enumerates complete axis-aligned fences
+with nonempty interiors. Null and existing letter positions may form fences;
+reserved metadata obstructs them. `analyzeRectangle()` describes raw effort,
+spans, start distance and score; `rectanglePerimeter()` materializes unique
+indices only when needed. The existing flood fill remains authoritative and is
+used for tests, not duplicated or run on every candidate.
+
+`analysis/board-opportunities.js` streams exhaustive or explicitly limited search
+through bounded deterministic ranking heaps, effort-tier Pareto filtering and
+exact histogram/feature-coverage aggregates. It reports search skips, filters,
+retention limits and normalization with nulls for unavailable denominators.
+`analysis/board-portfolio.js` greedily combines a bounded candidate pool, rejecting
+interior/fence conflicts and separately counting summed and union fence demand.
+Cell/bonus unions prevent repeat scoring. These estimates cannot establish word
+feasibility, optimal play or solvability.
+
+`analysis/board-seeds.js` calls the unchanged `generateFarm()` on fresh boards
+and summarizes deterministic text/numeric farm-seed sequences. It never creates
+or advances a letter bag or session. The Node-only `scripts/analyze-board.js`
+provides concise board/batch output and schema-1 **`board-rectangles-v1`** JSON.
+Large raw diagnostics stay in ignored `.analysis-output/`. No aggregate statistical
+artifact or new dependency is required. See [board methods and measured results](board-analysis.md),
+including the full-boundary-fence limitation and pool-truncation outliers.
+
+3C.3 can consume board value/effort/coverage/portfolio fields alongside compatible
+3C.1 lexical metrics. It must retain both method versions, dictionary identity
+and search policy; combination, calibration, score targets and difficulty remain
+unimplemented. Browser entry points import neither analytical model.
 
 ### Existing gameplay validation
 

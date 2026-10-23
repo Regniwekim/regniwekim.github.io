@@ -5,7 +5,7 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 3B gameplay; 3C.1 development analysis
+## Current status: Milestone 3B gameplay; 3C.1–3C.2 development analysis
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -43,6 +43,13 @@ Milestone **3C.1** adds development-only vocabulary statistics, physical-rack
 constructibility, sampled 7/8/9-tile baselines and deterministic letter-seed reports.
 Run `node scripts/analyze-letters.js --help`; see [methods and measured results](docs/letter-analysis.md).
 It does not change gameplay, targets or browser dependencies.
+
+Milestone **3C.2** adds independent geometric board-opportunity estimates:
+eligible scoring upper bounds, rectangular candidate fences, feature obstruction,
+effort/spans, ranked/Pareto views and bounded greedy portfolios. Run
+`node scripts/analyze-board.js --help`; see [methods, CLI and measured batches](docs/board-analysis.md).
+These are geometric opportunities, without claims about playable word sequences
+or solvability. Automatic target generation remains deferred to 3C.3.
 
 Milestone 1's configurable board and Milestone 2A's enclosure/territory modules
 remain unchanged. **Legal word placement lab** keeps unrestricted word entry and
@@ -536,11 +543,11 @@ src/
   ui/startup.js             Loading/error/retry gate before gameplay initialization
   ui/results.js             Result presentation, clipboard feedback and manual copy
   vocabulary/               Static parser, memoized loader and generated manifest
-  analysis/                 Pure development-only vocabulary/rack/seed statistics
+  analysis/                 Pure development-only lexical and geometric board analysis
 styles/main.css             Local responsive presentation
 vocabulary/                 Committed word list, generation report and browser credits
 data/letter-analysis/       Versioned generated profile, baselines and ESDB notice
-scripts/                    Development-only vocabulary and letter-analysis tools
+scripts/                    Development-only vocabulary, letter and board analysis tools
 tests/                      Built-in Node model tests and explicit fixtures
 ```
 
