@@ -5,7 +5,7 @@ export function isLetterCell(cell) {
   return cell !== null && typeof cell === 'object' && cell.kind === 'letter';
 }
 
-/** Create a committed letter cell. Blank tiles and non-English glyphs are deferred. */
+/** Create compatible letter occupancy; session play adds physical tile metadata. */
 export function createLetterCell(letter) {
   if (typeof letter !== 'string' || !/^[A-Z]$/.test(letter)) {
     throw new TypeError('letter must be one uppercase A–Z character.');

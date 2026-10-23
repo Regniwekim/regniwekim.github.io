@@ -1,11 +1,12 @@
 # Wordstead architecture
 
-Milestone 2B adds pure word placement, dictionary validation, and atomic word/claim
-transitions to the Milestone 1 board and Milestone 2A enclosure/claim rules.
+Milestone 2C wraps the existing word/claim transition with a finite physical tile
+bag, seven-tile rack, seeded exchanges, and puzzle progression. Milestone 2B's
+placement engine and Milestone 1/2A board, enclosure and claim contracts remain.
 The [design skeleton](design-skeleton.md)
 governs gameplay; the [visual guide](visual-guide-v0.1.md) supplies exploratory
-presentation direction. The browser offers legal placement and a separate
-unrestricted diagnostic lab, sharing the existing renderer and enclosure engine.
+presentation direction. The browser offers rack-limited play and two independent
+labs, sharing the existing renderer and enclosure engine.
 
 ## Pure core: `src/core/`
 
@@ -141,6 +142,111 @@ in puzzle state: `getTerritoryScore(state.territory)` is the single total. Lates
 award/claim highlights are ephemeral UI data. Preview uses `evaluatePlacement` plus
 `evaluateTerritory` on a legal candidate; neither invokes a claim transition.
 
+### Letter bag: `bag.js`
+
+`createStandardTiles()` creates 100 separate `{ id, letter }` resources. Stable
+IDs 0–97 enumerate A–Z in the standard English Scrabble multiplicities; 98/99
+are blanks with `letter: null`. `LETTER_DISTRIBUTION` records counts, including
+`'?': 2`; there are no Scrabble letter values. Duplicate letters have distinct IDs.
+
+`seedToState(seed)` accepts a finite number or a string containing non-whitespace.
+It hashes `${typeof seed}:${seed}` with FNV-1a (offset 2166136261, multiplier
+16777619), XORing each UTF-16 code unit and using `Math.imul`/unsigned 32-bit
+arithmetic. Text is preserved, not trimmed. Numbers and strings are distinct;
+numeric -0 follows JavaScript stringification and equals 0 for this policy.
+No locale, encoding service, current time, or ambient `Math.random()` is used.
+
+`nextRandom(state)` implements Mulberry32: increment by 0x6d2b79f5 modulo 2³²,
+then the standard xor/shift/imul output mixer. `shuffleTiles(tiles, rngState)`
+copies the input and runs descending Fisher–Yates. For each bound `i + 1`, it
+rejects unsigned outputs at/above `floor(2³² / bound) * bound`, then takes modulo
+bound. This avoids modulo bias and returns `{ bag, rngState }`. Determinism is
+identical in Node and supported ES-module browsers; it is not cryptographic RNG.
+
+`createBag(seed, bagOrder?)` shuffles standard tiles normally. QA may explicitly
+supply an array containing each physical ID exactly once; malformed/incomplete
+orders throw TypeError. A scripted order preserves the complete distribution and
+initializes exchange RNG from the seed without performing an initial shuffle.
+`replenishRack(rack, bag)` copies arrays and draws from the **front** until seven
+tiles or no bag remains, without changing RNG. Capacity overflow throws RangeError.
+Model data comes from constructors/transitions and is treated as immutable.
+
+### Rack-aware play: `session.js`
+
+`createSession({ rows, columns, seed, target, bagOrder? })` returns:
+
+```js
+{
+  puzzle: { board, territory, wordCount }, // Existing createPuzzle contract
+  rack: [/* up to seven physical tiles */],
+  bag: [/* ordered remaining physical tiles */],
+  seed, rngState, target, exchangeCount: 0,
+  status: 'playing', source: 'seeded', // source is 'scripted' for an ordered bag
+}
+```
+
+Target must be a positive safe integer (RangeError otherwise). Seed validation
+comes from `bag.js` (TypeError). Defaults are 15×15, string seed `wordstead-2c`,
+and a temporary **unbalanced target 1** practical for the provisional vocabulary.
+`wordCount` stays in the existing puzzle only; score comes exclusively from
+`getTerritoryScore(puzzle.territory)`. `getStrokes(state)` derives words + exchanges.
+Seed governs letter order only, not future farm layouts or complete difficulty.
+
+`evaluateSessionPlacement(state, proposal, dictionary)` calls `evaluatePlacement`
+and preserves its fields, complete-word feedback, and geometry/dictionary rejection
+precedence. It adds `rack: { allocations, missingLetters }`. Allocations contain
+position/letter, the physical tile and `blank` flag. New positions are allocated
+in word order: the first unused exact rack match, otherwise the first unused blank.
+Missing letters are `{ letter, count }` entries. An otherwise legal placement with
+missing resources becomes `MISSING_RACK_LETTERS`, with the same entries in its
+structured reason. Preview never consumes resources, shuffles, claims or counts.
+Manual physical tile selection for placement is deliberately deferred.
+
+`commitSessionWord(state, proposal, dictionary)` evaluates again at commit time,
+rejects missing resources, and delegates to **existing `commitWord()`**. It adds
+`tileId` and boolean `blank` to newly committed compatible `{ kind: 'letter',
+letter }` cells. Assigned blanks retain their letter forever, are reusable without
+spending a tile, and participate in dictionary/enclosure rules normally. Reused
+cell objects retain identity. The wrapper removes allocated IDs, replenishes,
+then derives status. It returns the existing commit result plus rack evaluation
+and, on acceptance, `consumedTiles`. No caller-provided cached preview is trusted.
+
+All work completes before replacement state is returned. Rejection returns the
+**exact original state**, zero points and no new claims. Even thrown dictionary
+or claim errors cannot partially change board, territory, rack, bag order, RNG,
+word/exchange counters or status. Frozen-state tests pin this boundary. The
+browser's rack mode calls only `commitSessionWord`; `commitWord` remains available
+to the unrestricted word lab and its existing callers/tests.
+
+`evaluateExchange(state, tileIds)` returns legality/reason. Reasons include
+`EMPTY_EXCHANGE`, `INVALID_EXCHANGE_TILES` (foreign/duplicate IDs), and
+`INSUFFICIENT_BAG`. A nonempty subset needs at least that many tiles in the bag.
+`exchangeTiles(state, tileIds)` revalidates, draws replacements from the ordered
+bag **before returns**, replaces selected rack slots in rack order, appends returned
+tiles in rack order to the undrawn bag, and shuffles that pool using session RNG.
+Caller selection order cannot change results. It increments exchangeCount once
+and returns `returned`/`replacements` for feedback. Puzzle/claims/wordCount remain
+identical; rack length and total physical tile count are conserved. Failed exchanges
+preserve the original state and randomness. One exchange is one provisional stroke,
+regardless of tile count; final penalty and grading need playtesting.
+
+After an accepted word, reaching/exceeding the target changes status to `won`.
+Otherwise an empty rack **and** empty bag produce `exhausted`. Empty bag alone
+leaves the run `playing`. `endSession(state)` explicitly changes an unfinished run
+to `ended` without spending resources or changing counters. Every gameplay
+transition rejects non-playing status with `RUN_FINISHED`. Reset/new creation are
+separate constructors. There is no exhaustive legal-move solver: some blocked runs
+must be ended by the player, and some seeds/configurations may be unwinnable.
+
+`session-fixture.js` supplies a distribution-preserving scripted 100-ID order with
+`CARABTAA` at the front, remaining IDs in canonical order. Its independent 7×7
+session uses target 1 and `enclosure-qa` exchange seed, marked `source: 'scripted'`.
+`ENCLOSURE_MOVES` pins CAR/CAB/RAT/BAT. Actual rack commits consume 3/2/2/1 tiles,
+leave bag counts 90/88/86/85 and award index 32 only on the fourth word. This gives
+4 words, 0 exchanges, 4 strokes, 1 point and victory. Restarts reconstruct the
+same complete fixture. It is explicitly labeled QA, never presented as a random
+seeded puzzle. The original unrestricted 2B regression remains untouched.
+
 ### Enclosure: `enclosure.js`
 
 `analyzeEnclosure(board)` returns `{ exterior, enclosed }`. Each array holds
@@ -212,14 +318,25 @@ needs word, dictionary, or rack knowledge.
 
 ## Browser boundary
 
-`main.js` bootstraps `ui/sandbox.js`. The controller owns two separate in-memory
-sessions: `words` (default) and `freeform`. Each has independent puzzle state,
-selection, latest point award, and recent claim indices. Mode switching preserves
+`main.js` bootstraps `ui/sandbox.js`. The controller owns three separate in-memory
+sessions: `rack` (default), `words` and `freeform`. Rack owns a core session; labs
+own the original puzzle state. Each has independent selection, word draft,
+orientation, latest point award, and recent claim indices. Mode switching preserves
 each session but clears the preview. Resets/dimension changes affect only the
-active session; refresh clears both. There is no path to import lab edits into play.
+active session; refresh clears all three. There is no path to import lab edits into play.
 It translates intent, calls pure transitions, then refreshes DOM and Canvas.
 There is no duplicate flood fill, framework, game loop, event bus, storage,
-random generator, or animation loop.
+browser random generator, or animation loop.
+
+The rack is seven persistent semantic DOM buttons with 44px minimum targets,
+visible focus and accessible labels. Narrow screens wrap four/three slots; empty
+slots are disabled. Dashed outlines mark preview use, checkmarks mark exchange
+selection and ◇ marks blanks. Buttons retain focus across rerenders. Exchange
+selection clears preview and disables word controls; confirmation revalidates IDs
+and bag size. Cancel/switching modes clears selection without a transition. End-run,
+victory and exhaustion messages include words/exchanges/strokes. Progress derives
+from territory and target. New puzzle applies setup; restart reconstructs the
+active seed/configuration or scripted fixture. Form-only edits do not change a run.
 
 `rendering/board.js` draws an orthographic Canvas 2D grid using system text and
 primitives. The render inputs include the precomputed core evaluation and claim
@@ -278,6 +395,14 @@ the exact 7×7 CAR/CAB/RAT/BAT enclosure sequence. The first three moves score z
 the fourth claims index 32 for +1, preserving shared letter identity. Subsequent
 valid extensions do not rescore it. Invalid closing words cannot claim territory.
 
+Bag/session tests additionally pin the distribution, two blanks, PRNG/hash vectors,
+seeded replay, physical tile conservation across every transition, multiplicities,
+exact-before-blank allocation, permanent blank reuse, partial refills/exhaustion,
+single/multi/invalid exchanges, draw-before-return order, frozen-state atomicity,
+dictionary/claim exceptions, stale previews, target/win locks, and explicit endings.
+Controlled resource tests consume a full real bag on a long board using an injected
+test dictionary; the browser always uses the unchanged provisional vocabulary.
+
 Use `node --check` on affected JavaScript files. Preview from a static HTTP server
 at `/wordstead/` (see [README](../README.md)), test pointer and keyboard paths,
 known shapes/repeated claims, cell enlargement/panning, narrow/wide layouts,
@@ -286,16 +411,17 @@ direct loading/refresh, return navigation, and console/network errors. Run
 
 ## Limits and deferred work
 
-Only uppercase English A–Z tiles are modeled. Legal entry has no rack limit and
-uses a provisional dictionary; freeform still toggles A and allows removal.
-Full saved-state validation/persistence, official dictionary, rack/bag/exchanges,
-blanks, seeded generation, farm features/bonuses, targets/grades, daily/campaign,
+Only English A–Z assignments and standard blanks are modeled. The unrestricted
+word lab uses the same provisional dictionary; freeform toggles A and allows removal.
+Full saved-state validation/persistence, official dictionary, exhaustive move
+solver, manual tile allocation, farm features/bonuses, final grades, daily/campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
-Milestone 2C can inject a licensed membership source and use `newPositions` for
-rack consumption before delegating commits to `commitWord`. Reused positions
-consume no new tiles. Keep future randomness explicit and extend the small state
-only alongside implemented requirements. Enclosure/claim logic needs no rewrite.
+Future work can inject a licensed membership source without changing the session
+wrapper. Farm bonuses can extend the atomic transition after territory claiming;
+final grading can consume word/exchange counters and target. Neither is implemented.
+Keep future layout randomness explicit and separate from letter-order seeds;
+extend state only alongside tested requirements. Enclosure/claims need no rewrite.
 
 All runtime files remain relative under `wordstead/`, directly loadable and
 refreshable on GitHub Pages without server rewrites or Node runtime. Existing

@@ -64,6 +64,10 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
       context.fillStyle = INK;
       context.font = `700 ${Math.round(cellSize * 0.5)}px system-ui, sans-serif`;
       context.fillText(cell.letter, x + cellSize / 2, y + cellSize / 2);
+      if (cell.blank) {
+        context.font = '700 11px system-ui, sans-serif';
+        context.fillText('◇', x + 10, y + 10);
+      }
     } else if (territory.claimed[index]) {
       // Symbols distinguish recent and historical claims without color alone.
       context.fillStyle = INK;
@@ -106,7 +110,8 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
       }
       context.fillStyle = INK;
       context.font = '700 11px system-ui, sans-serif';
-      context.fillText(conflict ? `×${ghost.letter}` : ghost.status === 'reused' ? '=' : 'p', x + cellSize - 11, y + 9);
+      const blank = preview.rack?.allocations.some((allocation) => allocation.index === index && allocation.blank);
+      context.fillText(conflict ? `×${ghost.letter}` : ghost.status === 'reused' ? '=' : blank ? '◇' : 'p', x + cellSize - 11, y + 9);
     }
     if (selected.row === Math.floor(index / board.columns) && selected.column === index % board.columns) {
       context.strokeStyle = INK;
