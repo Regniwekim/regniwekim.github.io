@@ -5,18 +5,21 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 2C.1
+## Current status: Milestone 2D
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
 newly enclosed empty land. Each accepted placement counts once, even if it forms
 several words. Letters are permanent during legal play. Territory earns one point
-per newly claimed cell, with total score derived from the existing claim mask.
+per newly claimed cell. Total puzzle score adds captured crop and fertile bonuses,
+derived from that same claim mask. Farm cells remain passable land for flood fill
+but are reserved against letter placement in this prototype.
 
 The default **Rack-limited puzzle** draws seven physical tiles from a seeded
 100-tile bag, replenishes after accepted words, permits exchanges, and finishes
-when the territory target is reached. Word count is the primary efficiency
-measure; each exchange adds one provisional stroke. Build words directly from physical
+when the total score target is reached. Captured livestock adds rack slots (up to
+nine); buildings grant free exchange credits. Word count is the primary efficiency
+measure; each charged exchange adds one provisional stroke. Build words directly from physical
 rack tiles using click/tap, Pointer Events dragging, or keyboard controls. Both old
 labs remain available.
 
@@ -51,15 +54,15 @@ Wordstead yet; adding its card is outside this milestone.
 
 ## Rack-limited puzzle controls
 
-The default mode is **Rack-limited puzzle**. **Board setup** provides a letter
-seed, independent 1–30 board dimensions, and a positive integer territory target.
+The default mode is **Rack-limited puzzle**. **Board setup** provides separate letter
+and farm seeds, farm density, independent 1–30 board dimensions, and a positive integer total score target.
 **New puzzle** applies these settings to a fresh seeded run. **Restart puzzle**
 repeats the active run's original settings and tile order (including the scripted
 fixture), regardless of edits in the setup form. The initial board is 15×15;
 the temporary default target is **1**, explicitly unbalanced for the limited
 vocabulary. Different seeds are not guaranteed equally difficult or solvable.
 
-Seven persistent DOM rack buttons show letters or **◇** for blanks; empty slots
+Seven to nine persistent DOM rack buttons show letters or **◇** for blanks; empty slots
 show a dash. Duplicate letters have independent physical IDs and slot labels.
 Select a tile, then click/tap an empty board cell. The tile appears as a dashed
 **p** draft, and its original rack slot shows a dashed inset and **↗**. The rack
@@ -80,7 +83,7 @@ The scrollable board keeps cells at 44, 56 or 72 CSS pixels. Empty and committed
 cells retain native touch scrolling, including while a rack tile is selected.
 Movement beyond the tap threshold or pointer cancellation suppresses board taps.
 Only rack buttons and drafted tile handles reserve touch gestures for dragging.
-On phones the rack wraps four/three slots immediately below the board; Commit,
+On phones the rack wraps at four slots per row immediately below the board; Commit,
 Undo and Clear follow the rack. No native HTML drag-and-drop is required.
 
 **Construction and legality are separate.** The first draft tile can occupy any
@@ -133,11 +136,13 @@ first; the exchange action is disabled and explains this policy while a draft
 exists. Entering exchange cancels placement selection. Select one or more rack
 buttons, then **Confirm exchange** or **Cancel exchange**. The bag must have at
 least the selected count. Replacements are drawn before returns, then the remaining
-pool is deterministically shuffled. Each completed exchange costs one provisional
-stroke. Cancellation costs nothing.
+pool is deterministically shuffled. Each completed exchange automatically uses one
+available free credit, otherwise it costs one provisional stroke. Failed exchanges
+and cancellation cost nothing. Credits never bypass the bag-size requirement.
 
-The page shows rack/bag counts, territory points/target, progress, accepted word
-placements, exchanges, and derived **strokes = wordCount + exchangeCount**. Victory
+The page shows rack/capacity and bag counts, total score/target, base territory and
+farm bonus points, accepted word placements, exchanges, charged exchanges, free
+credits, and derived **strokes = wordCount + exchangeCount − freeExchangesUsed**. Victory
 occurs immediately after an accepted word reaches the target. No further word,
 exchange, or end-run transition is accepted. Restart or create a new puzzle to play.
 **End unfinished run** explicitly forfeits without spending resources. Only empty
@@ -177,12 +182,60 @@ rejection sampling to avoid modulo bias. State stores ordered remaining tiles an
 the PRNG state; draws take from the front without advancing randomness. Only
 initial shuffle and successful exchanges shuffle. Same seed, configuration, and
 actions reproduce draws across Node and supported browsers. This seed controls
-**letter order only**, not future farm layouts or complete puzzle difficulty.
+**letter order only**. Farm layout uses its own explicit seed and PRNG stream;
+changing farms cannot change the letter bag or exchange randomness.
 
 Rack-aware commitment revalidates geometry/dictionary, allocates physical tiles
 for `newPositions`, delegates to existing `commitWord`, adds provenance, consumes
-and replenishes, and derives status. Rejections return the exact input state;
+and replenishes to post-capture capacity, and derives status from total score.
+Rejections return the exact input state;
 board, claims, rack, bag order, RNG, counters and progress all remain unchanged.
+
+### Farm features and provisional rewards
+
+Every feature is one `{ kind: 'feature', type }` board cell. Type definitions and
+reward values are centralized in `src/core/features.js`. Only actual letters form
+fences. A feature is traversable land for enclosure detection, yet both draft and
+committed word placement reject overwriting it. This reserved-cell policy is
+provisional and subject to playtesting. Claiming preserves the feature object.
+
+| Capture | Base territory | Farm points | Utility |
+|---|---:|---:|---|
+| Crop | 1 | +3 | None |
+| Fertile ground | 1 | +1 | This cell only; no future multiplier |
+| Livestock | 1 | 0 | +1 rack capacity, starting at 7 and capped at 9 |
+| Building | 1 | 0 | +1 free exchange credit |
+
+A feature activates only when its cell enters a new territory claim. The claim
+mask is its permanent capture status; there is no mutable captured flag or score
+tally. `getTerritoryScore()` still counts base claims. `getPuzzleScore()` derives
+base, crop, fertility, combined farm bonus and total points. Three ordinary land
+cells plus a crop and fertile cell give 5 + 3 + 1 = **9 points**. Re-evaluation
+awards nothing again. Victory checks the total only after an accepted word.
+
+Rack capacity is derived from captured livestock. Additional captures past nine
+still earn their base point. Refills use existing physical tiles from the finite
+bag, including on the capture turn; insufficient/empty bags cannot create tiles.
+Credits are captured buildings minus successfully used free exchanges. Credits
+accumulate, and the next successful exchange consumes one automatically. Total
+exchange count stays visible independently of charged exchanges and strokes.
+
+Canvas uses original sprout, animal, roof and furrow primitives with **C/L/B/F**
+labels. Farm glyphs retain their land background and show **?** in preview, **+**
+on a new capture and **✓** on older captures. Select a feature with a tap, board
+arrows, or coordinates to read its type, capture status and effect. Capture status
+and each earned point/utility reward are also announced in action text.
+
+The browser defaults to farm seed `wordstead-farm-2d`, density **0.08**, and weights
+**crop 4, livestock 2, building 2, fertile 3**. Generation shuffles eligible empty
+interior cells, reserves `floor(eligibleCount × density)` cells, then selects
+weighted types. The perimeter, starting square and its orthogonal neighbors are
+protected. Small boards may have no eligible features. Browser density is 0–0.25;
+the pure generator supports 0–1 for controlled tests. Density 0 disables features.
+The core session API opts into generation via `farmSeed`; omission keeps the
+legacy feature-free behavior and original fixtures. Restart preserves the active
+farm seed/settings as well as letter order. Layouts have no solver or difficulty
+guarantee; some may have no reachable solution.
 
 ## Typed-word controls (Legal word placement lab only)
 
@@ -213,7 +266,7 @@ word of length two or more are required. A single new letter can be legal.
 Validation checks **complete contiguous runs through every new tile in both axes**,
 including old letters before/after the entered span. Entering `S` next to `CAT`
 validates `CATS`, not `S`. A valid main word with any unknown cross-word is rejected
-as a whole. Non-letter metadata cannot be overwritten; farm features are deferred.
+as a whole. Non-letter metadata, including farm features, cannot be overwritten.
 
 Committed letters have solid wood rims. Proposed letters have dashed rims and a
 small **p**; **=** marks matching reuse, **×** marks conflict (with the proposed
@@ -298,6 +351,31 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
 - On a phone, pan empty/committed cells while a tile is selected: no letter should
   be placed by scrolling. Test a rack-origin touch drag and a drafted tile drag,
   as well as tap placement. Real-device behavior remains a manual QA requirement.
+
+### Farm capture QA fixtures
+
+Expand **Development diagnostics: farm capture fixtures**, select a type, then
+**Load scripted farm QA example**. These dedicated fixtures leave the old rack
+and lab examples unchanged. Each reserves (5, 5), uses the original complete
+100-tile CARABTAA bag order, and accepts the same four rack-only moves above.
+
+- **Crop:** preview BAT: base 0, bonus 0, total 0. Commit: base 1, crop bonus 3,
+  total 4, victory at target 4. Select (5, 5) to read captured/activated status.
+- **Fertile ground:** commit BAT: base 1, fertility bonus 1, total 2, victory at 2.
+- **Livestock:** target 20 keeps playing. BAT gives base/total 1, capacity 8,
+  eight rack tiles and bag 84 (one extra real draw). Try a later word or exchange;
+  capacity stays eight.
+- **Building:** target 20 keeps playing. BAT gives base/total 1 and one credit.
+  Cancel an exchange: nothing changes. Complete one: exchanges 1, credits 0,
+  charged exchanges 0, strokes 4. Complete another: exchanges 2, charged 1,
+  strokes 5. An empty selection or insufficient bag cannot consume credit.
+
+Before the fourth commit, repeated previews, selection, invalid words or failed
+tile allocations must not claim the feature or grant utility. A feature cannot be
+overwritten before or after capture. Later accepted words must retain capture and
+never repeat its reward. Restart reconstructs the same fixture. **New puzzle**
+creates an ordinary farm from setup settings. Automated mixed-enclosure fixtures
+add multiple features and independent regions without altering the four original moves.
 
 ### Cross-words, invalid moves, and input (unrestricted word lab)
 
@@ -386,6 +464,12 @@ and the four-word tile-only fixture. Event-surface tests exercise mouse/touch po
 thresholds, compatibility-click suppression, invalid drops, cancellation/lost capture,
 blank dialogs, selection, movement and returns without adding a DOM dependency.
 
+Farm tests add four exact rack-draft capture fixtures, mixed/independent regions,
+bonus victory, permanent capture without double rewards, frozen atomic rejection,
+capacity cap and partial refills, physical conservation, accumulated free credits,
+charged strokes, deterministic layouts, protected cells, rectangular/small boards,
+seed independence and seven/eight/nine-slot presentation checks.
+
 Run `node --check` on affected JavaScript and `git diff --check`. For browser
 validation use the manual examples above; inspect console/network errors and test
 all three modes, direct loading/refresh, return navigation, narrow/wide layouts, pointer,
@@ -396,17 +480,22 @@ keyboard, and touch behavior. No automated browser framework is installed.
 Replace the injected synchronous `has(uppercaseWord) -> boolean` dependency with a
 properly licensed dictionary without rewriting placement rules. The implemented
 session wrapper consumes `evaluation.newPositions` and delegates to `commitWord`;
-matching reused tiles cost nothing. Future farm bonus rules can extend that atomic
+matching reused tiles cost nothing. Farm rewards extend that same atomic
 transition after territory claiming. Future final grading can consume accepted
 word count, exchange count and target; its rubric and exchange cost need playtesting.
-Keep future feature-layout randomness explicit and separate from letter seeds.
+Feature-layout randomness is explicit and separate from letter seeds.
 
 Official dictionary, complete no-legal-move detection,
-farm bonuses, final grades, campaign/daily modes, persistence, leaderboards, final
+final grades, campaign/daily modes, persistence, leaderboards, final
 Sprout Lands integration, decorative animation, and sound remain deferred. The
 core expects valid in-memory boards/territory from its constructors; saved-state
 validation/deserialization is outside this milestone. Practical board sizes depend
 on memory; UI dimensions are capped at 30. No complete game schema is claimed.
+
+Open playtest questions include reserved-cell placement policy, feature density
+and weights, point values, the nine-slot cap, automatic free-credit use, and useful
+targets for the limited vocabulary. Multi-cell buildings, animated animals,
+growing/harvesting timers, upgrades and advanced feature interactions are deferred.
 
 ## Static hosting
 

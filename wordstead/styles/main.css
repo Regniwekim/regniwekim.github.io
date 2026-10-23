@@ -210,7 +210,7 @@ button:disabled {
 progress { width: 100%; height: 1.2rem; accent-color: var(--fern); }
 #rack-play { padding: 1rem; margin-block: 1rem; background: #edf1e6; border-radius: 0.6rem; }
 #rack-play .metrics { margin-block: 0.75rem; }
-.rack { display: grid; grid-template-columns: repeat(7, minmax(44px, 3.5rem)); gap: 0.4rem; margin-block: 0.75rem 1rem; }
+.rack { display: grid; grid-template-columns: repeat(var(--rack-capacity, 7), minmax(44px, 3.5rem)); gap: 0.4rem; margin-block: 0.75rem 1rem; }
 .rack-tile { position: relative; min-height: 56px; padding: 0.2rem; background: #f0d7af; color: #354c43; border: 2px solid #a67c61; font-size: 1.5rem; }
 .rack-tile:hover { background: var(--cream); }
 .rack-tile[aria-pressed="true"] { border: 3px solid #354c43; background: #dce9b6; }
@@ -233,7 +233,7 @@ progress { width: 100%; height: 1.2rem; accent-color: var(--fern); }
 .placement-actions { grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
 #draft-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 #draft-actions button { padding: 0.5rem; font-size: 0.9rem; }
-#main-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-block: 0.65rem; }
+#main-metrics { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); margin-block: 0.65rem; }
 #rack-context { margin-top: 0.6rem; }
 #tile-selection, #draft-direction { font-size: 0.85rem; margin-block: 0.4rem; }
 #tile-ghost { position: fixed; z-index: 10; pointer-events: none; min-width: 44px; height: 44px; padding: 0 0.4rem; border: 3px solid #354c43; border-radius: 0.4rem; background: #f0d7af; color: #354c43; font-size: 1.5rem; font-weight: 700; box-shadow: 0 4px 6px #354c4340; }
@@ -242,7 +242,7 @@ dialog { width: min(30rem, calc(100% - 2rem)); max-height: 90svh; overflow: auto
 dialog::backdrop { background: #354c4366; }
 .blank-letters { display: grid; grid-template-columns: repeat(5, minmax(44px, 1fr)); gap: 0.4rem; margin-block: 1rem; }
 .blank-letters button { padding: 0.2rem; background: #f0d7af; color: #354c43; }
-#rack-play .metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+#rack-play .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 #rack-play .metrics dd, .metrics dd { font-size: 1.25rem; }
 #rack-play { margin-block: 0.5rem; padding-block: 0.5rem; }
 #run-status { margin-block: 0.3rem; font-size: 0.85rem; }
@@ -253,6 +253,7 @@ dialog::backdrop { background: #354c4366; }
   .rack { grid-template-columns: repeat(4, minmax(44px, 1fr)); }
   #rack-play { padding: 0.65rem; }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #main-metrics, #rack-play .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .board-viewport { max-height: 42svh; }
   #rack-controls .actions { gap: 0.35rem; }
   #rack-controls .actions button { padding-inline: 0.5rem; font-size: 0.85rem; }

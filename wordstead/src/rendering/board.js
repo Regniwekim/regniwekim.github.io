@@ -1,4 +1,5 @@
 import { isLetterCell } from '../core/letters.js';
+import { isFeatureCell, FEATURE_TYPES } from '../core/features.js';
 
 // View measurements only. Logical geometry and scoring stay in core.
 const GUTTER = 28;
@@ -56,6 +57,7 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
     const x = GUTTER + (index % board.columns) * cellSize;
     const y = GUTTER + Math.floor(index / board.columns) * cellSize;
     const letter = isLetterCell(cell);
+    const feature = isFeatureCell(cell);
     context.fillStyle = letter ? '#f0d7af'
       : recent.has(index) ? '#dce9b6'
         : territory.claimed[index] ? '#91aa85'
@@ -76,12 +78,12 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
         context.font = '700 11px system-ui, sans-serif';
         context.fillText('◇', x + 10, y + 10);
       }
-    } else if (territory.claimed[index]) {
+    } else if (territory.claimed[index] && !feature) {
       // Symbols distinguish recent and historical claims without color alone.
       context.fillStyle = INK;
       context.font = `700 ${Math.round(cellSize * 0.4)}px system-ui, sans-serif`;
       context.fillText(recent.has(index) ? '+' : '✓', x + cellSize / 2, y + cellSize / 2);
-    } else if (enclosed.has(index)) {
+    } else if (enclosed.has(index) && !territory.claimed[index]) {
       context.strokeStyle = INK;
       context.lineWidth = 2;
       context.setLineDash([3, 3]);
@@ -99,8 +101,10 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
       context.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
       context.fillStyle = INK;
       context.font = `700 ${Math.round(cellSize * 0.4)}px system-ui, sans-serif`;
-      context.fillText('?', x + cellSize / 2, y + cellSize / 2);
+      if (!feature) context.fillText('?', x + cellSize / 2, y + cellSize / 2);
     }
+    if (feature) drawFeature(context, cell.type, x, y, cellSize,
+      prospective.has(index) ? '?' : territory.claimed[index] ? recent.has(index) ? '+' : '✓' : '');
     const ghost = proposed.get(index);
     if (ghost) {
       const conflict = ghost.status === 'conflict' || ghost.status === 'blocked';
@@ -140,6 +144,52 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
       context.strokeRect(x + 2, y + 2, cellSize - 4, cellSize - 4);
     }
   });
+}
+
+/** Original primitive silhouettes + type letters; state badge leaves land visible. */
+function drawFeature(context, type, x, y, size, badge) {
+  const cx = x + size / 2;
+  const top = y + size * 0.18;
+  const unit = size / 12;
+  context.save();
+  context.strokeStyle = INK;
+  context.fillStyle = '#f5e8c8';
+  context.lineWidth = 2;
+  context.beginPath();
+  if (type === 'crop') {
+    context.moveTo(cx, top + 4 * unit); context.lineTo(cx, top);
+    context.moveTo(cx, top + 2 * unit); context.lineTo(cx - 2 * unit, top);
+    context.moveTo(cx, top + 3 * unit); context.lineTo(cx + 2 * unit, top + unit);
+  } else if (type === 'livestock') {
+    context.ellipse(cx - unit / 2, top + 2 * unit, 2.5 * unit, 1.5 * unit, 0, 0, Math.PI * 2);
+    context.moveTo(cx + 3 * unit, top + unit);
+    context.lineTo(cx + 3 * unit, top + 3 * unit);
+    context.moveTo(cx - 2 * unit, top + 3 * unit); context.lineTo(cx - 2 * unit, top + 4 * unit);
+    context.moveTo(cx + unit, top + 3 * unit); context.lineTo(cx + unit, top + 4 * unit);
+  } else if (type === 'building') {
+    context.moveTo(cx - 3 * unit, top + 2 * unit); context.lineTo(cx, top);
+    context.lineTo(cx + 3 * unit, top + 2 * unit);
+    context.lineTo(cx + 3 * unit, top + 4 * unit); context.lineTo(cx - 3 * unit, top + 4 * unit);
+    context.closePath();
+    context.fill();
+  } else {
+    for (let line = 0; line < 3; line += 1) {
+      context.moveTo(cx - 3 * unit, top + line * unit * 1.5);
+      context.lineTo(cx + 3 * unit, top + line * unit * 1.5);
+    }
+  }
+  context.stroke();
+  context.fillStyle = INK;
+  context.font = `700 ${Math.round(size * 0.25)}px system-ui, sans-serif`;
+  context.fillText(FEATURE_TYPES[type].symbol, cx, y + size * 0.78);
+  if (badge) {
+    context.fillStyle = '#fffdf6';
+    context.fillRect(x + size - 17, y + 2, 15, 15);
+    context.fillStyle = INK;
+    context.font = '700 12px system-ui, sans-serif';
+    context.fillText(badge, x + size - 9, y + 10);
+  }
+  context.restore();
 }
 
 /** Keep keyboard/coordinate selection in view using the scrollable board pane. */

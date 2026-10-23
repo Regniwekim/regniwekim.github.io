@@ -1,5 +1,7 @@
 # Wordstead architecture
 
+Milestone 2D adds reserved farm cells, derived capture rewards, independent seeded
+layouts, expandable racks and free exchange credits to the atomic rack transition.
 Milestone 2C.1 adds reversible physical tile drafts to rack play. Milestone 2C wraps
 the existing word/claim transition with a finite physical tile
 bag, seven-tile rack, seeded exchanges, and puzzle progression. Milestone 2B's
@@ -51,7 +53,8 @@ const letterCell = { kind: 'letter', letter: 'A' };
   letter validation happen before writing. Unchanged cell objects may be shared;
   treat returned model data as immutable. This function does not validate words,
   adjacency, permanence, or legal moves. Replacing contents is intended for the
-  sandbox; future feature data should live separately rather than be overwritten.
+  feature-free sandbox. Legal placement never calls this unrestricted editor;
+  farm metadata occupies reserved cells and cannot be overwritten by legal words.
 
 ### Word membership: `dictionary.js` and `demo-vocabulary.js`
 
@@ -139,7 +142,7 @@ pin this contract. Treat outputs as immutable, as with the existing board API.
 
 One accepted placement counts once regardless of resulting word count. Existing
 letter objects remain untouched and cannot be removed/replaced. No score is stored
-in puzzle state: `getTerritoryScore(state.territory)` is the single total. Latest
+in puzzle state: `getTerritoryScore(state.territory)` is the base territory total. Latest
 award/claim highlights are ephemeral UI data. Preview uses `evaluatePlacement` plus
 `evaluateTerritory` on a legal candidate; neither invokes a claim transition.
 
@@ -168,20 +171,22 @@ identical in Node and supported ES-module browsers; it is not cryptographic RNG.
 supply an array containing each physical ID exactly once; malformed/incomplete
 orders throw TypeError. A scripted order preserves the complete distribution and
 initializes exchange RNG from the seed without performing an initial shuffle.
-`replenishRack(rack, bag)` copies arrays and draws from the **front** until seven
-tiles or no bag remains, without changing RNG. Capacity overflow throws RangeError.
+`replenishRack(rack, bag, capacity = 7)` copies arrays and draws from the **front**
+until the supplied capacity or no bag remains, without changing RNG. Capacity
+must be an integer from seven through nine; overflow throws RangeError.
 Model data comes from constructors/transitions and is treated as immutable.
 
 ### Rack-aware play: `session.js`
 
-`createSession({ rows, columns, seed, target, bagOrder? })` returns:
+`createSession({ rows, columns, seed, target, bagOrder?, farmSeed?, farmDensity?, farmWeights? })` returns:
 
 ```js
 {
   puzzle: { board, territory, wordCount }, // Existing createPuzzle contract
-  rack: [/* up to seven physical tiles */],
+  rack: [/* up to derived seven–nine capacity */],
   bag: [/* ordered remaining physical tiles */],
-  seed, rngState, target, exchangeCount: 0,
+  seed, rngState, target, exchangeCount: 0, freeExchangesUsed: 0,
+  farm: null, // or { seed, density, weights }, copied generation settings
   status: 'playing', source: 'seeded', // source is 'scripted' for an ordered bag
 }
 ```
@@ -189,9 +194,10 @@ Model data comes from constructors/transitions and is treated as immutable.
 Target must be a positive safe integer (RangeError otherwise). Seed validation
 comes from `bag.js` (TypeError). Defaults are 15×15, string seed `wordstead-2c`,
 and a temporary **unbalanced target 1** practical for the provisional vocabulary.
-`wordCount` stays in the existing puzzle only; score comes exclusively from
-`getTerritoryScore(puzzle.territory)`. `getStrokes(state)` derives words + exchanges.
-Seed governs letter order only, not future farm layouts or complete difficulty.
+`wordCount` stays in the existing puzzle only; `getPuzzleScore(puzzle)` derives
+total score from claims plus captured feature definitions. `getStrokes(state)`
+derives words + exchanges − freeExchangesUsed. `getChargedExchanges` returns
+exchanges − freeExchangesUsed. Seed governs letter order independently of farms.
 
 `evaluateSessionPlacement(state, proposal, dictionary, assignments?)` calls `evaluatePlacement`
 and preserves its fields, complete-word feedback, and geometry/dictionary rejection
@@ -216,9 +222,11 @@ rejects missing resources, and delegates to **existing `commitWord()`**. It adds
 `tileId` and boolean `blank` to newly committed compatible `{ kind: 'letter',
 letter }` cells. Assigned blanks retain their letter forever, are reusable without
 spending a tile, and participate in dictionary/enclosure rules normally. Reused
-cell objects retain identity. The wrapper removes allocated IDs, replenishes,
-then derives status. It returns the existing commit result plus rack evaluation
-and, on acceptance, `consumedTiles`. No caller-provided cached preview is trusted.
+cell objects retain identity. The wrapper removes allocated IDs, replenishes to
+the **post-capture** capacity, then derives status against total score. It returns
+the existing commit result plus rack evaluation, `consumedTiles`, `basePoints`,
+and `farmRewards`; `points` is the total new award including crop/fertility
+bonuses. No caller-provided cached preview is trusted.
 
 All work completes before replacement state is returned. Rejection returns the
 **exact original state**, zero points and no new claims. Even thrown dictionary
@@ -238,8 +246,11 @@ tiles in rack order to the undrawn bag, and shuffles that pool using session RNG
 Caller selection order cannot change results. It increments exchangeCount once
 and returns `returned`/`replacements` for feedback. Puzzle/claims/wordCount remain
 identical; rack length and total physical tile count are conserved. Failed exchanges
-preserve the original state and randomness. One exchange is one provisional stroke,
-regardless of tile count; final penalty and grading need playtesting.
+preserve the original state and randomness. A successful exchange automatically
+uses an available building credit, increments `freeExchangesUsed` if free, and
+reports `freeExchange`. It always increments `exchangeCount`. Otherwise one
+exchange is one provisional stroke, regardless of tile count. Credit availability
+never bypasses bag/selection/status checks; final penalty and grading need playtesting.
 
 After an accepted word, reaching/exceeding the target changes status to `won`.
 Otherwise an empty rack **and** empty bag produce `exhausted`. Empty bag alone
@@ -257,6 +268,78 @@ leave bag counts 90/88/86/85 and award index 32 only on the fourth word. This gi
 4 words, 0 exchanges, 4 strokes, 1 point and victory. Restarts reconstruct the
 same complete fixture. It is explicitly labeled QA, never presented as a random
 seeded puzzle. The original unrestricted 2B regression remains untouched.
+
+### Farm features, scoring and utility: `features.js`
+
+`FEATURE_TYPES` centralizes four types, labels, textual effects, display letters
+and provisional point bonuses. `createFeatureCell(type)` creates
+`{ kind: 'feature', type }`, rejecting unknown types. `isFeatureCell` recognizes
+only that discriminator and a supported type. `placeFeature(board, row, column,
+type)` is an immutable authoring helper that validates coordinates and requires
+a null cell. A feature occupies exactly one cell and stays intact after capture.
+
+Features are **reserved land**, not letters. Existing placement/draft occupancy
+checks reject overwriting them, whether captured or uncaptured. Existing
+`isLetterCell` remains the only fence discriminator: features never block the
+sole flood fill or form words. This provisional reservation policy is an open
+playtest question. The freeform lab stays feature-free.
+
+The existing boolean territory mask is the authoritative permanent capture
+record. There is no captured flag, stored score, stored capacity, or credit tally.
+`summarizeFeatures(board, indices)` deduplicates indices and describes feature
+types, crop/fertility bonus points and livestock/building counts.
+`getCapturedFeatures(puzzle)` applies it to the authoritative historical claims.
+`getPuzzleScore(puzzle)` returns `{ basePoints, cropPoints, fertilityPoints,
+bonusPoints, totalPoints }`: base still comes from unchanged `getTerritoryScore`;
+crop adds three and fertile adds one per captured feature. Fertility is a bonus
+to its cell only. Three ordinary cells plus crop and fertile total 5 + 3 + 1 = 9.
+
+`getRackCapacity(state)` is min(9, 7 + captured livestock). Refilling never creates
+tiles, even when capacity rises with a low/empty bag. Additional livestock past
+the cap still score base territory. `getExchangeCredits(state)` is captured
+buildings − freeExchangesUsed. Only successful free exchanges increment the
+latter; failed/canceled selections cannot spend it. These functions live in the
+session layer where rack resources and exchange history meet farm capture.
+
+Word commitment performs complete draft/allocation revalidation, existing word
+and claim commitment, physical letter provenance, post-capture refill and
+total-score victory before publishing one replacement state. `farmRewards`
+contains newly captured `{ index, type }` entries, `cropPoints`, `fertilityPoints`,
+`bonusPoints`, `livestock`, `buildings` and the actual capped `rackCapacityGained`
+delta. Repeated claims have no new indices and therefore no repeat rewards.
+Preview only evaluates prospective points; it never changes claims, capacity,
+credits, tiles, RNG, counters or status.
+
+### Independent layout generation: `farm-layout.js`
+
+`generateFarm(board, { seed, density, weights })` copies board cells and uses an
+independent explicit RNG initialized from its farm seed. It reuses the existing
+deterministic shuffle/PRNG functions without accessing or advancing the session's
+letter RNG. It shuffles eligible empty interior indices, selects
+`floor(eligibleCount × density)`, and draws each type by cumulative weight.
+No overlaps or out-of-bounds features occur. Existing occupancy, all perimeter
+cells, the starting square and its immediate orthogonal neighbors are excluded.
+Rectangular and small boards use the same rules; zero eligible cells is valid.
+
+Defaults: `wordstead-farm-2d`, density 0.08 of eligible cells, and weights
+`{ crop: 4, livestock: 2, building: 2, fertile: 3 }`. Density accepts 0–1 in core
+and 0–0.25 in browser setup; zero disables placement. Every type needs a finite,
+nonnegative weight, the total must be positive/finite, and unknown keys reject.
+All values are provisional; each particular board need not contain every type.
+There is no solution solver, difficulty equalization or reachable-target guarantee.
+
+The core constructor only generates farms with an explicit non-null `farmSeed`;
+legacy callers and old fixtures remain feature-free. Browser default play opts
+in. Sessions copy settings for reproducible restart; a different letter seed
+changes the bag but not the farm. A different farm seed/settings cannot change
+letter order or exchange randomness.
+
+`farm-fixture.js` adds `createFarmSession(type)` without modifying the original
+session fixture. Each uses the full original controlled bag and four moves, with
+the feature at index 32, UI (5, 5). Crop/fertile targets 4/2 exercise bonus victory;
+livestock/building targets 20 permit subsequent turns and exchanges. A
+`farmFixture` type identifies restart configuration, not gameplay reward state.
+See README for repeatable browser steps.
 
 ### Reversible drafts: `draft.js`
 
@@ -334,7 +417,7 @@ diagonal letter connector is inferred. Consequently a ring missing only a corner
 still encloses its center; even four letters in the center's cardinal neighbors
 isolate it under this discrete rule. Tests pin these cases to the milestone's
 explicit flood-fill definition. A missing side letter opens a real path.
-Non-letter metadata stays passable and receives no special bonus behavior.
+Non-letter metadata stays passable; the higher farm layer derives bonuses.
 
 ### Territory: `territory.js`
 
@@ -393,8 +476,9 @@ It translates intent, calls pure transitions, then refreshes DOM and Canvas.
 There is no duplicate flood fill, framework, game loop, event bus, storage,
 browser random generator, or animation loop.
 
-The rack is seven persistent semantic DOM buttons with 44px minimum targets,
-visible focus and physical ID/slot labels. Narrow screens wrap four/three slots;
+The rack has nine persistent semantic DOM buttons with 44px minimum targets,
+visible focus and physical ID/slot labels. Only derived capacity (7–9) is visible;
+the grid and accessible name track capacity. Narrow screens wrap at four slots;
 empty slots and finished-run tiles are disabled. Dashed insets and ↗ mark draft
 use, outlines/checkmarks mark selection, and ◇ identifies blanks. Buttons retain
 focus across rerenders. A native modal dialog offers 26 A–Z buttons with keyboard
@@ -445,6 +529,19 @@ mask. Exterior is meadow, unclaimed enclosure has a dashed inset, new claims
 show + on pale harvest, previous claims show ✓ on sage, and letters have oat
 faces/wood rims. Selection has a dark outline. No animation or third-party
 assets are loaded; symbols and textual statuses supplement color.
+
+Features use original Canvas sprout/animal/roof/furrow silhouettes plus C/L/B/F
+labels, drawn over their land state. A corner badge shows prospective ?, new +
+or historical ✓ without obscuring type. Selected-cell and Canvas accessible text
+report the type, capture/activation status, effect and reservation. Capture action
+text reports types, total award, crop/fertility points, actual capacity gain and
+building credits. No effects are applied in the renderer or event handlers.
+
+Rack statistics display total score/target, base territory, farm bonus, accepted
+placements, exchange actions, charged exchanges, credits, strokes, rack/capacity
+and bag count. `ui/rack.js` maintains the persistent physical buttons as capacity
+changes, including empty/disabled states. Setup adds independent farm seed and
+density fields; restart reconstructs the original farm/settings or QA fixture.
 
 Canvas backing dimensions scale with device pixel ratio; the drawing transform
 maps back to CSS view units. `pointerToCell` inverts the actual displayed bounding
@@ -520,19 +617,33 @@ known shapes/repeated claims, cell enlargement/panning, narrow/wide layouts,
 direct loading/refresh, return navigation, and console/network errors. Run
 `git diff --check`; there is no install/build step or automated browser framework.
 
+Farm tests additionally cover every feature, reserved placement, passable flood
+fill, frozen four-word draft captures, preview/rejection isolation, mixed and
+independent enclosures, retained capture history, bonus victory, simultaneous
+utility rewards, capacity cap/partial draws, full physical tile conservation,
+credit accumulation/use/rejection, stroke derivation, seeded rectangular/small
+layouts, density/weights/protected cells, and independence from letter RNG.
+Rack view tests check seven/eight/nine visible physical slots and empty states.
+Existing regression fixtures and expected results remain unchanged.
+
 ## Limits and deferred work
 
 Only English A–Z assignments and standard blanks are modeled. The unrestricted
 word lab uses the same provisional dictionary; freeform toggles A and allows removal.
 Full saved-state validation/persistence, official dictionary, exhaustive move
-solver, farm features/bonuses, final grades, daily/campaign,
+solver, final grades, daily/campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
 Future work can inject a licensed membership source without changing the session
-wrapper. Farm bonuses can extend the atomic transition after territory claiming;
-final grading can consume word/exchange counters and target. Neither is implemented.
-Keep future layout randomness explicit and separate from letter-order seeds;
+wrapper. Farm bonuses extend the atomic transition after territory claiming;
+future final grading can consume word/exchange counters and target.
+Layout randomness stays explicit and separate from letter-order seeds;
 extend state only alongside tested requirements. Enclosure/claims need no rewrite.
+
+Open playtest questions include the reserved-cell policy, density/weights, point
+values, automatic credit consumption, rack cap and useful targets with the small
+vocabulary. Multi-cell structures, animated livestock, crop timers/harvesting,
+seasons, upgrades and advanced interactions remain deferred with final artwork.
 
 All runtime files remain relative under `wordstead/`, directly loadable and
 refreshable on GitHub Pages without server rewrites or Node runtime. Existing

@@ -52,7 +52,7 @@ export function placeDraftTile(state, draft, { tileId, row, column, assignedLett
   const position = { tileId, letter: tile.letter ?? assignment, assignedLetter: assignment, row, column };
   const board = state.puzzle.board;
   if (!inBounds(board, position)) return reject('OUT_OF_BOUNDS', 'Choose a cell inside the board.');
-  if (board.cells[row * board.columns + column] !== null) return reject('CELL_OCCUPIED', 'Committed letters cannot be replaced.');
+  if (board.cells[row * board.columns + column] !== null) return reject('CELL_OCCUPIED', 'Letters and reserved farm features cannot be replaced.');
   if (draft.tiles.some((other) => other.tileId !== tileId && at(other, position))) {
     return reject('DRAFT_OCCUPIED', 'Another draft tile is here. Return or move it first.');
   }
