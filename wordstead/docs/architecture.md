@@ -79,6 +79,10 @@ fixed by this milestone.
 
 ### Presentation: `src/rendering/`
 
+The [visual identity guide (v0.1)](visual-guide-v0.1.md) supplies exploratory
+pixel-art, UI layering, readability, interaction, and motion direction. Treat
+its asset suggestions as proposals subject to verified license boundaries.
+
 Use Canvas 2D for the future board. Render state and selection feedback; do not
 calculate placement legality, territory, scores, or victory. Keep view geometry
 (cell size in CSS pixels, origin, pan, zoom, and device-pixel ratio) outside core
