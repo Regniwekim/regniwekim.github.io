@@ -6,7 +6,7 @@ export const DEFAULT_COLUMNS = 15;
  * @typedef {object} Board
  * @property {number} rows Number of logical rows.
  * @property {number} columns Number of logical columns.
- * @property {null[]} cells Row-major cells; null means empty.
+ * @property {(null|object)[]} cells Row-major cells; null means empty.
  */
 
 /**
