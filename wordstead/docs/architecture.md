@@ -352,18 +352,19 @@ See README for repeatable browser steps.
 `getSessionResults(session)` returns `null` unless existing status is `won`, `ended`
 or `exhausted`. It never infers victory from points, previews or rendered cells.
 The detached, frozen snapshot includes `status`, `target`, `wordCount`,
-`exchangeCount`, `freeExchangesUsed`, `chargedExchanges`, `strokes`, all five
+`exchangeCount`, `freeExchangesUsed`, `chargedExchanges`, all five
 `getPuzzleScore()` fields, frozen `captured: { crops, fertile, livestock, buildings }`
 counts from `getCapturedFeatures()`, and frozen `board: { rows, columns }`.
-`getStrokes()` and `getChargedExchanges()` remain the accounting authorities.
+`getChargedExchanges()` remains the result exchange-accounting authority.
 There is no saved result, second score, mutable capture record or invented history.
 
 `RESULT_HEADINGS` maps terminal statuses to Harvest Complete!, Farm Unfinished and
 Out of Tiles. `formatResultsShare(results)` accepts a terminal snapshot, rejects
 absent/nonterminal results, and uses explicit fields and `\n` separators for consistent
-plain text. It includes score/target, words/exchanges/strokes, territory plus combined
+plain text. It includes score/target, words/exchanges, territory plus combined
 farm bonuses, tagline and the fixed `https://games.regniwekim.com/wordstead/` URL.
-It omits words played, letters, positions, layouts, unrevealed tiles and seeds.
+It omits strokes, words played, letters, positions, layouts, unrevealed tiles and seeds.
+Gameplay stroke accounting is unchanged; results no longer derive or display it.
 There are no daily IDs, comparison claims or encoded session links.
 
 This milestone deliberately supersedes planned efficiency grading in the design
@@ -573,7 +574,7 @@ IDs and bag size. Cancel/switching modes clears exchange selection without a
 transition. Each mode keeps its draft independently; switching clears the active
 pointer/selection/blank dialog and restores only that mode's preview. End-run
 clears pending rack input. Victory/exhaustion disable further input, retain the
-completed board and present word/exchange/stroke results. Restart reconstructs
+completed board and present word/exchange results. Restart reconstructs
 the original seed/configuration or scripted fixture, with an empty draft.
 
 `rendering/board.js` draws an orthographic Canvas 2D grid using system text and
@@ -604,22 +605,29 @@ changes clear all old presentation and share text, and returning to rack mode
 derives its own summary again. A revision token ignores asynchronous clipboard
 success/failure from a previous run or mode. No result operation mutates gameplay.
 
-The compact cream panel below the rack uses a semantic heading and definition
-lists, with points/target, words and strokes prominent and a disclosure for detailed
-scoring, exchange and feature counts. Existing run-status live text announces the
-finish and points to a View Results anchor. Reveal does not move focus or scroll;
-the anchor is explicit navigation. The board retains its letters/claim mask,
+The compact cream window is a native `details` disclosure, positioned over the
+board viewport within `.board-stage`. It opens for a terminal session, and its
+sticky summary header provides keyboard-accessible collapse/expand controls. The
+window height stays within the board stage with internal scrolling for details
+and manual-copy text. It uses a semantic heading and definition lists, with
+points/target and words prominent and a disclosure for detailed scoring, exchange
+and feature counts. Results and share text omit strokes. Board inspection preserves
+the player's collapsed/expanded choice. Existing run-status live text announces
+the finish; View Results explicitly reopens and navigates to the window. Reveal
+does not automatically move focus or scroll. The board retains its letters/claim mask,
 panning, size controls and pointer/keyboard/coordinate inspection. Finished-run
 mutation controls remain disabled. The one existing Restart Puzzle button now
-sits below results and still reconstructs original settings; New Puzzle navigates
+sits below the rack and still reconstructs original settings; New Puzzle navigates
 to the existing setup form rather than creating another setup workflow.
 
 Copy Results invokes `navigator.clipboard.writeText` only from its click handler.
 It disables repeated activation while pending, confirms only after success, and
 on unavailable/denied access opens a labeled read-only textarea with useful manual
 instructions. The textarea disclosure is always available for finished runs.
-Select share text focuses/selects only on explicit activation. There is no legacy
-copy command, external website opening, persistent storage or server request.
+Select share text focuses/selects only on explicit activation. More Games is a
+normal anchor to `https://games.regniwekim.com/` with `target="_blank"` and
+`rel="noopener noreferrer"`; it opens only on activation and preserves the game tab.
+There is no legacy copy command, persistent storage or server request for results.
 Existing focus styles, 44px controls, wrapping layout and absence of animation
 also apply to results.
 
@@ -711,7 +719,8 @@ preview isolation, every score component, zero/multiple captures, livestock and
 buildings, free/charged exchanges, counters, frozen deterministic output, spoiler
 exclusion, newlines, headings and the fixed URL. UI event-surface tests cover pending
 copy timing, success, synchronous/unavailable and asynchronous/denied failures,
-manual selection, inspection without state changes, restart/new/mode clearing and
+manual selection, collapsed-window preservation/reopening, inspection without state
+changes, restart/new/mode clearing and
 stale async completions. The README's Results QA section extends the unchanged
 enclosure/crop/fertile/building fixture checks. Exhaustion uses the existing type
 of controlled full-bag drain with a test dictionary, not a no-moves solver.

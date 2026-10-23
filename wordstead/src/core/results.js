@@ -1,5 +1,5 @@
 import { getPuzzleScore, getCapturedFeatures } from './features.js';
-import { getStrokes, getChargedExchanges } from './session.js';
+import { getChargedExchanges } from './session.js';
 
 export const RESULT_HEADINGS = Object.freeze({
   won: 'Harvest Complete!',
@@ -21,7 +21,6 @@ export function getSessionResults(session) {
     exchangeCount: session.exchangeCount,
     freeExchangesUsed: session.freeExchangesUsed ?? 0,
     chargedExchanges: getChargedExchanges(session),
-    strokes: getStrokes(session),
     captured: Object.freeze({ crops: count('crop'), fertile: count('fertile'),
       livestock: captured.livestock, buildings: captured.buildings }),
     board: Object.freeze({ rows, columns }),
@@ -40,7 +39,7 @@ export function formatResultsShare(results) {
     RESULT_HEADINGS[results.status],
     '',
     `${results.totalPoints}/${results.target} farm points`,
-    `${quantity(results.wordCount, 'word')} · ${quantity(results.exchangeCount, 'exchange')} · ${quantity(results.strokes, 'stroke')}`,
+    `${quantity(results.wordCount, 'word')} · ${quantity(results.exchangeCount, 'exchange')}`,
     `${results.basePoints} territory + ${quantity(results.bonusPoints, 'farm bonus point')}`,
     '',
     'Build a farm, one word at a time.',

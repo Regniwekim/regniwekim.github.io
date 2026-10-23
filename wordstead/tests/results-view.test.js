@@ -39,7 +39,8 @@ test('view and clipboard use the same summary; opening/selecting/copying cannot 
   assert.equal(find('results-crops').textContent, 1);
   assert.equal(find('results-crop-bonus').textContent, '+3');
   assert.equal(find('results-words').textContent, 4);
-  assert.equal(find('results-strokes').textContent, 4);
+  assert.equal(find('results').open, true);
+  assert.doesNotMatch(find('share-text').value, /strokes?/i);
   assert.equal(find('results-link').hidden, false);
   assert.equal(find('share-text').focused, undefined);
   find('manual-copy').open = true;
@@ -106,6 +107,7 @@ test('restart, new puzzle and diagnostic modes clear all previous results and pe
     waiting.resolve();
     await copying;
     assert.equal(find('results').hidden, true);
+    assert.equal(find('results').open, false);
     assert.equal(find('results-link').hidden, true);
     assert.equal(find('new-puzzle-link').hidden, true);
     assert.equal(find('results-points').textContent, '');
@@ -116,6 +118,28 @@ test('restart, new puzzle and diagnostic modes clear all previous results and pe
     view.render(state); // Resuming rack mode restores its own terminal results.
     assert.equal(find('results-title').textContent, 'Harvest Complete!');
   }
+});
+
+test('collapsing and reopening the results window preserves both the farm and copy feedback', async () => {
+  const state = won();
+  const before = JSON.stringify(state);
+  const { view, find, click } = setup(async () => {});
+  view.render(state);
+  await click('copy-results');
+  find('results').open = false; // Native details toggle, without a game transition.
+  find('results').scrollTop = 120;
+  view.render(state); // Panning, selection and resizing must not reopen the window.
+  assert.equal(find('results').open, false);
+  assert.equal(find('results').scrollTop, 120);
+  assert.match(find('copy-status').textContent, /Results copied/);
+  click('results-link');
+  assert.equal(find('results').open, true);
+  assert.equal(find('results').scrollTop, 0);
+  assert.equal(find('share-text').focused, undefined);
+  assert.equal(JSON.stringify(state), before);
+  view.render(createSession());
+  click('results-link');
+  assert.equal(find('results').open, false);
 });
 
 test('a late clipboard failure cannot reopen a previous run after switching to a lab', async () => {

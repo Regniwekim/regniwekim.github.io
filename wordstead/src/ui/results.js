@@ -9,6 +9,13 @@ export function initializeResults({ find, writeClipboard = (text) => {
   let shareText = '';
   let revision = 0;
 
+  find('results-link').addEventListener('click', () => {
+    if (shareText) {
+      find('results').open = true;
+      find('results').scrollTop = 0;
+    }
+  });
+
   find('copy-results').addEventListener('click', async () => {
     if (!shareText || find('copy-results').disabled) return;
     const attempt = revision;
@@ -38,6 +45,8 @@ export function initializeResults({ find, writeClipboard = (text) => {
     revision += 1; // Ignore clipboard completions belonging to a previous run/mode.
     const results = session ? getSessionResults(session) : null;
     find('results').hidden = !results;
+    find('results').open = Boolean(results);
+    find('results').scrollTop = 0;
     find('results-link').hidden = !results;
     find('new-puzzle-link').hidden = !results;
     find('copy-status').textContent = '';
@@ -52,7 +61,6 @@ export function initializeResults({ find, writeClipboard = (text) => {
       'results-context': results ? `${session.source === 'scripted' ? 'Scripted QA' : 'Free Play'} · ${results.board.rows} × ${results.board.columns} farm` : '',
       'results-points': results ? `${results.totalPoints} / ${results.target}` : '',
       'results-words': results?.wordCount ?? '',
-      'results-strokes': results?.strokes ?? '',
       'results-territory': results?.basePoints ?? '',
       'results-bonus': results ? `+${results.bonusPoints}` : '',
       'results-crop-bonus': results ? `+${results.cropPoints}` : '',

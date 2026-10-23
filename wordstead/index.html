@@ -64,7 +64,7 @@
               <div><dt>Total strokes</dt><dd id="strokes">0</dd></div>
             </dl>
             <p id="run-status" role="status" aria-live="polite" aria-atomic="true"></p>
-            <a id="results-link" class="results-link" href="#results" hidden>View Results ↓</a>
+            <a id="results-link" class="results-link" href="#results" hidden>View Results</a>
           </section>
           <dl id="freeform-metrics" class="metrics" aria-label="Enclosure diagnostics" hidden>
             <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
@@ -80,11 +80,60 @@
           <div class="board-layout">
             <div class="board-panel">
               <p id="board-help">Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan; cells stay at least 44px wide.</p>
-              <div id="board-viewport" class="board-viewport">
-                <div class="board-surface">
-                  <canvas id="board" tabindex="0" role="group" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use arrow keys to select a cell, then Enter or Space to place a selected rack tile.</canvas>
-                  <div id="draft-handles"></div>
+              <div class="board-stage">
+                <div id="board-viewport" class="board-viewport">
+                  <div class="board-surface">
+                    <canvas id="board" tabindex="0" role="group" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use arrow keys to select a cell, then Enter or Space to place a selected rack tile.</canvas>
+                    <div id="draft-handles"></div>
+                  </div>
                 </div>
+                <details id="results" class="results-card" aria-labelledby="results-title" tabindex="-1" hidden>
+                  <summary class="results-window-heading">
+                    <h2>
+                      <span id="results-title"></span>
+                      <span class="results-collapse">Collapse results −</span>
+                      <span class="results-expand">Show results +</span>
+                    </h2>
+                  </summary>
+                  <div class="results-window-body">
+                    <p id="results-context" class="eyebrow"></p>
+                    <dl class="results-primary">
+                      <div class="results-score"><dt>Farm Points</dt><dd id="results-points"></dd></div>
+                      <div><dt>Words Placed</dt><dd id="results-words"></dd></div>
+                    </dl>
+                    <details id="results-breakdown" class="results-breakdown">
+                      <summary>Score, exchanges &amp; farm captured</summary>
+                      <dl class="results-statistics">
+                        <div><dt>Base territory points</dt><dd id="results-territory"></dd></div>
+                        <div><dt>Total farm bonus points</dt><dd id="results-bonus"></dd></div>
+                        <div><dt>Crop bonus points</dt><dd id="results-crop-bonus"></dd></div>
+                        <div><dt>Fertility bonus points</dt><dd id="results-fertility-bonus"></dd></div>
+                        <div><dt>Total exchanges</dt><dd id="results-exchanges"></dd></div>
+                        <div><dt>Free exchanges used</dt><dd id="results-free-exchanges"></dd></div>
+                        <div><dt>Charged exchanges</dt><dd id="results-charged-exchanges"></dd></div>
+                      </dl>
+                      <h3>Farm Captured</h3>
+                      <dl class="results-statistics">
+                        <div><dt>Crops</dt><dd id="results-crops"></dd></div>
+                        <div><dt>Fertile cells</dt><dd id="results-fertile"></dd></div>
+                        <div><dt>Livestock</dt><dd id="results-livestock"></dd></div>
+                        <div><dt>Buildings</dt><dd id="results-buildings"></dd></div>
+                      </dl>
+                    </details>
+                    <div class="actions">
+                      <button id="copy-results" type="button" disabled>Copy Results</button>
+                      <a class="button-link secondary" href="https://games.regniwekim.com/" target="_blank" rel="noopener noreferrer">More Games <span class="hint">(new tab)</span></a>
+                    </div>
+                    <p id="copy-status" class="hint" role="status" aria-live="polite" aria-atomic="true"></p>
+                    <details id="manual-copy">
+                      <summary>Share text / manual copy</summary>
+                      <label for="share-text">Spoiler-free results</label>
+                      <textarea id="share-text" rows="10" readonly spellcheck="false" aria-describedby="share-help"></textarea>
+                      <p id="share-help" class="hint">Select the text, then use your device’s Copy command (Ctrl+C or Command+C on a keyboard). Only totals are shared; words, tiles and farm layout stay here.</p>
+                      <button id="select-results" class="secondary" type="button">Select share text</button>
+                    </details>
+                  </div>
+                </details>
               </div>
               <section id="word-controls" aria-labelledby="word-title">
                 <h3 id="word-title">Your rack</h3>
@@ -128,44 +177,6 @@
                 <p id="rack-feedback" class="hint"></p>
                 <ul id="formed-words" aria-label="Complete formed words"></ul>
                 <p id="vocabulary-note" class="hint">Preparing ESDB American English 60.</p>
-              </section>
-              <section id="results" class="results-card" aria-labelledby="results-title" tabindex="-1" hidden>
-                <p id="results-context" class="eyebrow"></p>
-                <h2 id="results-title"></h2>
-                <dl class="results-primary">
-                  <div class="results-score"><dt>Farm Points</dt><dd id="results-points"></dd></div>
-                  <div><dt>Words Placed</dt><dd id="results-words"></dd></div>
-                  <div><dt>Total Strokes</dt><dd id="results-strokes"></dd></div>
-                </dl>
-                <p class="hint">Your final farm is here to explore. Pan the board or select a cell to inspect it.</p>
-                <details id="results-breakdown" class="results-breakdown">
-                  <summary>Score, exchanges &amp; farm captured</summary>
-                  <dl class="results-statistics">
-                    <div><dt>Base territory points</dt><dd id="results-territory"></dd></div>
-                    <div><dt>Total farm bonus points</dt><dd id="results-bonus"></dd></div>
-                    <div><dt>Crop bonus points</dt><dd id="results-crop-bonus"></dd></div>
-                    <div><dt>Fertility bonus points</dt><dd id="results-fertility-bonus"></dd></div>
-                    <div><dt>Total exchanges</dt><dd id="results-exchanges"></dd></div>
-                    <div><dt>Free exchanges used</dt><dd id="results-free-exchanges"></dd></div>
-                    <div><dt>Charged exchanges</dt><dd id="results-charged-exchanges"></dd></div>
-                  </dl>
-                  <h3>Farm Captured</h3>
-                  <dl class="results-statistics">
-                    <div><dt>Crops</dt><dd id="results-crops"></dd></div>
-                    <div><dt>Fertile cells</dt><dd id="results-fertile"></dd></div>
-                    <div><dt>Livestock</dt><dd id="results-livestock"></dd></div>
-                    <div><dt>Buildings</dt><dd id="results-buildings"></dd></div>
-                  </dl>
-                </details>
-                <button id="copy-results" type="button" disabled>Copy Results</button>
-                <p id="copy-status" class="hint" role="status" aria-live="polite" aria-atomic="true"></p>
-                <details id="manual-copy">
-                  <summary>Share text / manual copy</summary>
-                  <label for="share-text">Spoiler-free results</label>
-                  <textarea id="share-text" rows="10" readonly spellcheck="false" aria-describedby="share-help"></textarea>
-                  <p id="share-help" class="hint">Select the text, then use your device’s Copy command (Ctrl+C or Command+C on a keyboard). Only totals are shared; words, tiles and farm layout stay here.</p>
-                  <button id="select-results" class="secondary" type="button">Select share text</button>
-                </details>
               </section>
               <div class="actions session-actions">
                 <button id="reset" class="secondary" type="button">Restart Puzzle</button>

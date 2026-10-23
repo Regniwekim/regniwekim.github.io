@@ -256,18 +256,20 @@ shows **Harvest Complete!**; **End unfinished run** shows **Farm Unfinished**;
 the existing empty-rack-and-empty-bag condition shows **Out of Tiles**. A preview
 never finishes a run. There is still no exhaustive no-legal-moves solver.
 
-The cream results section sits below the rack. It prominently displays actual farm
-points versus target, accepted word placements, and total strokes. Expand **Score,
+The cream results window opens over the board. Activate its **Collapse results**
+header to reveal the farm, then **Show results** to expand it again. It prominently
+displays actual farm points versus target and accepted word placements. Expand **Score,
 exchanges & farm captured** for base territory, crop/fertility/combined farm bonus
 points, total/free/charged exchanges, and counts of captured crops, fertile cells,
 livestock and buildings. Its context identifies Free Play (or scripted QA) and
 board dimensions. The target is a victory requirement, with no performance grade
-or implied ranking. **View Results** near the run status provides an explicit jump;
+or implied ranking. **View Results** near the run status reopens the window and
+jumps to it;
 finishing never automatically moves focus or scrolls the page.
 
 The final board and captured features remain visible, pannable and inspectable by
 pointer, arrows or coordinates; gameplay mutations stay disabled. The existing
-**Restart Puzzle** control is below the results and repeats the original active
+**Restart Puzzle** control is below the rack and repeats the original active
 configuration, independent of setup edits. **New Puzzle** links to Board setup;
 review/edit the settings there and use its submit button to create a fresh run.
 Restart/new runs clear the old results, text and clipboard feedback. The two
@@ -275,10 +277,10 @@ diagnostic labs keep separate sessions and do not display rack results; returnin
 to a finished rack run restores its own summary.
 
 `src/core/results.js` derives a frozen terminal summary via `getSessionResults()`
-using the existing scoring, capture, stroke and charged-exchange helpers. It stores
+using the existing scoring, capture and charged-exchange helpers. It stores
 no additional score or capture history. `formatResultsShare()` produces fixed
 plain-text newlines: WORDSTEAD, the correct finish heading, score/target, words,
-exchanges, strokes, territory plus total farm bonus, tagline and
+exchanges, territory plus total farm bonus, tagline and
 `https://games.regniwekim.com/wordstead/`. The default text excludes played words,
 letters, positions, board layout, unrevealed tiles and seeds/settings. It makes no
 daily-puzzle or identical-puzzle claim and encodes no session in the URL.
@@ -288,8 +290,10 @@ appears after the write completes. If unavailable or denied, a useful status ope
 **Share text / manual copy** with the same result in a labeled read-only textarea.
 That disclosure is also available before copying. **Select share text** selects
 it on explicit activation; use the device’s Copy command or Ctrl+C/Command+C.
-Copying, inspecting and opening disclosures never change the run. Nothing opens
-an external service and nothing is saved on refresh.
+Copying, inspecting and opening disclosures never change the run. Results and
+share text omit strokes; the gameplay accounting remains unchanged.
+**More Games (new tab)** opens `https://games.regniwekim.com/` in a separate tab
+only when activated, keeping the completed farm available. Nothing is saved on refresh.
 
 ## Typed-word controls (Legal word placement lab only)
 
@@ -397,16 +401,19 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
 ### Results QA
 
 - Complete the unchanged rack fixture above. Before BAT commits, no results appear;
-  after commitment expect **Harvest Complete!**, **1 / 1**, **4 words**, **0 exchanges**
-  and **4 strokes**. Copy and paste into a text editor; all those numbers must match.
+  after commitment expect **Harvest Complete!**, **1 / 1**, **4 words** and **0 exchanges**.
+  Copy and paste into a text editor; all those numbers must match, with no strokes.
+- Collapse and expand the window by pointer and keyboard; inspect and pan the farm
+  while collapsed. **View Results** must reopen it. **More Games** must open the
+  arcade in a separate tab while the finished farm remains in the original tab.
 - Open the manual-copy disclosure and select/copy its text with the keyboard. Test
   with clipboard access unavailable/denied: failure must expand that same text,
   explain manual copying and never claim success.
 - Repeat the crop/fertile fixtures below: expect **4 / 4** (1 base +3 crop) and
-  **2 / 2** (1 base +1 fertility), four words/strokes and one captured feature each.
+  **2 / 2** (1 base +1 fertility), four words and one captured feature each.
 - In the building fixture, complete a free exchange and a charged exchange, then
   end the run. Expect **Farm Unfinished**, **1 / 20**, four words, two exchanges,
-  one free exchange used, one charged exchange, five strokes and one building.
+  one free exchange used, one charged exchange and one building.
   The share text must agree. End a fresh run too: all counters/points are zero.
 - Inspect the finished farm, pan/enlarge it, and move the cursor with arrows.
   Verify no letters or totals change. Tab through Copy, manual selection, Restart

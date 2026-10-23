@@ -375,25 +375,69 @@ canvas:focus-visible {
   align-content: start;
 }
 
+.board-stage { position: relative; }
+.board-stage:has(.results-card:not([hidden])) { min-height: 18rem; }
+
 .results-card {
-  margin-block: 1.25rem 0.75rem;
-  padding: clamp(1rem, 3vw, 1.5rem);
+  position: absolute;
+  z-index: 2;
+  inset: 0.75rem 0.75rem auto;
+  max-width: 28rem;
+  max-height: calc(100% - 1.5rem);
+  margin-inline: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid #91aa85;
   border-top: 4px solid var(--fern);
   border-radius: 0.75rem;
   background: var(--cream);
+  box-shadow: 0 4px 16px #354c4333;
   overflow-wrap: anywhere;
   scroll-margin-block: 1rem;
+}
+
+.results-window-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--cream);
+}
+.results-window-heading h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+}
+.results-window-heading .results-collapse, .results-window-heading .results-expand { flex: 0 0 5rem; font-size: 0.8rem; }
+.results-window-heading:focus-visible { outline-offset: -4px; }
+.results-window-heading::-webkit-details-marker { display: none; }
+.results-card[open] > summary .results-expand,
+.results-card:not([open]) > summary .results-collapse { display: none; }
+.results-window-body { padding: 0.25rem 1rem 1rem; }
+.results-window-body > .eyebrow { font-size: 0.7rem; }
+.results-window-body .actions { align-items: center; }
+.results-window-body .button-link { gap: 0.35rem; flex-wrap: wrap; }
+
+@media (max-width: 40rem) {
+  .results-window-heading h2 { display: block; }
+  .results-window-heading .results-collapse,
+  .results-window-heading .results-expand { display: block; margin-top: 0.25rem; }
 }
 
 .results-primary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.8rem;
-  margin-block: 1.25rem;
+  margin-block: 0.75rem;
 }
 
-.results-primary .results-score { grid-column: 1 / -1; }
 .results-primary dt { font-size: 0.9rem; }
 .results-primary dd {
   margin: 0;
