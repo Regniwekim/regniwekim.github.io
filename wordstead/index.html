@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Wordstead is a spatial word puzzle and cozy farm builder, currently in development.">
-    <title>Wordstead · In development</title>
+    <meta name="description" content="Wordstead's development sandbox for testing letter fences and territory claims.">
+    <title>Wordstead · Enclosure sandbox</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./styles/main.css">
     <script type="module" src="./src/main.js"></script>
@@ -15,28 +15,82 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">In development</span>
+        <span class="development-label">Milestone 2A · Development sandbox</span>
       </header>
-
       <main id="main" tabindex="-1">
         <div class="introduction">
           <p class="eyebrow">A spatial word puzzle &amp; cozy farm builder</p>
           <h1>Wordstead</h1>
-          <p class="tagline">Build a farm, one word at a time.</p>
-          <p class="introduction-copy">The foundation is taking root. Wordstead is under development and isn’t playable yet.</p>
+          <p class="tagline">Every enclosure starts with a letter.</p>
+          <p>Experiment with letter fences and claim the land inside. This sandbox allows unrestricted test placements and removals. These are <strong>not legal Wordstead word placements</strong>; word rules are still to come.</p>
         </div>
-
-        <section class="application-placeholder" aria-labelledby="board-title" aria-describedby="board-description board-summary">
-          <div class="plot-mark" aria-hidden="true"><span></span><span></span><span></span></div>
-          <p class="eyebrow">Future game area</p>
-          <h2 id="board-title">Room to grow</h2>
-          <p id="board-description">The board, letters, and farm will grow here in future milestones.</p>
-          <p id="board-summary" class="board-summary" role="status">Board initialization pending.</p>
-          <noscript><p>JavaScript is required to initialize Wordstead. Enable it and reload this page.</p></noscript>
+        <section class="sandbox" aria-labelledby="board-title">
+          <div class="board-heading">
+            <div><p class="eyebrow">Enclosure lab</p><h2 id="board-title">A little room to grow</h2></div>
+            <p id="board-summary">Board initialization pending.</p>
+          </div>
+          <dl class="metrics" aria-label="Territory statistics">
+            <div><dt>Territory score</dt><dd id="territory-score">0</dd></div>
+            <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
+            <div><dt>Ready to claim</dt><dd id="claimable-count">0</dd></div>
+          </dl>
+          <div class="actions">
+            <button id="claim" type="button">Claim enclosed land</button>
+            <button id="inspect" class="secondary" type="button">Inspect enclosure</button>
+            <button id="reset" class="secondary" type="button">Reset board &amp; claims</button>
+          </div>
+          <p id="action-status" class="action-status" role="status" aria-live="polite" aria-atomic="true">Starting sandbox…</p>
+          <div class="board-layout">
+            <div class="board-panel">
+              <p id="board-help">Tap a cell to toggle A. On the focused board, use arrow keys to select and Enter or Space to toggle. Swipe or scroll to pan; cells stay at least 44px wide.</p>
+              <div id="board-viewport" class="board-viewport">
+                <canvas id="board" tabindex="0" role="img" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use the row and column controls below to select and toggle cells.</canvas>
+              </div>
+              <ul class="legend" aria-label="Board key">
+                <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
+                <li><span class="swatch enclosed" aria-hidden="true">▫</span>Enclosed, unclaimed</li>
+                <li><span class="swatch recent" aria-hidden="true">+</span>Newly claimed</li>
+                <li><span class="swatch claimed" aria-hidden="true">✓</span>Previously claimed</li>
+                <li><span class="swatch letter" aria-hidden="true">A</span>Letter fence</li>
+              </ul>
+            </div>
+            <div class="controls">
+              <section aria-labelledby="cell-title">
+                <h3 id="cell-title">Select a cell</h3>
+                <p class="hint">Coordinates start at 1 in this sandbox.</p>
+                <form id="coordinates">
+                  <div class="field-pair">
+                    <label>Row<input id="cell-row" type="number" min="1" max="15" value="1" step="1" required></label>
+                    <label>Column<input id="cell-column" type="number" min="1" max="15" value="1" step="1" required></label>
+                  </div>
+                  <button class="secondary" type="submit">Select cell</button>
+                </form>
+                <p id="selection-status" role="status" aria-live="polite" aria-atomic="true">No cell selected yet.</p>
+                <button id="toggle-letter" type="button">Toggle selected letter</button>
+              </section>
+              <section aria-labelledby="view-title">
+                <h3 id="view-title">Board setup</h3>
+                <label>Cell display size<select id="cell-size"><option value="44">Standard · 44px</option><option value="56">Large · 56px</option><option value="72">Extra large · 72px</option></select></label>
+                <form id="dimensions">
+                  <div class="field-pair">
+                    <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
+                    <label>Columns<input id="columns" type="number" min="1" max="30" value="15" step="1" required></label>
+                  </div>
+                  <button class="secondary" type="submit">Create empty board</button>
+                </form>
+                <p class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
+              </section>
+            </div>
+          </div>
+          <details class="rules"><summary>How to test an enclosure</summary>
+            <p>Place letters in rows 2 and 4, columns 2–4. Add letters at row 3, columns 2 and 4. The empty center (row 3, column 3) is enclosed and earns one point when claimed. Claim again to verify +0.</p>
+            <p>All four board edges give outside access. Only letters block orthogonal paths; empty cells cannot pass diagonally. Detection updates after every edit. Claims persist if you reopen a fence or cover claimed land with a letter.</p>
+            <p>A + marks cells from the latest claim. Another claim or letter edit changes earlier claims to ✓. Nothing is saved on refresh.</p>
+          </details>
+          <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
         </section>
       </main>
-
-      <footer><p>Milestone 1 · Project foundation</p></footer>
+      <footer><p>Milestone 2A · Enclosure &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

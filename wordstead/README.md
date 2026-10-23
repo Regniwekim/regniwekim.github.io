@@ -1,138 +1,135 @@
 # Wordstead
 
 **Build a farm, one word at a time.** Wordstead is a single-player spatial word
-puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md) is
-the authoritative description of the planned game.
+puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
+defines the planned game; [architecture](docs/architecture.md) documents the
+implemented contracts.
 
-## Visual direction
+## Current status: Milestone 2A
 
-The [visual identity and asset production guide (v0.1)](docs/visual-guide-v0.1.md)
-records Wordstead's exploratory pixel-art direction, working palette, legibility
-hierarchy, mobile layout, tile states, motion guidelines, and visual production
-backlog. Its palette, branding and asset choices are **proposals**, not final
-implementation or distribution approval. The [design skeleton](docs/design-skeleton.md)
-governs gameplay rules, while the [asset audit](ASSET-AUDIT.md),
-[organization records](asset-organization/README.md), and
-[license scope](docs/license.md) govern verified source details and permission
-boundaries. Earlier to-do items about auditing the packs in the visual guide
-have since been addressed by those records.
+The development sandbox lets you construct arbitrary letter fences, inspect
+orthogonally enclosed land, and claim each empty cell for one territory point
+exactly once. It is **not the final game**: sandbox letter placement and removal
+are unrestricted and do not implement legal Wordstead word placements.
 
-## Current status: Milestone 1
+Milestone 1's configurable board model remains intact. The new pure core uses
+explicit `{ kind: 'letter', letter: 'A' }` cells as barriers and a separate boolean
+claim mask. A nonrecursive flood fill from all four board edges identifies
+exterior non-letter land; the remaining non-letter cells are enclosed. Metadata
+alone does not block land or award bonuses. See the architecture for API details.
 
-The application is a deliberately minimal development page, **not yet a playable
-game**. A native ES module creates an empty 15×15 logical board and displays its
-dimensions and initialization status. The page has its own responsive CSS,
-semantic HTML, keyboard focus styles, and an arcade return link. It uses system
-fonts and CSS shapes; no third-party artwork is loaded.
-
-The core supports configurable rectangular boards, row-major cell indexing,
-coordinate reads, and invalid-dimension/coordinate checks. There is no placement,
-dictionary, scoring, territory capture, tile bag, puzzle generation, or victory
-logic. Canvas rendering and gameplay input are deferred.
-
-## Structure
-
-```text
-wordstead/
-├── AGENTS.md                  # Game-specific development guidance
-├── index.html                 # Independent static entry page
-├── package.json               # ES module mode and Node test command only
-├── src/
-│   ├── main.js                # Browser bootstrap and DOM status
-│   └── core/board.js          # Pure logical board model
-├── styles/main.css            # Independent, mobile-first presentation
-├── tests/board.test.js         # Browser-free model tests
-├── docs/
-│   ├── architecture.md        # Implemented boundaries and planned flow
-│   ├── design-skeleton.md     # Authoritative gameplay design
-│   ├── visual-guide-v0.1.md   # Exploratory visual identity and production guide
-│   └── license.md             # Existing third-party license scope
-├── asset-audit/               # Existing audit metadata and tools
-├── asset-organization/        # Existing organization records and tools
-└── licenses/                  # Preserved third-party notices and credits
-```
-
-The existing root-level asset audit, catalog, and organization plan are retained.
-No empty rendering or input directories are created; add them with their first
-working feature. See [architecture](docs/architecture.md) for their boundaries.
+The Canvas board uses readable system-font letters and primitive shapes, with
+no third-party art, fonts, audio, or runtime dependencies. The
+[visual guide (v0.1)](docs/visual-guide-v0.1.md) remains exploratory. Existing
+[asset audit](ASSET-AUDIT.md), [organization records](asset-organization/README.md),
+and [license scope](docs/license.md) continue to govern asset permission.
 
 ## Run locally
 
-From the **repository root** (the parent of `wordstead/`), run:
+From the **repository root** (the parent of `wordstead/`):
 
 ```sh
 python -m http.server 8000 --bind 127.0.0.1
 ```
 
-Visit <http://localhost:8000/wordstead/>. Load that URL directly or refresh it;
-no arcade session is required. **Back to Main Arcade** goes to `../index.html`.
-The arcade homepage does not list Wordstead yet; adding a card is outside this
-milestone. Stop the server with Ctrl+C. Another static HTTP server is fine.
+Visit <http://localhost:8000/wordstead/> directly or refresh it. Native ES modules
+require HTTP; `file://` is not supported. No package installation, build command,
+backend, or Node browser runtime is needed. Stop the server with Ctrl+C.
+**Back to Main Arcade** points to `../index.html`. The homepage does not list
+Wordstead yet; adding its card is outside this milestone.
 
-Use HTTP for this game: native ES modules are subject to browser origin rules
-and may fail when opening `index.html` using `file://`. No package installation,
-build command, backend, or Node.js browser runtime is needed.
+## Sandbox controls
+
+- Tap/click a cell to toggle a temporary A tile. Detection updates immediately.
+- Focus the board and use arrow keys to select; Enter or Space toggles the letter.
+  Selection stays visible as you move. Alternatively, enter **Row** and **Column**,
+  choose **Select cell**, then **Toggle selected letter**. UI coordinates start
+  at 1; core coordinates start at 0.
+- **Inspect enclosure** reports enclosed cells and available points without
+  claiming. **Claim enclosed land** awards one point per unclaimed enclosed cell.
+  Repeating a claim awards zero. The score is historical; opening a fence or
+  covering a claimed cell with a letter never erases claims or enables rescoring.
+- Exterior is meadow green. Enclosed unclaimed land has a dashed inset. Newly
+  claimed land uses pale harvest and **+**; older claims use sage and **✓**.
+  The latest claim stays marked until another claim or letter edit.
+  Textual selection/status messages supplement the color and symbols.
+- Pan with native touch scrolling, scrollbars, or a trackpad. The board never
+  shrinks below 44 CSS pixels per cell. **Cell display size** enlarges cells to
+  56 or 72 pixels. Pointer mapping accounts for CSS scaling and device pixel ratio.
+- **Create empty board** accepts 1–30 rows and columns independently and clears
+  letters, claims, and points. **Reset board & claims** clears the current size.
+  Refresh also clears everything; there is no persistence.
+
+For a one-cell enclosure, place letters in rows 2 and 4, columns 2–4, and in row 3,
+columns 2 and 4. The center (3, 3) should be enclosed. Claim it twice: +1 then +0.
+Remove the letter at (3, 4): the center becomes exterior but remains claimed.
+
+All four edges supply outside access, rather than free fences. Diagonal land
+connections do not supply passage: removing only a ring's corner does not release
+its center, while removing a side letter does. This follows the requested
+orthogonal flood-fill definition; no diagonal letter connectors are added.
+
+## Structure
+
+```text
+wordstead/
+├── index.html                 # Independent sandbox entry
+├── package.json               # ES modules and built-in Node test command
+├── src/
+│   ├── main.js                # Browser bootstrap
+│   ├── core/
+│   │   ├── board.js           # Dimensions, storage, validated coordinates
+│   │   ├── letters.js         # Explicit occupancy and immutable letter writes
+│   │   ├── enclosure.js       # Iterative exterior flood fill
+│   │   └── territory.js       # Claim preview, immutable claims, scoring
+│   ├── rendering/board.js     # Canvas view and coordinate transforms
+│   └── ui/sandbox.js          # DOM controls, pointer/keyboard input, session state
+├── styles/main.css            # Local responsive presentation
+├── tests/                     # Node model tests and explicit shape fixtures
+└── docs/                      # Architecture, design, visual, and license guides
+```
+
+Existing audit/organization files and license notices are preserved.
 
 ## Run tests
 
-Use Node.js 22 or newer. From `wordstead/`, run:
+Use Node.js 22 or newer. From `wordstead/`:
 
 ```sh
 npm test
 ```
 
-This invokes `node --test`, using only built-in `node:test` and
-`node:assert/strict`. No `npm install` is needed. On PowerShell hosts where the
-`npm.ps1` wrapper is restricted, use `npm.cmd test`.
+This runs `node --test` with built-in `node:test` and `node:assert/strict` only;
+no `npm install` is needed. If PowerShell restricts `npm.ps1`, use `npm.cmd test`.
+Tests preserve the foundation checks and exercise exact enclosure coordinates,
+all edges, diagonal topology, irregular/multiple regions, occupied interiors,
+rectangular/degenerate boards, claim history, point awards, immutability, and
+invalid inputs. A large exterior fixture checks the nonrecursive approach.
 
-Tests exercise board initialization, rectangular and single-cell boards,
-coordinate/index access, independent deterministic initialization, and invalid
-dimensions/coordinates without any browser APIs. Check runtime syntax with:
+Check affected JavaScript files with `node --check path/to/file.js`. For page
+changes, also preview desktop and phone layouts, pointer/keyboard input,
+panning and enlarged cells, direct loading/refresh, the return link, and browser
+console/network errors. Run `git diff --check` before committing.
 
-```sh
-node --check src/core/board.js
-node --check src/main.js
-```
+## Limits and next milestone
 
-For page changes, also preview at phone and desktop widths, use keyboard and
-pointer navigation, check direct loading/refresh and the return link, inspect
-console/network errors, and run `git diff --check`.
+This is an in-memory mechanics sandbox. It always places A, permits removal,
+limits the development UI to 30×30, and uses no animation. The core supports
+configurable rectangular boards within the original JavaScript array and
+available-memory limits; core APIs expect valid boards/claims they produce,
+not unvalidated saved data. Letter creation currently supports uppercase A–Z.
+
+Milestone 2B should add pure placement geometry/validation and call territory
+claims only after an accepted committed placement, preserving this enclosure
+implementation. Dictionary coordination, rack/bag, seeded puzzles, farm features
+and bonuses, victory, daily/campaign modes, leaderboards, persistence, and final
+sprites remain deferred. No complete game-state schema is introduced here.
 
 ## Static hosting
 
-The existing GitHub Pages configuration publishes the repository's `main`
-branch from `/`, at `games.regniwekim.com`. Once merged through the existing
-process, this entry page is served at `/wordstead/`. Its stylesheet and module
-paths are relative to that directory, and JavaScript imports include `.js`
-extensions. No rewrites, Node server, deployment workflow, or Pages settings
-changes are required. The page retains `noindex, nofollow`; root `robots.txt`
-also disallows crawling.
-
-## Contributing gameplay
-
-Read [AGENTS.md](AGENTS.md), the design skeleton, and architecture first. Add
-one small rule module under `src/core/` with explicit inputs and outputs and
-focused tests in `tests/`. Keep it independent of DOM, Canvas, screen dimensions,
-storage, and ambient randomness. Future seeded generation must be reproducible.
-
-Application/input code will translate user actions into logical coordinates,
-ask core rules to produce the next state, then update the DOM and future Canvas
-view. Renderers consume state; they do not decide legality or scoring. Extend
-the board/game schema only as implemented rules require. A useful first
-Milestone 2 task is pure word-placement geometry and legality, with focused
-tests for the starting square, board bounds, connectivity, and cross-words,
-using explicit word-validation inputs.
-
-## Limitations and deferred work
-
-- No gameplay controls, board renderer, coordinate-to-screen transforms, or
-  interactive board accessibility yet. The current placeholder is a DOM section.
-- No persistence, daily puzzle integration, seeded generation, audio, or motion.
-- Dense board allocation is constrained by JavaScript array length and available
-  memory; normal game sizes are expected. Pixel dimensions are never model state.
-- Third-party artwork is not integrated. Existing asset/license records remain
-  authoritative for asset provenance and distribution boundaries. The private
-  starter export is not a public runtime asset set; UI public delivery remains
-  unresolved. See [asset organization](asset-organization/README.md) and
-  [license scope](docs/license.md). No private store is needed to run or test
-  this milestone.
+Runtime paths are relative under `wordstead/` and work directly at `/wordstead/`
+on static hosting. The existing GitHub Pages source remains `main`, folder `/`,
+with custom domain `games.regniwekim.com`. No rewrites or deployment changes are
+needed. The entry retains `noindex, nofollow`; root `robots.txt` disallows crawling.
+The root homepage, shared assets, other games, hosting, asset records, design
+skeleton, and visual guide are outside this change.
