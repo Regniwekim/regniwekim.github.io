@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta name="description" content="Wordstead's word placement prototype: build connected words and enclose land.">
-    <title>Wordstead · Word placement prototype</title>
+    <title>Wordstead · Rack-limited puzzle</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./styles/main.css">
     <script type="module" src="./src/main.js"></script>
@@ -15,21 +15,21 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 2B · Development prototype</span>
+        <span class="development-label">Milestone 2C · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
           <p class="eyebrow">A spatial word puzzle &amp; cozy farm builder</p>
           <h1>Wordstead</h1>
           <p class="tagline">Build a farm, one word at a time.</p>
-          <p>Build connected words and claim the land they enclose. Preview before you commit; placed letters stay on the board. This prototype uses a <strong>small, provisional vocabulary</strong>. Rack, bag, and farm bonuses come later.</p>
+          <p>Build connected words with seven tiles and claim the land they enclose. Reach your territory target using as few words and exchanges as possible. This prototype uses a <strong>small, provisional vocabulary</strong> and an unbalanced target. Farm bonuses and final grades come later.</p>
         </div>
         <section class="sandbox" aria-labelledby="board-title">
           <div class="board-heading">
-            <div><p class="eyebrow">Word &amp; enclosure lab</p><h2 id="board-title">A little room to grow</h2></div>
+            <div><p class="eyebrow">Letters &amp; land</p><h2 id="board-title">A little room to grow</h2></div>
             <p id="board-summary">Board initialization pending.</p>
           </div>
-          <label class="mode-control">Development mode<select id="mode"><option value="words">Legal word placement</option><option value="freeform">Freeform enclosure lab</option></select></label>
+          <label class="mode-control">Play / development mode<select id="mode"><option value="rack">Rack-limited puzzle</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
           <p id="starting-square"></p>
           <dl id="word-metrics" class="metrics" aria-label="Placement statistics">
             <div><dt>Accepted placements</dt><dd id="word-count">0</dd></div>
@@ -38,6 +38,28 @@
           <dl class="metrics" aria-label="Territory statistics">
             <div><dt>Territory score</dt><dd id="territory-score">0</dd></div>
           </dl>
+          <section id="rack-play" aria-label="Puzzle progress and rack">
+            <p id="run-info" class="hint"></p>
+            <label for="goal-progress" id="goal-label">Territory goal</label>
+            <progress id="goal-progress" value="0" max="1" aria-labelledby="goal-label"></progress>
+            <dl class="metrics" aria-label="Letter economy">
+              <div><dt>Rack / capacity</dt><dd id="rack-count">7 / 7</dd></div>
+              <div><dt>Bag remaining</dt><dd id="bag-count">93</dd></div>
+              <div><dt>Exchanges</dt><dd id="exchange-count">0</dd></div>
+              <div><dt>Total strokes</dt><dd id="strokes">0</dd></div>
+            </dl>
+            <p id="run-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <h3>Your rack</h3>
+            <p id="rack-help" class="hint">Type your word below. Exact letters are used before blanks (◇). Select tiles only during exchange.</p>
+            <div id="rack" class="rack" role="group" aria-label="Seven rack slots" aria-describedby="rack-help"></div>
+            <div class="actions">
+              <button id="start-exchange" class="secondary" type="button">Exchange tiles</button>
+              <button id="confirm-exchange" type="button" hidden>Confirm exchange</button>
+              <button id="cancel-exchange" class="secondary" type="button" hidden>Cancel exchange</button>
+              <button id="end-run" class="secondary" type="button">End unfinished run</button>
+            </div>
+            <p id="exchange-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+          </section>
           <dl id="freeform-metrics" class="metrics" aria-label="Enclosure diagnostics" hidden>
             <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
             <div><dt>Ready to claim</dt><dd id="claimable-count">0</dd></div>
@@ -47,9 +69,9 @@
               <button id="claim" type="button">Claim enclosed land</button>
               <button id="inspect" class="secondary" type="button">Inspect enclosure</button>
             </div>
-            <button id="reset" class="secondary" type="button">Reset puzzle</button>
+            <button id="reset" class="secondary" type="button">Restart puzzle</button>
           </div>
-          <p id="action-status" class="action-status" role="status" aria-live="polite" aria-atomic="true">Starting sandbox…</p>
+          <p id="action-status" class="action-status" role="status" aria-live="polite" aria-atomic="true">Starting puzzle…</p>
           <div class="board-layout">
             <div class="board-panel">
               <p id="board-help">Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan; cells stay at least 44px wide.</p>
@@ -64,6 +86,7 @@
                 <li><span class="swatch letter" aria-hidden="true">A</span>Letter fence</li>
                 <li><span class="swatch proposed" aria-hidden="true">p</span>Proposed letter</li>
                 <li><span class="swatch letter" aria-hidden="true">=</span>Reused letter</li>
+                <li><span class="swatch letter" aria-hidden="true">◇</span>Assigned blank</li>
                 <li><span class="swatch proposed" aria-hidden="true">×</span>Conflict</li>
                 <li><span class="swatch recent" aria-hidden="true">?</span>Prospective claim</li>
                 <li><span class="swatch exterior" aria-hidden="true">☆</span>Starting square</li>
@@ -78,6 +101,7 @@
                   <button class="secondary" type="submit">Preview word</button>
                 </form>
                 <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true">No preview.</p>
+                <p id="rack-feedback" class="hint"></p>
                 <ul id="formed-words" aria-label="Complete formed words"></ul>
                 <div class="placement-actions">
                   <button id="commit-word" type="button" disabled>Commit word</button>
@@ -103,18 +127,25 @@
                 <h3 id="view-title">Board setup</h3>
                 <label>Cell display size<select id="cell-size"><option value="44">Standard · 44px</option><option value="56">Large · 56px</option><option value="72">Extra large · 72px</option></select></label>
                 <form id="dimensions">
+                  <div id="rack-setup">
+                    <label>Letter seed<input id="seed" type="text" value="wordstead-2c" required></label>
+                    <label>Territory target<input id="target" type="number" min="1" step="1" value="1" required></label>
+                    <p class="hint">Seed controls letter order only. Default target 1 is temporary and unbalanced. New puzzles use these settings; restart repeats the active run.</p>
+                  </div>
                   <div class="field-pair">
                     <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
                     <label>Columns<input id="columns" type="number" min="1" max="30" value="15" step="1" required></label>
                   </div>
-                  <button class="secondary" type="submit">Create empty board</button>
+                  <button id="create-board" class="secondary" type="submit">New puzzle</button>
                 </form>
                 <p class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
               </section>
             </div>
           </div>
-          <details class="rules"><summary>Four words, one enclosure</summary>
-            <p>Choose Legal word placement, then Set up 7×7 example (resets this puzzle). Preview and commit CAR at (4, 4) horizontal; CAB at (4, 4) vertical; RAT at (4, 6) vertical; BAT at (6, 4) horizontal. Coordinates are 1-based; press Select cell after editing them.</p>
+          <details class="rules"><summary>Development diagnostics: four words, one enclosure</summary>
+            <button id="rack-example" class="secondary" type="button">Load scripted rack QA example</button>
+            <p>The scripted QA example switches to Rack-limited puzzle, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. It is not an ordinary seeded random puzzle. The unrestricted example remains in Legal word placement lab.</p>
+            <p>Preview and commit CAR at (4, 4) horizontal; CAB at (4, 4) vertical; RAT at (4, 6) vertical; BAT at (6, 4) horizontal. Coordinates are 1-based; press Select cell after editing them.</p>
             <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
           </details>
           <details class="rules"><summary>Provisional demonstration word list</summary>
@@ -130,7 +161,7 @@
           <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
         </section>
       </main>
-      <footer><p>Milestone 2B · Words &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 2C · Finite letters &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>
