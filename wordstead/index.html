@@ -12,10 +12,17 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <div id="tile-ghost" aria-hidden="true" hidden></div>
+    <dialog id="blank-dialog" aria-labelledby="blank-title" aria-describedby="blank-help">
+      <h2 id="blank-title">Assign blank</h2>
+      <p id="blank-help">Choose the letter this physical blank represents. You can change it before commitment.</p>
+      <div id="blank-letters" class="blank-letters"></div>
+      <button id="cancel-blank" class="secondary" type="button">Cancel blank assignment</button>
+    </dialog>
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 2C · Development prototype</span>
+        <span class="development-label">Milestone 2C.1 · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
@@ -31,14 +38,13 @@
           </div>
           <label class="mode-control">Play / development mode<select id="mode"><option value="rack">Rack-limited puzzle</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
           <p id="starting-square"></p>
-          <dl id="word-metrics" class="metrics" aria-label="Placement statistics">
-            <div><dt>Accepted placements</dt><dd id="word-count">0</dd></div>
+          <dl id="main-metrics" class="metrics" aria-label="Placement statistics">
+            <div id="word-metrics"><dt>Accepted placements</dt><dd id="word-count">0</dd></div>
+            <div><dt>Territory score</dt><dd id="territory-score">0</dd></div>
             <div><dt>Latest award</dt><dd id="latest-award">+0</dd></div>
           </dl>
-          <dl class="metrics" aria-label="Territory statistics">
-            <div><dt>Territory score</dt><dd id="territory-score">0</dd></div>
-          </dl>
-          <section id="rack-play" aria-label="Puzzle progress and rack">
+
+          <section id="rack-play" aria-label="Puzzle progress">
             <p id="run-info" class="hint"></p>
             <label for="goal-progress" id="goal-label">Territory goal</label>
             <progress id="goal-progress" value="0" max="1" aria-labelledby="goal-label"></progress>
@@ -49,16 +55,6 @@
               <div><dt>Total strokes</dt><dd id="strokes">0</dd></div>
             </dl>
             <p id="run-status" role="status" aria-live="polite" aria-atomic="true"></p>
-            <h3>Your rack</h3>
-            <p id="rack-help" class="hint">Type your word below. Exact letters are used before blanks (◇). Select tiles only during exchange.</p>
-            <div id="rack" class="rack" role="group" aria-label="Seven rack slots" aria-describedby="rack-help"></div>
-            <div class="actions">
-              <button id="start-exchange" class="secondary" type="button">Exchange tiles</button>
-              <button id="confirm-exchange" type="button" hidden>Confirm exchange</button>
-              <button id="cancel-exchange" class="secondary" type="button" hidden>Cancel exchange</button>
-              <button id="end-run" class="secondary" type="button">End unfinished run</button>
-            </div>
-            <p id="exchange-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
           </section>
           <dl id="freeform-metrics" class="metrics" aria-label="Enclosure diagnostics" hidden>
             <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
@@ -76,8 +72,54 @@
             <div class="board-panel">
               <p id="board-help">Tap a starting cell. Arrow keys move selection; Enter or Space previews only. Use Commit word to accept. Swipe or scroll to pan; cells stay at least 44px wide.</p>
               <div id="board-viewport" class="board-viewport">
-                <canvas id="board" tabindex="0" role="img" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use the row and column controls below to select the starting cell.</canvas>
+                <div class="board-surface">
+                  <canvas id="board" tabindex="0" role="group" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use arrow keys to select a cell, then Enter or Space to place a selected rack tile.</canvas>
+                  <div id="draft-handles"></div>
+                </div>
               </div>
+              <section id="word-controls" aria-labelledby="word-title">
+                <h3 id="word-title">Your rack</h3>
+                <div id="rack-controls">
+                  <p id="rack-help" class="hint">Select then tap a cell, or drag. Tap a draft tile to move it. Tap its selected rack slot to return. Blanks (◇) ask for a letter.</p>
+                  <div id="rack" class="rack" role="group" aria-label="Seven rack slots" aria-describedby="rack-help"></div>
+                </div>
+                <form id="word-form">
+                  <label>Word<input id="word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="vocabulary-note"></label>
+                  <label>Orientation<select id="orientation"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
+                  <button class="secondary" type="submit">Preview word</button>
+                </form>
+                <div class="placement-actions">
+                  <button id="commit-word" type="button" disabled>Commit word</button>
+                  <div id="draft-actions" class="actions">
+                    <button id="undo-draft" class="secondary" type="button" disabled>Undo last placement</button>
+                    <button id="clear-draft" class="secondary" type="button" disabled>Clear draft</button>
+                  </div>
+                  <button id="clear-preview" class="secondary" type="button">Clear preview</button>
+                  <button id="example" class="secondary" type="button">Set up 7×7 example</button>
+                </div>
+                <div id="rack-context">
+                  <div class="actions">
+                    <button id="start-exchange" class="secondary" type="button">Exchange tiles</button>
+                    <button id="confirm-exchange" type="button" hidden>Confirm exchange</button>
+                    <button id="cancel-exchange" class="secondary" type="button" hidden>Cancel exchange</button>
+                    <button id="end-run" class="secondary" type="button">End unfinished run</button>
+                  </div>
+                  <p id="exchange-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+
+                  <p id="tile-selection" role="status" aria-live="polite" aria-atomic="true"></p>
+                  <div class="actions">
+                    <button id="cancel-tile" class="secondary" type="button" disabled>Cancel selection</button>
+                    <button id="return-tile" class="secondary" type="button" disabled>Return selected tile</button>
+                    <button id="change-blank" class="secondary" type="button" disabled>Change blank letter</button>
+                  </div>
+                  <p id="drag-status" class="hint" role="status" aria-live="polite" aria-atomic="true"></p>
+                </div>
+                <p id="draft-direction" class="hint"></p>
+                <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true">No preview.</p>
+                <p id="rack-feedback" class="hint"></p>
+                <ul id="formed-words" aria-label="Complete formed words"></ul>
+                <p id="vocabulary-note" class="hint">Provisional, incomplete demonstration vocabulary; not an official Scrabble dictionary. See the word list below.</p>
+              </section>
               <ul class="legend" aria-label="Board key">
                 <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
                 <li><span class="swatch enclosed" aria-hidden="true">▫</span>Enclosed, unclaimed</li>
@@ -93,23 +135,7 @@
               </ul>
             </div>
             <div class="controls">
-              <section id="word-controls" aria-labelledby="word-title">
-                <h3 id="word-title">Place a word</h3>
-                <form id="word-form">
-                  <label>Word<input id="word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="vocabulary-note"></label>
-                  <label>Orientation<select id="orientation"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
-                  <button class="secondary" type="submit">Preview word</button>
-                </form>
-                <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true">No preview.</p>
-                <p id="rack-feedback" class="hint"></p>
-                <ul id="formed-words" aria-label="Complete formed words"></ul>
-                <div class="placement-actions">
-                  <button id="commit-word" type="button" disabled>Commit word</button>
-                  <button id="clear-preview" class="secondary" type="button">Clear preview</button>
-                  <button id="example" class="secondary" type="button">Set up 7×7 example</button>
-                </div>
-                <p id="vocabulary-note" class="hint">Provisional, incomplete demonstration vocabulary; not an official Scrabble dictionary. See the word list below.</p>
-              </section>
+
               <section aria-labelledby="cell-title">
                 <h3 id="cell-title">Select a cell</h3>
                 <p class="hint">Coordinates start at 1 in this sandbox.</p>
@@ -145,7 +171,7 @@
           <details class="rules"><summary>Development diagnostics: four words, one enclosure</summary>
             <button id="rack-example" class="secondary" type="button">Load scripted rack QA example</button>
             <p>The scripted QA example switches to Rack-limited puzzle, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. It is not an ordinary seeded random puzzle. The unrestricted example remains in Legal word placement lab.</p>
-            <p>Preview and commit CAR at (4, 4) horizontal; CAB at (4, 4) vertical; RAT at (4, 6) vertical; BAT at (6, 4) horizontal. Coordinates are 1-based; press Select cell after editing them.</p>
+            <p>In rack mode, place C, A, R at (4, 4–6), then commit CAR. Place A and B at (5–6, 4), then commit CAB. Place A and T at (5–6, 6), then commit RAT. Place A at (6, 5), then commit BAT. Coordinates are 1-based. Shared letters are reused automatically; no typing is needed. In the word lab, enter the full words instead.</p>
             <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
           </details>
           <details class="rules"><summary>Provisional demonstration word list</summary>
@@ -161,7 +187,7 @@
           <noscript><p>JavaScript is required for this sandbox. Enable it and reload this page.</p></noscript>
         </section>
       </main>
-      <footer><p>Milestone 2C · Finite letters &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 2C.1 · Finite letters &amp; territory · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

@@ -4,6 +4,10 @@ import { isLetterCell } from '../core/letters.js';
 const GUTTER = 28;
 const INK = '#354c43';
 
+export function cellToView({ row, column }, cellSize) {
+  return { x: GUTTER + column * cellSize, y: GUTTER + row * cellSize };
+}
+
 /** Invert the displayed CSS rectangle, independent of backing pixels / DPR. */
 export function pointerToCell(canvas, board, cellSize, clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
@@ -17,7 +21,7 @@ export function pointerToCell(canvas, board, cellSize, clientX, clientY) {
 
 /** Draw precomputed territory states; never infer enclosure from pixels. */
 export function drawBoard(canvas, { board, territory, evaluation, recentClaims, selected, cellSize,
-  preview = null, previewTerritory = null, startingSquare = null }) {
+  preview = null, previewTerritory = null, startingSquare = null, draft = null, selectedTileId = null, drop = null }) {
   const width = GUTTER + board.columns * cellSize;
   const height = GUTTER + board.rows * cellSize;
   const dpr = window.devicePixelRatio || 1;
@@ -43,6 +47,10 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
   const enclosed = new Set(evaluation.enclosed);
   const recent = new Set(recentClaims);
   const proposed = new Map((preview?.positions ?? []).filter((p) => p.index !== undefined).map((p) => [p.index, p]));
+  // Even a temporarily split draft must stay visible and editable.
+  for (const tile of draft?.tiles ?? []) {
+    proposed.set(tile.row * board.columns + tile.column, { ...tile, status: 'new' });
+  }
   const prospective = new Set(previewTerritory?.newlyClaimed ?? []);
   board.cells.forEach((cell, index) => {
     const x = GUTTER + (index % board.columns) * cellSize;
@@ -96,7 +104,7 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
     const ghost = proposed.get(index);
     if (ghost) {
       const conflict = ghost.status === 'conflict' || ghost.status === 'blocked';
-      context.strokeStyle = preview.legal ? '#354c43' : '#8c3936';
+      context.strokeStyle = preview?.legal ? '#354c43' : '#8c3936';
       context.lineWidth = 2;
       context.setLineDash(ghost.status === 'reused' ? [] : [4, 3]);
       context.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
@@ -110,8 +118,21 @@ export function drawBoard(canvas, { board, territory, evaluation, recentClaims, 
       }
       context.fillStyle = INK;
       context.font = '700 11px system-ui, sans-serif';
-      const blank = preview.rack?.allocations.some((allocation) => allocation.index === index && allocation.blank);
+      const blank = ghost.assignedLetter || preview?.rack?.allocations.some((allocation) => allocation.index === index && allocation.blank);
       context.fillText(conflict ? `×${ghost.letter}` : ghost.status === 'reused' ? '=' : blank ? '◇' : 'p', x + cellSize - 11, y + 9);
+      if (ghost.tileId === selectedTileId) {
+        context.strokeStyle = INK;
+        context.lineWidth = 4;
+        context.strokeRect(x + 7, y + 7, cellSize - 14, cellSize - 14);
+      }
+    }
+    if (drop?.row === Math.floor(index / board.columns) && drop?.column === index % board.columns) {
+      context.strokeStyle = drop.legal ? INK : '#8c3936';
+      context.lineWidth = 4;
+      context.strokeRect(x + 3, y + 3, cellSize - 6, cellSize - 6);
+      context.fillStyle = INK;
+      context.font = '700 14px system-ui, sans-serif';
+      context.fillText(drop.legal ? '+' : '×', x + 11, y + 11);
     }
     if (selected.row === Math.floor(index / board.columns) && selected.column === index % board.columns) {
       context.strokeStyle = INK;

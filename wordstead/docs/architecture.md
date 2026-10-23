@@ -1,6 +1,7 @@
 # Wordstead architecture
 
-Milestone 2C wraps the existing word/claim transition with a finite physical tile
+Milestone 2C.1 adds reversible physical tile drafts to rack play. Milestone 2C wraps
+the existing word/claim transition with a finite physical tile
 bag, seven-tile rack, seeded exchanges, and puzzle progression. Milestone 2B's
 placement engine and Milestone 1/2A board, enclosure and claim contracts remain.
 The [design skeleton](design-skeleton.md)
@@ -192,7 +193,7 @@ and a temporary **unbalanced target 1** practical for the provisional vocabulary
 `getTerritoryScore(puzzle.territory)`. `getStrokes(state)` derives words + exchanges.
 Seed governs letter order only, not future farm layouts or complete difficulty.
 
-`evaluateSessionPlacement(state, proposal, dictionary)` calls `evaluatePlacement`
+`evaluateSessionPlacement(state, proposal, dictionary, assignments?)` calls `evaluatePlacement`
 and preserves its fields, complete-word feedback, and geometry/dictionary rejection
 precedence. It adds `rack: { allocations, missingLetters }`. Allocations contain
 position/letter, the physical tile and `blank` flag. New positions are allocated
@@ -200,9 +201,17 @@ in word order: the first unused exact rack match, otherwise the first unused bla
 Missing letters are `{ letter, count }` entries. An otherwise legal placement with
 missing resources becomes `MISSING_RACK_LETTERS`, with the same entries in its
 structured reason. Preview never consumes resources, shuffles, claims or counts.
-Manual physical tile selection for placement is deliberately deferred.
+When `assignments` is supplied, automatic allocation is bypassed. Each assignment
+is `{ tileId, row, column, letter, assignedLetter }`. Every new position must have
+exactly one supplied current rack tile, each ID is used once, native letters must
+match, and only blanks may represent a different letter. Blanks require
+`assignedLetter === letter`; ordinary tiles require null/absent assignment.
+Missing, extra, stale, duplicate, foreign or mismatched supplies reject the whole
+transaction as `INVALID_TILE_ALLOCATION`. No alternative tile is substituted.
+Geometry/dictionary rejection precedence remains unchanged; invalid resources
+cannot enable commitment. Omitted assignments retain the original automatic path.
 
-`commitSessionWord(state, proposal, dictionary)` evaluates again at commit time,
+`commitSessionWord(state, proposal, dictionary, assignments?)` evaluates again at commit time,
 rejects missing resources, and delegates to **existing `commitWord()`**. It adds
 `tileId` and boolean `blank` to newly committed compatible `{ kind: 'letter',
 letter }` cells. Assigned blanks retain their letter forever, are reusable without
@@ -215,8 +224,10 @@ All work completes before replacement state is returned. Rejection returns the
 **exact original state**, zero points and no new claims. Even thrown dictionary
 or claim errors cannot partially change board, territory, rack, bag order, RNG,
 word/exchange counters or status. Frozen-state tests pin this boundary. The
-browser's rack mode calls only `commitSessionWord`; `commitWord` remains available
-to the unrestricted word lab and its existing callers/tests.
+browser's rack mode calls `commitSessionDraft`, which delegates to `commitSessionWord`;
+`commitWord` remains available
+to the unrestricted word lab and its existing callers/tests. Both allocation paths
+share this same commit/claim/replenish implementation.
 
 `evaluateExchange(state, tileIds)` returns legality/reason. Reasons include
 `EMPTY_EXCHANGE`, `INVALID_EXCHANGE_TILES` (foreign/duplicate IDs), and
@@ -246,6 +257,59 @@ leave bag counts 90/88/86/85 and award index 32 only on the fourth word. This gi
 4 words, 0 exchanges, 4 strokes, 1 point and victory. Restarts reconstruct the
 same complete fixture. It is explicitly labeled QA, never presented as a random
 seeded puzzle. The original unrestricted 2B regression remains untouched.
+
+### Reversible drafts: `draft.js`
+
+Draft state is separate from the committed session:
+
+```js
+const draft = {
+  tiles: [{ tileId: 98, letter: 'A', assignedLetter: 'A', row: 3, column: 4 }],
+};
+```
+
+Ordinary tiles have `assignedLetter: null`. The stable physical ID identifies the
+original rack slot, because rack contents/order never change while drafting.
+There is no duplicated rack, candidate session, RNG state, score, or word count.
+Drafts and core results are treated as immutable.
+
+- `createDraft()` returns an empty draft (also used for clearing).
+- `placeDraftTile(state, draft, { tileId, row, column, assignedLetter? })` places
+  or moves one current rack tile. It rejects closed runs, invalid blank assignments,
+  occupied/outside cells, duplicate positions and incompatible geometry. Successful
+  moves retain ID/assignment and append to edit order. Failed attempts return the
+  exact original draft; the session never changes.
+- `returnDraftTile(draft, tileId)` removes an arbitrary tile. `undoDraft(draft)`
+  returns the most recently placed/moved tile. Undo removes that tile rather than
+  restoring its previous location. Both operations leave physical rack slots intact.
+- `assignDraftBlank(state, draft, tileId, letter)` changes only a current drafted
+  blank's A–Z assignment; movement also preserves it.
+- `inspectDraft(board, draft)` returns `{ coherent, orientation, reason }`.
+  Zero tiles produce `EMPTY_DRAFT`; one tile is coherent with orientation null.
+  Two or more tiles must share one row/column, with every cell between their
+  extrema occupied by draft or committed letters. It rejects `DRAFT_AXIS`,
+  `DRAFT_GAP`, or malformed/colliding `INVALID_DRAFT` inputs. It never checks a
+  dictionary, the starting square or connection to the old network.
+- `evaluateDraft(state, draft, dictionary)` checks structural coherence, overlays
+  temporary letter occupancy, and uses existing `extractAffectedWords` to infer
+  a proposal containing the full contiguous run. Multiple tiles supply the axis.
+  A singleton uses its first affected run (horizontal before vertical), or a
+  one-letter horizontal proposal if isolated. This is only a deterministic proposal
+  representation: `evaluatePlacement` still checks **both** affected axes, so one
+  tile forming two words counts once. Preview returns the existing session evaluation
+  plus `structural`, passing the exact draft tiles as explicit allocations.
+- `commitSessionDraft(state, draft, dictionary)` reconstructs and revalidates the
+  current draft, then delegates to `commitSessionWord` with those explicit IDs.
+  On acceptance it returns the new session and an empty draft; on failure it
+  preserves the exact session and draft, zero points and no claims. No cached
+  preview is accepted. Dictionary/claim exceptions cannot mutate either input.
+
+Arbitrary removal can leave a split. The remaining tiles remain visible/editable;
+preview reports `DRAFT_GAP` and blocks commitment. Filling the gap, removing an
+endpoint, undo or clear can repair it. No pending tile is silently deleted. When
+one tile remains the axis is undecided again. This is an editing policy, not a
+change to committed word placement rules. First-tile freedom and temporary
+nonwords never relax the final starting-square, connection or dictionary checks.
 
 ### Enclosure: `enclosure.js`
 
@@ -319,24 +383,61 @@ needs word, dictionary, or rack knowledge.
 ## Browser boundary
 
 `main.js` bootstraps `ui/sandbox.js`. The controller owns three separate in-memory
-sessions: `rack` (default), `words` and `freeform`. Rack owns a core session; labs
-own the original puzzle state. Each has independent selection, word draft,
-orientation, latest point award, and recent claim indices. Mode switching preserves
-each session but clears the preview. Resets/dimension changes affect only the
+sessions: `rack` (default), `words` and `freeform`. Rack owns a core session and
+physical draft; labs own the original puzzle state. Each has independent board
+selection, latest award and recent claim indices. The word lab retains typed
+word/orientation input. Mode switching preserves each session, clears transient
+input, and reconstructs the rack preview on return. Resets/dimension changes affect only the
 active session; refresh clears all three. There is no path to import lab edits into play.
 It translates intent, calls pure transitions, then refreshes DOM and Canvas.
 There is no duplicate flood fill, framework, game loop, event bus, storage,
 browser random generator, or animation loop.
 
 The rack is seven persistent semantic DOM buttons with 44px minimum targets,
-visible focus and accessible labels. Narrow screens wrap four/three slots; empty
-slots are disabled. Dashed outlines mark preview use, checkmarks mark exchange
-selection and ◇ marks blanks. Buttons retain focus across rerenders. Exchange
-selection clears preview and disables word controls; confirmation revalidates IDs
-and bag size. Cancel/switching modes clears selection without a transition. End-run,
-victory and exhaustion messages include words/exchanges/strokes. Progress derives
-from territory and target. New puzzle applies setup; restart reconstructs the
-active seed/configuration or scripted fixture. Form-only edits do not change a run.
+visible focus and physical ID/slot labels. Narrow screens wrap four/three slots;
+empty slots and finished-run tiles are disabled. Dashed insets and ↗ mark draft
+use, outlines/checkmarks mark selection, and ◇ identifies blanks. Buttons retain
+focus across rerenders. A native modal dialog offers 26 A–Z buttons with keyboard
+focus containment and cancellation. The selected blank may be reassigned before
+commitment, including when an ordinary matching tile exists.
+
+`ui/tile-input.js` owns transient selection, the blank dialog, ghost/drop feedback
+and Pointer Events transactions. Click/Enter/Space on a rack tile selects it and
+focuses the Canvas. Board arrows move the cursor; Enter/Space places the selected
+tile or picks up the draft at that cursor. Selecting another rack tile switches
+selection. Escape/Cancel clears selection without editing the draft. A selected
+draft can move or return via a semantic button, another activation of its original
+rack slot, or a drag to that slot. Commit, Undo and Clear are immediately below the
+rack. Formed words, draft direction, legality, prospective points and coordinates
+are available as text; live statuses announce actions and selected identity.
+
+Rack and draft drag sources use pointer capture and `touch-action: none`. Movement
+must exceed 8 CSS pixels; a tap remains a native button activation. During dragging,
+the ghost and +/× destination overlay are presentation only: `placeDraftTile`
+previews structural eligibility without publishing a replacement draft. The
+underlying cell comes from `pointerToCell`, clipped to the visible scroll pane.
+Pointer movement redraws the cached board view and changes drop text only when
+the destination feedback changes; it does not rebuild controls or check dictionary
+membership on every pointer event.
+Only an eligible pointer release publishes a draft; invalid/outside drops,
+pointercancel, lost capture, window blur, Escape and mode/reset changes cancel.
+Compatibility clicks after a drag/cancellation are consumed once. Text selection
+and native browser dragging are suppressed on drag sources. Persistent transparent
+DOM input handles over Canvas draft tiles provide touch drag ownership and visible
+keyboard focus, positioned by `cellToView`; they do not determine game legality.
+Empty/committed Canvas cells retain `touch-action: pan-x pan-y` and native scrolling.
+Board taps track maximum movement, so panning out and back cannot place a tile.
+There is no drag edge auto-scroll: users pan first, tap or use the keyboard.
+
+Exchange uses a separate mutually exclusive selection. It requires an empty draft;
+its disabled control and explanation ask the player to return or clear tiles first.
+Starting exchange clears tile selection and pauses placement; confirm revalidates
+IDs and bag size. Cancel/switching modes clears exchange selection without a
+transition. Each mode keeps its draft independently; switching clears the active
+pointer/selection/blank dialog and restores only that mode's preview. End-run
+clears pending rack input. Victory/exhaustion disable further input, retain the
+completed board and present word/exchange/stroke results. Restart reconstructs
+the original seed/configuration or scripted fixture, with an empty draft.
 
 `rendering/board.js` draws an orthographic Canvas 2D grid using system text and
 primitives. The render inputs include the precomputed core evaluation and claim
@@ -352,19 +453,18 @@ backing pixels. Core coordinate helpers still validate selection. Keyboard/coord
 selection uses `revealSelection` to scroll the logical cell into view.
 
 The view keeps cells at 44, 56, or 72 CSS pixels inside a native scrollable pane.
-Narrow screens pan rather than squeeze 15 cells into tiny targets. Primary
-pointer taps select a starting cell in legal mode, and toggle A only in freeform;
-movement over 8 CSS pixels or pointer cancellation suppresses actions so touch
-scrolling does not place letters. DOM buttons/inputs
-are at least 44px tall with visible focus. The focused Canvas supports arrows,
-Enter, and Space. In legal mode arrows select, Enter/Space only preview; only the
-separate Commit word button accepts. Semantic row/column inputs with Select cell
-provide an alternative. Editing coordinates immediately clears the old preview
-and disables commit until the selection is applied. Word/orientation edits update
-previews. Clear preview never changes committed state. Freeform alone exposes
-toggle/inspect/manual-claim controls, also guarded in their handlers.
+Narrow screens pan rather than squeeze 15 cells into tiny targets. Rack-mode taps
+place a selected tile; movement over 8 CSS pixels or pointer cancellation suppresses
+actions so scrolling never places. Semantic row/column controls move only the rack
+cursor and never translate a draft. Only the Commit button accepts a word.
 
-Canvas draws proposed tiles with dashed rims and p, matching reuse with =, and
+The word lab retains typed word/orientation entry, automatic preview and its
+existing commit path. Arrows select a start; Enter/Space previews. Editing lab
+coordinates clears the old preview until Select cell applies them. Clear preview
+changes no puzzle state. Freeform keeps its original toggle/inspect/manual-claim
+controls, guarded by mode in their handlers. No tiles or lab edits cross sessions.
+
+Canvas draws all draft tiles (including unresolved splits) with dashed rims and p, matching reuse with =, and
 conflicts with × plus the attempted letter, preserving the committed glyph.
 Core-computed prospective claims show ? without changing the mask. Validity has
 textual feedback as well as color, and formed words list their location and
@@ -403,6 +503,17 @@ dictionary/claim exceptions, stale previews, target/win locks, and explicit endi
 Controlled resource tests consume a full real bag on a long board using an injected
 test dictionary; the browser always uses the unchanged provisional vocabulary.
 
+Draft tests additionally pin incremental geometry without premature dictionary checks,
+committed bridges and endpoint reuse, singleton two-axis words, every perpendicular
+cross-word, arbitrary removals/gap repair, duplicate physical IDs, blank assignment
+and reassignment, explicit-blank preference, stale/invalid explicit allocations,
+exception/rejection atomicity, deterministic replenishment, conservation and the
+same tile-only enclosure victory. Browser-independent event-surface doubles test
+selection/cancellation, mouse and touch Pointer Events thresholds, drop feedback,
+click suppression, outside release, pointercancel/lost capture/blur, original-slot
+returns and blank dialog interactions. They do not emulate a real browser's native
+touch scroll negotiation; real-device touch QA remains necessary.
+
 Use `node --check` on affected JavaScript files. Preview from a static HTTP server
 at `/wordstead/` (see [README](../README.md)), test pointer and keyboard paths,
 known shapes/repeated claims, cell enlargement/panning, narrow/wide layouts,
@@ -414,7 +525,7 @@ direct loading/refresh, return navigation, and console/network errors. Run
 Only English A–Z assignments and standard blanks are modeled. The unrestricted
 word lab uses the same provisional dictionary; freeform toggles A and allows removal.
 Full saved-state validation/persistence, official dictionary, exhaustive move
-solver, manual tile allocation, farm features/bonuses, final grades, daily/campaign,
+solver, farm features/bonuses, final grades, daily/campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
 Future work can inject a licensed membership source without changing the session
