@@ -1,4 +1,25 @@
-# Wordstead asset licenses
+# Wordstead licenses and asset scope
+
+## ESDB gameplay vocabulary (Milestone 3A)
+
+The public game now includes a generated English word list from ESDB, pinned at
+[`1e5b7d3a72f47a71da5d28686c1dd4b397178485`](https://github.com/en-wl/wordlist/tree/1e5b7d3a72f47a71da5d28686c1dd4b397178485).
+Copyright 2000-2026 by Kevin Atkinson. The MIT-like permission expressly allows
+redistribution of generated word lists, with copyright in copies and copyright
+and permission in supporting documentation. The full
+[upstream notice](../licenses/esdb/Copyright), including permission/disclaimer and
+source acknowledgments, is preserved. The runtime list embeds its first section;
+[browser credits](../vocabulary/index.html) expose the notices and attribution.
+
+This American/neutral, US/neutral size-60 export uses neither Australian data nor
+size levels above 80. Its generated-word-list scope does not require the additional
+Australian/UKACD/database notices described upstream; the complete upstream text
+is nevertheless retained. See [exact scope, filters and generation](vocabulary.md).
+Keep the list and notices together when redistributing. This permission covers
+ESDB-derived vocabulary only and grants no rights to Wordstead code or third-party
+art. The existing asset review below is preserved.
+
+## Existing third-party artwork review
 
 Reviewed October 22, 2026. This document records the licenses supplied with the
 third-party assets originally imported into `wordstead/assets/`. The originals
