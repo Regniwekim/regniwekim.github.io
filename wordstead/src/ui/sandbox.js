@@ -88,10 +88,10 @@ export function initializeSandbox({ dictionary, vocabulary }) {
     find('run-info').textContent = state.source === 'scripted'
       ? `Scripted ${state.farmFixture ? FEATURE_TYPES[state.farmFixture].label + ' farm' : 'rack'} QA fixture · full standard bag in a controlled order · restart repeats this fixture.`
       : `Letter seed: ${state.seed} · Farm seed: ${state.farm?.seed ?? 'none'} · density: ${state.farm?.density ?? 0}. Seeds are independent.`;
-    const metrics = `${state.puzzle.wordCount} accepted words, ${state.exchangeCount} exchanges, ${getStrokes(state)} strokes.`;
-    find('run-status').textContent = state.status === 'won' ? `Harvest Complete! ${score} / ${state.target} farm points. ${metrics} Results are below the rack; use View Results to find them.`
-      : state.status === 'ended' ? `Farm Unfinished. ${score} / ${state.target} farm points. ${metrics} Results are below the rack; use View Results to find them.`
-        : state.status === 'exhausted' ? `Out of Tiles: rack and bag empty. ${score} / ${state.target} farm points. ${metrics} Results are below the rack; use View Results to find them.`
+    const metrics = `${state.puzzle.wordCount} accepted words, ${state.exchangeCount} exchanges.`;
+    find('run-status').textContent = state.status === 'won' ? `Harvest Complete! ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
+      : state.status === 'ended' ? `Farm Unfinished. ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
+        : state.status === 'exhausted' ? `Out of Tiles: rack and bag empty. ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
           : `Run in progress. ${credits} free exchange credits; otherwise an exchange costs one provisional stroke.`;
     const used = new Set(active().draft.tiles.map((tile) => tile.tileId));
     renderRackSlots(find('rack'), rackButtons, { state, draft: active().draft,

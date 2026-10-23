@@ -29,7 +29,7 @@ test('actual enclosure victory derives every statistic with zero captured featur
   const state = finish();
   assert.deepEqual(getSessionResults(state), {
     status: 'won', totalPoints: 1, basePoints: 1, cropPoints: 0, fertilityPoints: 0, bonusPoints: 0,
-    target: 1, wordCount: 4, exchangeCount: 0, freeExchangesUsed: 0, chargedExchanges: 0, strokes: 4,
+    target: 1, wordCount: 4, exchangeCount: 0, freeExchangesUsed: 0, chargedExchanges: 0,
     captured: { crops: 0, fertile: 0, livestock: 0, buildings: 0 }, board: { rows: 7, columns: 7 },
   });
 });
@@ -51,7 +51,7 @@ test('ending a partial run retains actual points, counters and unfinished status
   assert.equal(results.totalPoints, 0);
   assert.equal(results.target, 1);
   assert.equal(results.wordCount, 2);
-  assert.equal(results.strokes, 2);
+  assert.equal(Object.hasOwn(results, 'strokes'), false);
 });
 
 for (const [type, points, crops, fertile] of [['crop', 4, 1, 0], ['fertile', 2, 0, 1]]) {
@@ -80,10 +80,10 @@ test('livestock/buildings count as captures; free and charged exchanges remain d
   assert.equal(results.exchangeCount, 2);
   assert.equal(results.freeExchangesUsed, 1);
   assert.equal(results.chargedExchanges, 1);
-  assert.equal(results.strokes, 5);
   assert.equal(results.captured.buildings, 1);
   assert.equal(results.bonusPoints, 0);
-  assert.match(formatResultsShare(results), /4 words · 2 exchanges · 5 strokes/);
+  assert.match(formatResultsShare(results), /4 words · 2 exchanges\n/);
+  assert.doesNotMatch(formatResultsShare(results), /strokes?/i);
 });
 
 test('multiple feature captures derive from claims; uncaptured features are excluded', () => {
@@ -124,7 +124,6 @@ test('definitive exhaustion follows the existing finite-bag transition, not a no
   assert.equal(state.status, 'exhausted');
   const results = getSessionResults(state);
   assert.equal(results.wordCount, 15);
-  assert.equal(results.strokes, 15);
   assert.equal(results.totalPoints, 0);
   assert.match(formatResultsShare(results), /^WORDSTEAD\nOut of Tiles\n/);
 });
@@ -144,17 +143,17 @@ test('results and formatting are deterministic, deeply immutable and detached fr
 
 test('share text pins accurate values, plain-text newlines, URL and spoiler exclusion', () => {
   const text = formatResultsShare(getSessionResults(finish(createFarmSession('crop'))));
-  assert.equal(text, 'WORDSTEAD\nHarvest Complete!\n\n4/4 farm points\n4 words · 0 exchanges · 4 strokes\n1 territory + 3 farm bonus points\n\nBuild a farm, one word at a time.\nhttps://games.regniwekim.com/wordstead/');
-  assert.doesNotMatch(text, /CAR|CAB|RAT|BAT|enclosure-qa|tileId|undefined|null|\r/);
+  assert.equal(text, 'WORDSTEAD\nHarvest Complete!\n\n4/4 farm points\n4 words · 0 exchanges\n1 territory + 3 farm bonus points\n\nBuild a farm, one word at a time.\nhttps://games.regniwekim.com/wordstead/');
+  assert.doesNotMatch(text, /CAR|CAB|RAT|BAT|enclosure-qa|tileId|undefined|null|stroke|\r/);
   const fertile = formatResultsShare(getSessionResults(finish(createFarmSession('fertile'))));
   assert.match(fertile, /1 territory \+ 1 farm bonus point\n/);
 });
 
 test('unfinished headings, zero statistics and singular counts are unambiguous', () => {
   const ended = getSessionResults(endSession(createSession()).state);
-  assert.match(formatResultsShare(ended), /^WORDSTEAD\nFarm Unfinished\n\n0\/1 farm points\n0 words · 0 exchanges · 0 strokes/);
+  assert.match(formatResultsShare(ended), /^WORDSTEAD\nFarm Unfinished\n\n0\/1 farm points\n0 words · 0 exchanges\n/);
   const exchanged = exchangeTiles(createSession(), [createSession().rack[0].id]).state;
-  assert.match(formatResultsShare(getSessionResults(endSession(exchanged).state)), /0 words · 1 exchange · 1 stroke/);
+  assert.match(formatResultsShare(getSessionResults(endSession(exchanged).state)), /0 words · 1 exchange\n/);
   assert.throws(() => formatResultsShare(null), TypeError);
 });
 
