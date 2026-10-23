@@ -1,0 +1,1090 @@
+{
+  "$schema": "./sprite-manifest.schema.json",
+  "schemaVersion": "1.0",
+  "purpose": "audit-proposal-not-runtime-approved",
+  "coordinateSystem": "source-pixels-top-left",
+  "sourcePathBase": "wordstead-entry-url",
+  "packs": {
+    "sprout-sprites-basic": {
+      "author": "Cup Nooble",
+      "sourceUrl": "https://cupnooble.itch.io/sprout-lands-asset-pack",
+      "noticePath": "assets/Sprout Lands - Sprites - Basic pack/read_me.txt",
+      "licenseReview": "required-before-integration"
+    },
+    "sprout-ui-basic": {
+      "author": "Cup Nooble",
+      "sourceUrl": "https://cupnooble.itch.io/sprout-lands-ui-pack",
+      "noticePath": "assets/Sprout Lands - UI Pack - Basic pack/read_me.txt",
+      "licenseReview": "required-before-integration"
+    },
+    "sprout-sorry": {
+      "author": "Cup Nooble",
+      "sourceUrl": "https://cupnooble.itch.io/sorry-package",
+      "noticePath": "assets/Sprout Sorry pack/read_me.txt",
+      "licenseReview": "required-before-integration"
+    }
+  },
+  "sources": {
+    "A033": {
+      "path": "assets/Sprout Lands - Sprites - Basic pack/Tilesets/Grass.png",
+      "packId": "sprout-sprites-basic",
+      "pixelSize": [
+        176,
+        112
+      ],
+      "sha256": "97eedc32f4c33005ab2abb26a034ce1b32428da321e3052082c87d320c0e1cbe"
+    },
+    "A009": {
+      "path": "assets/Sprout Lands - Sprites - Basic pack/Objects/Basic Plants.png",
+      "packId": "sprout-sprites-basic",
+      "pixelSize": [
+        96,
+        32
+      ],
+      "sha256": "8d4d01cddfe409afc92800c8c6ce7bf8b10b3ed82e3ebe76f841931f773806fc"
+    },
+    "A004": {
+      "path": "assets/Sprout Lands - Sprites - Basic pack/Characters/Free Chicken Sprites.png",
+      "packId": "sprout-sprites-basic",
+      "pixelSize": [
+        64,
+        32
+      ],
+      "sha256": "adeae792329df996e903cffc29264eded594725e11c0ffe779e31897d2844aa5"
+    },
+    "A005": {
+      "path": "assets/Sprout Lands - Sprites - Basic pack/Characters/Free Cow Sprites.png",
+      "packId": "sprout-sprites-basic",
+      "pixelSize": [
+        96,
+        64
+      ],
+      "sha256": "6c6b12f26e52afaa3c1e6a0b3172c782ca1c3cc9958c6be365156d00525a604d"
+    },
+    "A018": {
+      "path": "assets/Sprout Lands - Sprites - Basic pack/Objects/Free_Chicken_House.png",
+      "packId": "sprout-sprites-basic",
+      "pixelSize": [
+        48,
+        48
+      ],
+      "sha256": "4f3b63af9e228d88916c452dc5401d77f321b98c523f274a3e388654d87d82d3"
+    },
+    "A016": {
+      "path": "assets/Sprout Lands - Sprites - Basic pack/Objects/Egg item.png",
+      "packId": "sprout-sprites-basic",
+      "pixelSize": [
+        16,
+        16
+      ],
+      "sha256": "e71f6f910fbe67db96ab5f192b2131650b8eede89c9f0847c720490e5a968346"
+    },
+    "A044": {
+      "path": "assets/Sprout Lands - UI Pack - Basic pack/emojis-free/emoji style ui/Inventory_Blocks_Spritesheet.png",
+      "packId": "sprout-ui-basic",
+      "pixelSize": [
+        144,
+        144
+      ],
+      "sha256": "adce975022f3b4ae97c1828ad13528d90c730138c561900bdf5b7a41e05867ea"
+    },
+    "A089": {
+      "path": "assets/Sprout Lands - UI Pack - Basic pack/Sprite sheets/UI Big Play Button.png",
+      "packId": "sprout-ui-basic",
+      "pixelSize": [
+        192,
+        64
+      ],
+      "sha256": "0476a6007a829e30fd637201266e8f2b9827a86812ea7d0fd09903349c85fff0"
+    },
+    "A180": {
+      "path": "assets/Sprout Sorry pack/Early Access/Sprout winter/christmas tree.png",
+      "packId": "sprout-sorry",
+      "pixelSize": [
+        384,
+        64
+      ],
+      "sha256": "f813b9c28386f850aa67736108b63aa47a6505c48e2ea378e44fa8c2d8986259"
+    },
+    "A181": {
+      "path": "assets/Sprout Sorry pack/Early Access/Sprout winter/fire animation.png",
+      "packId": "sprout-sorry",
+      "pixelSize": [
+        256,
+        16
+      ],
+      "sha256": "e1dbc3832b66be3d500d7d0f3d23d88ffc047613a399f3d0eb54e783412b36ee"
+    },
+    "A185": {
+      "path": "assets/Sprout Sorry pack/Early Access/Sprout winter/present animation aseprite file.png",
+      "packId": "sprout-sorry",
+      "pixelSize": [
+        160,
+        16
+      ],
+      "sha256": "b1b497b7d4d5afebe3c7395384f8bfb6f60c18bbf7d7dfce0a5439d9d392083d"
+    },
+    "A152": {
+      "path": "assets/Sprout Sorry pack/Early Access/Plant update 2/Farming Plants v2.png",
+      "packId": "sprout-sorry",
+      "pixelSize": [
+        112,
+        528
+      ],
+      "sha256": "ed9b7819d3854e7a3accc7ac32c3fb195b6ebb63657308059efee94f6176d538"
+    }
+  },
+  "sprites": {
+    "terrain.grass.center": {
+      "source": "A033",
+      "rect": {
+        "x": 16,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "grid-A033.png: center of upper-left 3x3 grass patch, source coordinates 16..31 on both axes.",
+      "logicalFootprint": null
+    },
+    "crop.grain.stage-yellow": {
+      "source": "A009",
+      "rect": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "grid-A009.png: fourth cell of upper row; grain-like yellow crop. Botanical species intentionally not asserted.",
+      "logicalFootprint": null
+    },
+    "crop.purple-root.stage-large": {
+      "source": "A009",
+      "rect": {
+        "x": 64,
+        "y": 16,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "grid-A009.png: fifth cell of lower row, purple-root crop stage; species unspecified.",
+      "logicalFootprint": null
+    },
+    "animal.chicken.pose-0": {
+      "source": "A004",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "grid-A004.png: top-left cell, alpha extent [1,3,12,15] (right/bottom exclusive).",
+      "logicalFootprint": null
+    },
+    "animal.chicken.pose-1": {
+      "source": "A004",
+      "rect": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "grid-A004.png: next top-row cell. Motion semantics/timing are not documented.",
+      "logicalFootprint": null
+    },
+    "animal.cow.pose-0": {
+      "source": "A005",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "status": "verified",
+      "evidence": "grid-A005.png: top-left cow cell, alpha extent [3,12,30,30].",
+      "logicalFootprint": null
+    },
+    "building.chicken-coop": {
+      "source": "A018",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 48
+      },
+      "status": "verified",
+      "evidence": "Complete standalone PNG, visually inspected; no inferred collision/occupancy.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 3
+      }
+    },
+    "item.egg": {
+      "source": "A016",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Complete standalone egg PNG; A017 is an exact byte duplicate.",
+      "logicalFootprint": null
+    },
+    "ui.rack.slot.rounded.light": {
+      "source": "A044",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 48
+      },
+      "status": "verified",
+      "evidence": "grid-A044.png: top-left slot cell. Internal visible bounds [9,9,30,32] in x,y,w,h form.",
+      "logicalFootprint": null
+    },
+    "ui.rack.slot.square.light": {
+      "source": "A044",
+      "rect": {
+        "x": 0,
+        "y": 48,
+        "w": 48,
+        "h": 48
+      },
+      "status": "verified",
+      "evidence": "grid-A044.png: first cell of middle row. Rendering scale/role is a future UI decision.",
+      "logicalFootprint": null
+    },
+    "ui.button.blank.light": {
+      "source": "A089",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "status": "verified",
+      "evidence": "grid-A089.png: top-left blank button cell; visible bounds [3,2,90,27].",
+      "logicalFootprint": null
+    },
+    "ui.button.blank.partner": {
+      "source": "A089",
+      "rect": {
+        "x": 96,
+        "y": 0,
+        "w": 96,
+        "h": 32
+      },
+      "status": "verified",
+      "evidence": "grid-A089.png: darker blank button; visible bounds [99,4,90,25]. Pressed/disabled meaning unverified.",
+      "logicalFootprint": null
+    },
+    "winter.tree.00": {
+      "source": "A180",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.01": {
+      "source": "A180",
+      "rect": {
+        "x": 48,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.02": {
+      "source": "A180",
+      "rect": {
+        "x": 96,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.03": {
+      "source": "A180",
+      "rect": {
+        "x": 144,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.04": {
+      "source": "A180",
+      "rect": {
+        "x": 192,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.05": {
+      "source": "A180",
+      "rect": {
+        "x": 240,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.06": {
+      "source": "A180",
+      "rect": {
+        "x": 288,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.tree.07": {
+      "source": "A180",
+      "rect": {
+        "x": 336,
+        "y": 0,
+        "w": 48,
+        "h": 64
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 3,
+        "rows": 4
+      }
+    },
+    "winter.fire.00": {
+      "source": "A181",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.01": {
+      "source": "A181",
+      "rect": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.02": {
+      "source": "A181",
+      "rect": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.03": {
+      "source": "A181",
+      "rect": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.04": {
+      "source": "A181",
+      "rect": {
+        "x": 64,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.05": {
+      "source": "A181",
+      "rect": {
+        "x": 80,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.06": {
+      "source": "A181",
+      "rect": {
+        "x": 96,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.07": {
+      "source": "A181",
+      "rect": {
+        "x": 112,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.08": {
+      "source": "A181",
+      "rect": {
+        "x": 128,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.09": {
+      "source": "A181",
+      "rect": {
+        "x": 144,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.10": {
+      "source": "A181",
+      "rect": {
+        "x": 160,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.11": {
+      "source": "A181",
+      "rect": {
+        "x": 176,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.12": {
+      "source": "A181",
+      "rect": {
+        "x": 192,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.13": {
+      "source": "A181",
+      "rect": {
+        "x": 208,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.14": {
+      "source": "A181",
+      "rect": {
+        "x": 224,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.fire.15": {
+      "source": "A181",
+      "rect": {
+        "x": 240,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.00": {
+      "source": "A185",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.01": {
+      "source": "A185",
+      "rect": {
+        "x": 16,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.02": {
+      "source": "A185",
+      "rect": {
+        "x": 32,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.03": {
+      "source": "A185",
+      "rect": {
+        "x": 48,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.04": {
+      "source": "A185",
+      "rect": {
+        "x": 64,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.05": {
+      "source": "A185",
+      "rect": {
+        "x": 80,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.06": {
+      "source": "A185",
+      "rect": {
+        "x": 96,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.07": {
+      "source": "A185",
+      "rect": {
+        "x": 112,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.08": {
+      "source": "A185",
+      "rect": {
+        "x": 128,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "winter.gift.red.09": {
+      "source": "A185",
+      "rect": {
+        "x": 144,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      },
+      "status": "verified",
+      "evidence": "Decoded Aseprite frame matches PNG crop pixel-for-pixel after transparent RGB normalization; see detail-measurements.json.",
+      "logicalFootprint": null,
+      "artTileSpan": {
+        "tileWidth": 16,
+        "tileHeight": 16,
+        "columns": 1,
+        "rows": 1
+      }
+    },
+    "review.crop.unidentified": {
+      "source": "A152",
+      "rect": null,
+      "status": "manual-review",
+      "evidence": "Species, complete source rectangle and crop growth grouping deliberately unresolved; runtime must reject.",
+      "logicalFootprint": null
+    }
+  },
+  "animations": {
+    "winter.tree": {
+      "status": "verified",
+      "timingStatus": "verified",
+      "loop": null,
+      "frames": [
+        {
+          "sprite": "winter.tree.00",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.01",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.02",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.03",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.04",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.05",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.06",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.tree.07",
+          "durationMs": 100
+        }
+      ],
+      "evidence": "Per-frame Aseprite durations and source-pixel export correspondence both verified. Loop is unknown because there are no tags.",
+      "reducedMotionFrame": "winter.tree.00"
+    },
+    "winter.fire": {
+      "status": "verified",
+      "timingStatus": "verified",
+      "loop": null,
+      "frames": [
+        {
+          "sprite": "winter.fire.00",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.01",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.02",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.03",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.04",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.05",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.06",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.07",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.08",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.09",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.10",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.11",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.12",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.13",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.14",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.fire.15",
+          "durationMs": 100
+        }
+      ],
+      "evidence": "Per-frame Aseprite durations and source-pixel export correspondence both verified. Loop is unknown because there are no tags.",
+      "reducedMotionFrame": "winter.fire.00"
+    },
+    "winter.gift.red": {
+      "status": "verified",
+      "timingStatus": "verified",
+      "loop": null,
+      "frames": [
+        {
+          "sprite": "winter.gift.red.00",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.01",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.02",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.03",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.04",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.05",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.06",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.07",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.08",
+          "durationMs": 100
+        },
+        {
+          "sprite": "winter.gift.red.09",
+          "durationMs": 100
+        }
+      ],
+      "evidence": "Per-frame Aseprite durations and source-pixel export correspondence both verified. Loop is unknown because there are no tags.",
+      "reducedMotionFrame": "winter.gift.red.00"
+    },
+    "review.chicken.two-pose": {
+      "status": "manual-review",
+      "timingStatus": "unverified",
+      "loop": null,
+      "frames": [
+        {
+          "sprite": "animal.chicken.pose-0",
+          "durationMs": null
+        },
+        {
+          "sprite": "animal.chicken.pose-1",
+          "durationMs": null
+        }
+      ],
+      "evidence": "Coordinates verified; grouping/order is only a candidate, and timing/loop unknown.",
+      "reducedMotionFrame": "animal.chicken.pose-0"
+    }
+  }
+}

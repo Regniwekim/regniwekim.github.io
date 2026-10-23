@@ -1,0 +1,629 @@
+{
+  "components": {
+    "A004": [
+      [
+        1,
+        3,
+        12,
+        15
+      ],
+      [
+        17,
+        3,
+        28,
+        15
+      ],
+      [
+        17,
+        18,
+        28,
+        31
+      ],
+      [
+        49,
+        18,
+        60,
+        31
+      ],
+      [
+        0,
+        19,
+        13,
+        31
+      ],
+      [
+        32,
+        19,
+        45,
+        31
+      ]
+    ],
+    "A005": [
+      [
+        3,
+        12,
+        30,
+        30
+      ],
+      [
+        35,
+        12,
+        62,
+        30
+      ],
+      [
+        67,
+        12,
+        94,
+        30
+      ],
+      [
+        35,
+        44,
+        62,
+        62
+      ],
+      [
+        3,
+        45,
+        30,
+        62
+      ]
+    ],
+    "A044": [
+      [
+        9,
+        9,
+        39,
+        41
+      ],
+      [
+        57,
+        9,
+        87,
+        41
+      ],
+      [
+        105,
+        9,
+        135,
+        41
+      ],
+      [
+        9,
+        57,
+        39,
+        89
+      ],
+      [
+        57,
+        57,
+        87,
+        89
+      ],
+      [
+        105,
+        57,
+        135,
+        89
+      ],
+      [
+        3,
+        98,
+        45,
+        142
+      ],
+      [
+        51,
+        98,
+        93,
+        142
+      ],
+      [
+        99,
+        98,
+        141,
+        142
+      ]
+    ],
+    "A064": [
+      [
+        0,
+        0,
+        32,
+        128
+      ],
+      [
+        17,
+        2,
+        31,
+        16
+      ],
+      [
+        17,
+        34,
+        31,
+        48
+      ],
+      [
+        17,
+        66,
+        31,
+        80
+      ],
+      [
+        17,
+        98,
+        31,
+        112
+      ]
+    ],
+    "A065": [
+      [
+        7,
+        9,
+        25,
+        39
+      ],
+      [
+        71,
+        9,
+        89,
+        39
+      ],
+      [
+        39,
+        11,
+        57,
+        39
+      ],
+      [
+        103,
+        11,
+        121,
+        39
+      ],
+      [
+        7,
+        57,
+        25,
+        87
+      ],
+      [
+        71,
+        57,
+        89,
+        87
+      ],
+      [
+        39,
+        59,
+        57,
+        87
+      ],
+      [
+        103,
+        59,
+        121,
+        87
+      ]
+    ],
+    "A066": [
+      [
+        11,
+        6,
+        37,
+        25
+      ],
+      [
+        59,
+        7,
+        85,
+        25
+      ],
+      [
+        11,
+        38,
+        37,
+        57
+      ],
+      [
+        59,
+        39,
+        85,
+        57
+      ],
+      [
+        11,
+        70,
+        37,
+        89
+      ],
+      [
+        59,
+        71,
+        85,
+        89
+      ],
+      [
+        11,
+        102,
+        37,
+        121
+      ],
+      [
+        59,
+        103,
+        85,
+        121
+      ]
+    ],
+    "A067": [
+      [
+        11,
+        11,
+        37,
+        39
+      ],
+      [
+        59,
+        11,
+        85,
+        37
+      ],
+      [
+        11,
+        59,
+        37,
+        87
+      ],
+      [
+        59,
+        59,
+        85,
+        85
+      ],
+      [
+        11,
+        107,
+        37,
+        135
+      ],
+      [
+        59,
+        107,
+        85,
+        133
+      ],
+      [
+        11,
+        155,
+        37,
+        183
+      ],
+      [
+        59,
+        155,
+        85,
+        181
+      ]
+    ],
+    "A089": [
+      [
+        3,
+        2,
+        93,
+        29
+      ],
+      [
+        99,
+        4,
+        189,
+        29
+      ],
+      [
+        3,
+        34,
+        93,
+        61
+      ],
+      [
+        99,
+        36,
+        189,
+        61
+      ]
+    ]
+  },
+  "aseprite_png_comparisons": [
+    {
+      "aseprite": "A179",
+      "png": "A180",
+      "frame_size": [
+        48,
+        64
+      ],
+      "row_major_matches": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "durations_ms": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "tags": [],
+      "loop_semantics": "not documented; runtime choice"
+    },
+    {
+      "aseprite": "A182",
+      "png": "A181",
+      "frame_size": [
+        16,
+        16
+      ],
+      "row_major_matches": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "durations_ms": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "tags": [],
+      "loop_semantics": "not documented; runtime choice"
+    },
+    {
+      "aseprite": "A184",
+      "png": "A185",
+      "frame_size": [
+        16,
+        16
+      ],
+      "row_major_matches": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "durations_ms": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "tags": [],
+      "loop_semantics": "not documented; runtime choice"
+    }
+  ],
+  "font_preview_exact_nearest_neighbor_4x": true,
+  "audio": [
+    {
+      "id": "A091",
+      "pcm_sha256": "db55837826520f2d2b600a7045de6b5796ba375f6790433ad868e3636cc6c740",
+      "stereo_channels_identical": true,
+      "peak_sample": 6606,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.8
+    },
+    {
+      "id": "A092",
+      "pcm_sha256": "e4fcc7357a4223554d9436ed12f5a7c7eb355437e4ff0ccbc12009123402b545",
+      "stereo_channels_identical": true,
+      "peak_sample": 6626,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.3
+    },
+    {
+      "id": "A093",
+      "pcm_sha256": "483448035f07eaa605e5f7b35adf8528099e09a5a53d3cc970875d013456bdd4",
+      "stereo_channels_identical": true,
+      "peak_sample": 6626,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A094",
+      "pcm_sha256": "3a932b0eeda2149c7de400a1ba6f6b4b16b8872ae78e42d07cd7b405d96c2d6a",
+      "stereo_channels_identical": true,
+      "peak_sample": 6626,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A095",
+      "pcm_sha256": "50f08180a3e15d18c82b8d98a2a61381e719807cce5ff91e629a12536b6b52c6",
+      "stereo_channels_identical": true,
+      "peak_sample": 4968,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.8
+    },
+    {
+      "id": "A096",
+      "pcm_sha256": "72ed3ef09cd6bfe2cafb974b1c59e5f0145d22dca8dc8554e3120b7c598b9c64",
+      "stereo_channels_identical": true,
+      "peak_sample": 4968,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.8
+    },
+    {
+      "id": "A097",
+      "pcm_sha256": "38fd83d0afbd48b34e93ae8883bfa36c7f95bc25d05959d3896580bb2d9871bb",
+      "stereo_channels_identical": true,
+      "peak_sample": 4638,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 1.3
+    },
+    {
+      "id": "A098",
+      "pcm_sha256": "70221d9eea9e0983ea5e7f1ac259c3dd2a052992794f317b3ce69e5ddbeade5c",
+      "stereo_channels_identical": true,
+      "peak_sample": 4638,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 1.3
+    },
+    {
+      "id": "A099",
+      "pcm_sha256": "2379190634592b90ed07e989d2ade275cbdcd7fcc3c85813e4c8ec3c78f467a4",
+      "stereo_channels_identical": true,
+      "peak_sample": 4968,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 1.3
+    },
+    {
+      "id": "A100",
+      "pcm_sha256": "c37b340bad042e584271fdb8a1daeeb8c77c31a558cc9b9582f9d6bc86985781",
+      "stereo_channels_identical": true,
+      "peak_sample": 4968,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 1.3
+    },
+    {
+      "id": "A101",
+      "pcm_sha256": "bd37f0cd3d6efa193d860da1297d4840301983dc971d033d59d3df645e59c549",
+      "stereo_channels_identical": true,
+      "peak_sample": 4968,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 6.3
+    },
+    {
+      "id": "A102",
+      "pcm_sha256": "0b0ef5cc300d011353bb199bef3c47bd642b5666da4539d4d8c8473eae486c40",
+      "stereo_channels_identical": true,
+      "peak_sample": 2648,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 6.3
+    },
+    {
+      "id": "A103",
+      "pcm_sha256": "5c1850c1ef344c81d11606f543eb68ed04408be02fe94d9f262393c2999b0658",
+      "stereo_channels_identical": true,
+      "peak_sample": 6626,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A104",
+      "pcm_sha256": "6a09dab21181c999e23e9e0aeccd73935c3674662971deac84651fffeb24d25d",
+      "stereo_channels_identical": true,
+      "peak_sample": 6626,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A105",
+      "pcm_sha256": "49617c429b3c5d9d2c2f6f8f3389c6fffbdb4aa8ca834bcc02ea62503f228d0c",
+      "stereo_channels_identical": true,
+      "peak_sample": 3104,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A106",
+      "pcm_sha256": "7f5a626d306fc7f6a3e090212c8c7aafcd874538683d4f0075ce1a1eea138547",
+      "stereo_channels_identical": true,
+      "peak_sample": 3104,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A107",
+      "pcm_sha256": "337c6f180aed1748d6998487e5e421fae5d808540419a25f2edbdb8a2d6bafa9",
+      "stereo_channels_identical": true,
+      "peak_sample": 4554,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A108",
+      "pcm_sha256": "ad8d0364a151858b4c29f30c7d07c37ca9377acdec175c83ee8fa32a77a1baa5",
+      "stereo_channels_identical": true,
+      "peak_sample": 4554,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A109",
+      "pcm_sha256": "e74c20681443507809a60e958099c72f77f41994033300aa66f61b06c9fd4b9f",
+      "stereo_channels_identical": true,
+      "peak_sample": 1240,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A110",
+      "pcm_sha256": "9bc223a0f6be5c915957ccd1631bd441c381e84085d7d0bce1505086e3e63528",
+      "stereo_channels_identical": true,
+      "peak_sample": 1240,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.1
+    },
+    {
+      "id": "A111",
+      "pcm_sha256": "d88d08f24fe5ed9a3b7817ffe94c6834a165877d2e549454f66f5e5d8ffbdda2",
+      "stereo_channels_identical": true,
+      "peak_sample": 3104,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 0.9
+    },
+    {
+      "id": "A112",
+      "pcm_sha256": "ebe20cf68fdfb9259b022290b447bf0acd27d1f267ff08deba008fdf9f83c4e5",
+      "stereo_channels_identical": true,
+      "peak_sample": 3104,
+      "active_window_start_seconds": 0.0,
+      "active_window_end_seconds": 1.6
+    }
+  ]
+}

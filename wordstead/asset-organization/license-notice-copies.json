@@ -1,0 +1,23 @@
+{
+  "status": "byte-identical-verified",
+  "files": [
+    {
+      "packId": "sprout-sprites-basic",
+      "originalPath": "assets/Sprout Lands - Sprites - Basic pack/read_me.txt",
+      "preservedPath": "licenses/cup-nooble/sprout-sprites-basic/read_me.txt",
+      "sha256": "f41c94ec4e417de51cf25cb7b01f44c52c8c16ee4cb223db2de37f3dd0316dff"
+    },
+    {
+      "packId": "sprout-ui-basic",
+      "originalPath": "assets/Sprout Lands - UI Pack - Basic pack/read_me.txt",
+      "preservedPath": "licenses/cup-nooble/sprout-ui-basic/read_me.txt",
+      "sha256": "c4b7fcc363513aa42c437240afc06ea5f01aebc30c0bec3bdd42f13aaef22236"
+    },
+    {
+      "packId": "sprout-sorry",
+      "originalPath": "assets/Sprout Sorry pack/read_me.txt",
+      "preservedPath": "licenses/cup-nooble/sprout-sorry/read_me.txt",
+      "sha256": "09fc51330037dac5149db63ab9e43acb019e70bbee6d2267b5e577b36ad978df"
+    }
+  ]
+}

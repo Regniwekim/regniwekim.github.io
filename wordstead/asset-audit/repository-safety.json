@@ -1,0 +1,20 @@
+{
+  "checkedDate": "2026-10-22",
+  "repository": "https://github.com/Regniwekim/regniwekim.github.io",
+  "public": true,
+  "defaultBranch": "main",
+  "mainTreeSha": "0c05705da9712bad45eac68a9f863e358cd744c4",
+  "mainTreeTruncated": false,
+  "mainAssetCount": 220,
+  "mainAssetBytes": 19836905,
+  "mainAssetPacks": 3,
+  "currentBranch": "codex/wordstead-license-without-zips",
+  "currentHead": "82ac1ce707e78176da5236fe2436ffbdd08cfbdd",
+  "historicalArchiveCommit": "f2425eb",
+  "archiveRemovalCommit": "13e40ad",
+  "archivePaths": [
+    "wordstead/assets/Sprout Lands - Sprites - Basic pack.zip",
+    "wordstead/assets/Sprout Lands - UI Pack - Basic pack.zip",
+    "wordstead/assets/Sprout Sorry pack.zip"
+  ]
+}

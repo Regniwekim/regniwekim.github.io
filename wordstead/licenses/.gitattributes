@@ -1,0 +1,2 @@
+# Preserve the audited original notice bytes on every checkout platform.
+cup-nooble/*/read_me.txt -text
