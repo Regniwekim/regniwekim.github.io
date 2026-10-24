@@ -1,6 +1,6 @@
 import { getSessionResults, formatResultsShare, RESULT_HEADINGS } from '../core/results.js';
 
-/** Presentation only: no session transitions, focus changes or scrolling on reveal. */
+/** Presentation only: automatic reveal never moves focus or scrolls the page. */
 export function initializeResults({ find, writeClipboard = (text) => {
   if (!globalThis.navigator?.clipboard?.writeText) throw new Error('Clipboard unavailable');
   return navigator.clipboard.writeText(text);
@@ -9,12 +9,16 @@ export function initializeResults({ find, writeClipboard = (text) => {
   let shareText = '';
   let revision = 0;
 
-  find('results-link').addEventListener('click', () => {
+  const openResults = (event) => {
+    event.preventDefault();
     if (shareText) {
       find('results').open = true;
       find('results').scrollTop = 0;
+      find('results').focus({ preventScroll: true });
+      find('results').scrollIntoView({ block: 'start' });
     }
-  });
+  };
+  for (const id of ['results-link', 'history-result-link']) find(id).addEventListener('click', openResults);
 
   find('copy-results').addEventListener('click', async () => {
     if (!shareText || find('copy-results').disabled) return;

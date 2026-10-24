@@ -211,6 +211,7 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
     if (!available) selected = null;
     find('tile-selection').textContent = selected ? `Selected ${describe(selected)}. ${draftById(selected.tileId)
       ? 'Choose another cell to move, or return it to the rack.' : 'Choose an available board cell.'}` : 'No tile selected.';
+    find('tile-selection').hidden = !selected;
     find('cancel-tile').disabled = !selected;
     find('return-tile').disabled = !available || !selected || !draftById(selected.tileId);
     find('change-blank').disabled = !available || !selected || tileById(selected.tileId)?.letter !== null;

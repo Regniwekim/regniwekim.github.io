@@ -25,6 +25,7 @@ export function initializeSaveControls({ find }) {
       find('save-context').hidden = !slot;
       if (!slot) return;
       const { kind, message } = slot.info;
+      find('save-context').dataset.attention = String(!diagnostic && ['invalid', 'unavailable', 'conflict'].includes(kind));
       const status = find('save-status');
       status.textContent = diagnostic ? 'QA fixture only. This fixture is not saved; your Free Play save is kept.' : message;
       status.setAttribute('role', ['invalid', 'unavailable', 'conflict'].includes(kind) && !diagnostic ? 'alert' : 'status');

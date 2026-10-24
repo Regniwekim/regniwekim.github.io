@@ -105,13 +105,13 @@ test('real mode controller isolates drafts, custom Free Play, exchanges, both la
   find('rows').value = '7'; find('columns').value = '9';
   find('target-mode').value = 'manual'; await find('target-mode').emit('change'); find('target').value = '37';
   await find('dimensions').emit('submit');
-  assert.match(find('goal-label').textContent, /37 points/);
+  assert.match(find('goal-label').textContent, /\/ 37\b/);
   assert.match(find('board-summary').textContent, /7 rows × 9 columns/);
   await h.tile(0, 4, 5);
   const freeDraft = h.rack();
   await change('daily');
   assert.deepEqual(h.rack(), dailyDraft);
-  assert.match(find('goal-label').textContent, /12 points/);
+  assert.match(find('goal-label').textContent, /\/ 12\b/);
   assert.match(find('board-summary').textContent, /15 rows × 15 columns/);
   h.advance(); await h.resize();
   assert.match(find('daily-info').textContent, /Active challenge: 2026-10-23/);
@@ -132,7 +132,7 @@ test('real mode controller isolates drafts, custom Free Play, exchanges, both la
     expectedExchange.rack.map((tile) => tile.id));
   await change('rack'); assert.deepEqual(h.rack(), freeDraft);
   assert.equal(find('exchange-count').textContent, 0);
-  assert.match(find('goal-label').textContent, /37 points/);
+  assert.match(find('goal-label').textContent, /\/ 37\b/);
   await change('daily'); assert.deepEqual(h.rack(), exchanged);
   await click('reset');
   assert.equal(find('save-confirm').open, true);
@@ -144,9 +144,73 @@ test('real mode controller isolates drafts, custom Free Play, exchanges, both la
   assert.match(find('daily-info').textContent, /Active challenge: 2026-10-24/);
   assert.deepEqual(find('rack').children.filter((button) => !button.hidden).map((button) => Number(button.dataset.tileId)),
     createDailySession('2026-10-24').session.rack.map((tile) => tile.id));
-  assert.match(find('goal-label').textContent, /15 points/);
+  assert.match(find('goal-label').textContent, /\/ 15\b/);
   await change('freeform'); assert.match(find('selection-status').textContent, /committed letter A/);
   await change('rack'); assert.deepEqual(h.rack(), freeDraft);
+});
+
+test('player navigation and help preserve active sessions while disclosing the correct settings and labs', async (t) => {
+  const h = harness(t), { find, click, change } = h;
+  assert.equal(find('play-daily').attributes['aria-pressed'], 'true');
+  assert.equal(find('setup-panel').hidden, true);
+  assert.equal(find('start-today').hidden, true);
+  await h.tile(0);
+  const daily = h.storage.getItem(STORAGE_KEYS.daily), draft = h.rack();
+  await click('play-free');
+  assert.equal(find('play-free').attributes['aria-pressed'], 'true');
+  assert.equal(find('setup-panel').hidden, false);
+  assert.equal(find('board-title').textContent, 'Free Play');
+  await h.tile(0);
+  const free = h.storage.getItem(STORAGE_KEYS.free);
+  await click('open-help'); assert.equal(find('how-to-play').open, true);
+  await click('open-history'); assert.equal(find('history').open, true);
+  assert.equal(document.activeElement, find('history-summary'));
+  await click('play-daily');
+  assert.deepEqual(h.rack(), draft); assert.equal(find('setup-panel').hidden, true);
+  assert.equal(h.storage.getItem(STORAGE_KEYS.daily), daily);
+  assert.equal(h.storage.getItem(STORAGE_KEYS.free), free);
+  await change('words');
+  assert.equal(find('development-tools').open, true);
+  assert.equal(find('play-daily').attributes['aria-pressed'], 'false');
+  assert.equal(find('play-free').attributes['aria-pressed'], 'false');
+  assert.equal(find('view-title').textContent, 'Lab board settings');
+  await click('example'); await click('commit-word');
+  await change('freeform'); await click('toggle-letter');
+  assert.equal(find('end-run').hidden, true);
+  await click('play-daily'); assert.deepEqual(h.rack(), draft);
+  h.advance(); await h.resize();
+  assert.equal(find('start-today').hidden, false);
+  assert.match(find('daily-info').textContent, /Resuming.*2026-10-24.*available/);
+});
+
+test('save and history attention remain discoverable without opening panels or moving focus', async (t) => {
+  const h = harness(t), { find, click } = h;
+  find('history').open = false;
+  find('board').focus();
+  h.storage.setItem(HISTORY_KEY, '{broken');
+  await window.emit('storage', { key: HISTORY_KEY });
+  assert.equal(find('history-attention').hidden, false);
+  assert.equal(find('history-alert').attributes.role, 'alert');
+  assert.match(find('history-summary').textContent, /action needed/);
+  assert.equal(find('history').open, false);
+  assert.equal(document.activeElement, find('board'));
+  h.storage.setItem(STORAGE_KEYS.daily, '{broken');
+  await window.emit('storage', { key: STORAGE_KEYS.daily });
+  assert.equal(find('save-context').dataset.attention, 'true');
+  assert.equal(find('reload-save').hidden, false);
+  await click('history-alert-link'); assert.equal(find('history').open, true);
+  h.storage.removeItem(HISTORY_KEY); await click('history-reload');
+  assert.equal(find('history-attention').hidden, true);
+  await click('end-run');
+  find('results').open = false;
+  await click('history-clear'); await click('save-confirm-yes');
+  assert.equal(find('history-attention').hidden, false);
+  assert.equal(find('history-result-link').hidden, false);
+  await click('history-result-link'); assert.equal(find('results').open, true);
+  await click('save-history-result');
+  assert.equal(find('history-attention').hidden, true);
+  await click('play-free'); await click('end-run');
+  await click('new-puzzle-link'); assert.equal(find('setup-panel').open, true);
 });
 
 test('daily end, Copy Results, restart and Free Play results use their own dated context', async (t) => {
@@ -209,7 +273,7 @@ test('controller autosaves blank edits, committed words, exchanges and terminal 
   const committedRack = h.rack();
   h.reload(); await change('rack');
   assert.deepEqual(h.rack(), committedRack); assert.equal(find('exchange-count').textContent, 1);
-  assert.match(find('goal-label').textContent, /37 points/);
+  assert.match(find('goal-label').textContent, /\/ 37\b/);
   const history = JSON.parse(h.storage.getItem(STORAGE_KEYS.free)).save;
   assert.deepEqual(history.actions.map((a) => a.type), ['word', 'exchange']);
   await click('end-run'); const text = find('share-text').value;

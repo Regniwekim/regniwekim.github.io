@@ -5,7 +5,26 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 4B.2 personal Daily history
+## Current status: Milestone 5A player-first interface
+
+**Daily Puzzle** and **Free Play** are the primary navigation. Challenge identity,
+farm points/target and accepted words lead directly into the board and physical
+rack. Phones use board → rack → Commit Word and draft actions; at 1024px and above,
+the rack sits beside the board. Tiles retain their logical sizes and the board
+scrolls internally. Nothing is sticky over play.
+
+**How to Play**, **Daily History**, **Farm points & supplies**, **Board key & keyboard
+controls**, **Free Play settings** and **Run options** use native disclosures.
+The settings panel is absent in Daily mode. Labs and all existing scripted fixtures
+are under **Development Tools**. Normal saves are quiet; actionable save/history
+notices remain outside closed panels, including unsaved terminal Daily results.
+Results retain their collapsible window, copying and completed-farm inspection.
+Gameplay, generation, scoring, released Daily fixtures and persistence formats are
+unchanged. The interface uses local CSS, system fonts and the existing Canvas
+primitives. See [player interface](docs/player-interface.md) for layout, tokens,
+accessibility, reproducible QA and testing limitations.
+
+### Personal Daily history (4B.2)
 
 **History · Daily Puzzle** keeps compact terminal results in a separate browser-local
 archive. Browse UTC months, select recorded dates, and see factual totals/averages
@@ -127,7 +146,7 @@ Wordstead yet; adding its card is outside this milestone.
 
 ## Rack-limited puzzle controls
 
-Choose **Free Play** for customization. **Board setup** provides separate letter
+Choose **Free Play** for customization. **Free Play settings** provides separate letter
 and farm seeds, farm density, independent 1–30 board dimensions, and target mode.
 **Automatic — Experimental** is the normal default. **Calculate Target** previews
 the current setup before **New Puzzle** starts it. Editing settings invalidates the
@@ -163,7 +182,9 @@ cells retain native touch scrolling, including while a rack tile is selected.
 Movement beyond the tap threshold or pointer cancellation suppresses board taps.
 Only rack buttons and drafted tile handles reserve touch gestures for dragging.
 On phones the rack wraps at four slots per row immediately below the board; Commit,
-Undo and Clear follow the rack. No native HTML drag-and-drop is required.
+Undo and Clear follow the rack. Tablets use one rack row when space allows; the
+desktop side column uses four slots per row, including nine-slot racks. No native
+HTML drag-and-drop is required.
 
 **Construction and legality are separate.** The first draft tile can occupy any
 available cell, with direction undecided. A second tile establishes a row or
@@ -337,8 +358,8 @@ finishing never automatically moves focus or scrolls the page.
 
 The final board and captured features remain visible, pannable and inspectable by
 pointer, arrows or coordinates; gameplay mutations stay disabled. The existing
-**Restart Puzzle** control is below the rack and repeats the original active
-configuration, independent of setup edits. **New Puzzle** links to Board setup;
+**Restart Puzzle** control is in Run options and repeats the original active
+configuration, independent of setup edits. **New Puzzle** opens Free Play settings;
 review/edit the settings there and use its submit button to create a fresh run.
 Restart/new runs clear the old results, text and clipboard feedback. The two
 diagnostic labs keep separate sessions and do not display rack results; returning
@@ -412,7 +433,7 @@ There is no animation or audio.
 
 ### Four words enclose one cell
 
-Choose **Legal word placement lab**, then **Set up 7×7 example**. This resets that
+Open **Development Tools**, choose **Legal word placement lab**, then **Set up 7×7 example**. This resets that
 mode and previews CAR only. Apply these starts with **Select cell**, then preview
 and commit each move:
 
@@ -439,7 +460,7 @@ to 5 placements, awards +0, and retains score 1.
 
 ### Rack-limited enclosure QA fixture
 
-Expand **Development diagnostics: four words, one enclosure** and choose **Load
+Under **Development Tools**, expand **Development diagnostics: four words, one enclosure** and choose **Load
 scripted rack QA example**. It switches to rack mode and resets only its session.
 This is a **scripted QA fixture**, not ordinary seeded generation. It uses every
 standard physical tile exactly once, with `CARABTAA` moved to the front and all
@@ -494,7 +515,8 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
   Verify no letters or totals change. Tab through Copy, manual selection, Restart
   and New Puzzle; use Enter/Space to activate controls and check visible focus.
 - Edit the setup fields before Restart: the active original fixture/configuration
-  must repeat. New Puzzle must use Board setup and remove old results. Switch to
+  must repeat. **Run options** contains Restart. **New Puzzle** in Free Play results
+  opens Free Play settings and removes old results only after a new run starts. Switch to
   both labs and back: only the rack's own finished results may reappear.
 - Check narrow/wide layouts, direct loading/refresh, return navigation and browser
   errors. Exhaustion is tested in Node by consuming a full real bag on a long test
