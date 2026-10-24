@@ -16,19 +16,41 @@
 <form id="qa-form">
   <label>UTC date <input id="qa-date" type="text" value="2024-02-29" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"></label>
   <label>Viewport <select id="qa-width"><option>390</option><option>1440</option></select></label>
-  <label>Storage <select id="qa-storage"><option value="normal">Normal</option><option value="denied">Access denied</option><option value="quota">Quota exceeded</option></select></label>
+  <label>Storage <select id="qa-storage"><option value="normal">Normal</option><option value="denied">Access denied</option><option value="quota">Quota exceeded</option><option value="history-denied">History access denied</option><option value="history-quota">History quota exceeded</option></select></label>
   <button>Load dated challenge</button>
 </form>
 <button id="qa-corrupt" type="button">Corrupt QA Daily save and reload</button>
+<button id="qa-corrupt-history" type="button">Corrupt QA Daily history and reload</button>
+<button id="qa-prepare-history" type="button">Prepare fixed completion draft for chosen date</button>
+<p>Fixed completion QA supports 2024-02-29 and 2026-10-23 only. It replaces the isolated QA Daily save with
+  a fixed word/exchange observation and a final draft. Activate Commit word in the game to complete it.
+  These automated fixtures are not human playtesting. Production saves/history are untouched.</p>
 <p id="qa-status" role="status"></p>
 <iframe id="qa-game" title="Wordstead controlled-clock preview"></iframe>
 <script type="module">
   import { validateDailyDate } from '../src/daily/date.js';
   import { STORAGE_KEYS } from '../src/persistence/storage.js';
+  import { HISTORY_KEY } from '../src/persistence/history-storage.js';
+  import { prepareHistoryVictory } from './history-qa.js';
+  import { loadGameplayVocabulary } from '../src/vocabulary/loader.js';
   const find = (id) => document.getElementById(id);
   find('qa-corrupt').addEventListener('click', () => {
     localStorage.setItem('wordstead.qa.' + STORAGE_KEYS.daily, '{deliberately malformed QA data');
     load();
+  });
+  find('qa-corrupt-history').addEventListener('click', () => {
+    localStorage.setItem('wordstead.qa.' + HISTORY_KEY, '{deliberately malformed QA history');
+    load();
+  });
+  find('qa-prepare-history').addEventListener('click', async () => {
+    try {
+      const date = find('qa-date').value;
+      if (!['2024-02-29', '2026-10-23'].includes(date)) throw new Error('Fixed completion QA supports 2024-02-29 or 2026-10-23.');
+      const { dictionary } = await loadGameplayVocabulary();
+      const { save } = prepareHistoryVictory(dictionary, date);
+      localStorage.setItem('wordstead.qa.' + STORAGE_KEYS.daily, JSON.stringify({ revision: crypto.randomUUID(), save }));
+      await load();
+    } catch (error) { find('qa-status').textContent = error.message; }
   });
   async function load(event) {
     event?.preventDefault();
@@ -53,6 +75,7 @@
         import { createGameStartup } from './src/ui/startup.js';
         import { loadGameplayVocabulary } from './src/vocabulary/loader.js';
         import { utcDailyDate } from './src/daily/date.js';
+        import { HISTORY_KEY } from './src/persistence/history-storage.js';
         let clock = ${instant.getTime()};
         const button = document.createElement('button');
         button.textContent = 'QA: advance UTC clock by one day';
@@ -67,13 +90,19 @@
           load: loadGameplayVocabulary, start: (context) => initializeSandbox({ ...context, now: () => clock,
             saveKeyPrefix: 'wordstead.qa.',
             getStorage: () => {
-              if (${JSON.stringify(find('qa-storage').value)} === 'denied') throw new Error('QA: storage denied');
-              if (${JSON.stringify(find('qa-storage').value)} === 'quota') return {
-                getItem: (key) => localStorage.getItem(key),
-                setItem: () => { throw new Error('QA: quota exceeded'); },
+              const storageMode = ${JSON.stringify(find('qa-storage').value)};
+              if (storageMode === 'denied') throw new Error('QA: storage denied');
+              return {
+                getItem: (key) => {
+                  if (storageMode === 'history-denied' && key.endsWith(HISTORY_KEY)) throw new Error('QA: history access denied');
+                  return localStorage.getItem(key);
+                },
+                setItem: (key, value) => {
+                  if (storageMode === 'quota' || (storageMode === 'history-quota' && key.endsWith(HISTORY_KEY))) throw new Error('QA: quota exceeded');
+                  localStorage.setItem(key, value);
+                },
                 removeItem: (key) => localStorage.removeItem(key),
               };
-              return localStorage;
             } }) }).start();
       `;
       documentCopy.body.append(script);

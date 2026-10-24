@@ -30,7 +30,7 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 4B.1 · Development prototype</span>
+        <span class="development-label">Milestone 4B.2 · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
@@ -51,6 +51,42 @@
             <p id="board-summary">Board initialization pending.</p>
           </div>
           <label class="mode-control">Play / development mode<select id="mode"><option value="daily">Daily Puzzle</option><option value="rack">Free Play</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
+          <details id="history" class="daily-history">
+            <summary id="history-summary">History · Daily Puzzle</summary>
+            <p class="hint">Your Daily results stay in this browser/profile on this device. They are not synchronized or backed up and may disappear if website data is cleared or evicted.</p>
+            <p id="history-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <button id="history-reload" class="secondary" type="button" hidden>Reload stored history</button>
+            <div id="history-content">
+              <p id="history-empty">Your calendar is ready whenever you finish a Daily Puzzle. No results recorded yet.</p>
+              <dl class="history-totals" aria-label="Personal Daily statistics">
+                <div><dt>Recorded challenges completed</dt><dd id="history-completed">0</dd></div>
+                <div><dt>Recorded unfinished or exhausted results</dt><dd id="history-unfinished">0</dd></div>
+                <div><dt>Accepted words in completed dailies</dt><dd id="history-words">0</dd></div>
+                <div><dt>Average words per completed daily</dt><dd id="history-average-words">—</dd></div>
+                <div><dt>Strokes in completed dailies</dt><dd id="history-strokes">0</dd></div>
+                <div><dt>Average strokes per completed daily</dt><dd id="history-average-strokes">—</dd></div>
+                <div><dt>Farm points in completed dailies</dt><dd id="history-points">0</dd></div>
+                <div><dt>Captured farm features in completed dailies</dt><dd id="history-features">0</dd></div>
+              </dl>
+              <p class="hint">Strokes = accepted words + charged exchanges. Averages use completed records only; — means none yet. Missing dates say nothing about attempts.</p>
+              <div class="history-layout">
+                <section class="history-calendar" aria-labelledby="history-month">
+                  <div class="history-month-nav">
+                    <button id="history-previous" class="secondary" type="button" aria-label="Previous history month">←</button>
+                    <h3 id="history-month" aria-live="polite" aria-atomic="true"></h3>
+                    <button id="history-next" class="secondary" type="button" aria-label="Next history month">→</button>
+                  </div>
+                  <p class="hint">UTC dates · ✓ Completed · ◦ Unfinished / exhausted · Unmarked: no recorded result</p>
+                  <div class="history-calendar-scroll">
+                    <div class="history-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+                    <div id="history-days" aria-label="Daily result dates"></div>
+                  </div>
+                </section>
+                <section id="history-details" aria-label="Selected historical result" aria-live="polite"></section>
+              </div>
+            </div>
+            <button id="history-clear" class="secondary" type="button">Clear Daily History</button>
+          </details>
           <section id="save-context" aria-label="Local progress" hidden>
             <p id="save-status" role="status" aria-live="polite" aria-atomic="true"></p>
             <p class="hint">Daily and Free Play save separately on this browser and device. Clearing browser data removes saves. Development fixtures and labs are not saved.</p>
@@ -118,6 +154,9 @@
                   </summary>
                   <div class="results-window-body">
                     <p id="results-context" class="eyebrow"></p>
+                    <p id="history-result-status" class="hint" role="status" aria-live="polite" hidden></p>
+                    <button id="save-history-result" class="secondary" type="button" hidden>Save to Daily History</button>
+                    <a id="history-link" class="results-link" href="#history">View Daily History</a>
                     <dl class="results-primary">
                       <div class="results-score"><dt>Farm Points</dt><dd id="results-points"></dd></div>
                       <div><dt>Words Placed</dt><dd id="results-words"></dd></div>
@@ -290,7 +329,7 @@
           </details>
         </section>
       </main>
-      <footer><p>Milestone 4B.1 · Local save &amp; resume · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 4B.2 · Personal Daily history · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

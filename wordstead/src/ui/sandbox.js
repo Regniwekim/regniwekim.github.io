@@ -23,6 +23,7 @@ import { restartDailySession } from '../daily/challenge.js';
 import { createSave, appendAction, withDraft, wordAction, hasProgress } from '../persistence/history.js';
 import { createSaveSlot } from '../persistence/storage.js';
 import { initializeSaveControls } from './save-controls.js';
+import { initializeHistory } from './history.js';
 
 /** Four isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox({ dictionary, vocabulary, now, getStorage = () => window.localStorage,
@@ -54,6 +55,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     : session(null, createTargetSession({ farmSeed: DEFAULT_FARM_SEED }).session), words: session(), freeform: session() };
   let productionRack = sessions.rack;
   const dailyMode = createDailyMode({ now });
+  const historyView = initializeHistory({ find, getStorage, keyPrefix: saveKeyPrefix,
+    today: dailyMode.today, confirm: saveView.confirm });
   let dailyResult = restored.daily ? { available: true, session: restored.daily.state } : dailyMode.startToday();
   sessions.daily = restored.daily ? recovered(restored.daily) : dailyResult.available ? session(null, dailyResult.session) : null;
   for (const [key, run] of [['daily', sessions.daily], ['free', sessions.rack]]) {
@@ -69,6 +72,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   const activeSlot = () => isRackMode() ? slots[mode === 'daily' ? 'daily' : 'free'] : null;
   function persist(action) {
     const current = active();
+    // Observe only accepted production actions, independently of active-save success.
+    if (action && mode === 'daily') historyView.capture(current.state);
     if (!isRackMode() || !current?.save) return;
     if (action) current.save = appendAction(current.save, action);
     current.save = withDraft(current.save, current.draft);
@@ -159,6 +164,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   }
 
   function render(message) {
+    historyView.render(mode === 'daily' ? active()?.state : null);
     saveView.render(activeSlot(), isRackMode() && Boolean(active()) && !active().save);
     find('daily-context').hidden = mode !== 'daily';
     find('play-surface').hidden = !active();
@@ -568,6 +574,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   });
   window.addEventListener('resize', () => render());
   window.addEventListener('storage', (event) => {
+    historyView.changed(event);
     for (const slot of Object.values(slots)) {
       if (event.key === null || event.key === slot.key) slot.changed();
     }

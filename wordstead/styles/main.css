@@ -499,6 +499,47 @@ canvas:focus-visible {
   margin: 0.5rem 0;
 }
 
+.daily-history {
+  margin-block: 1rem;
+  padding: 0.5rem;
+  background: #f3f1e5;
+  border: 1px solid #a3b59a;
+  border-radius: 0.6rem;
+}
+.daily-history > summary { font-size: 1.05rem; }
+.daily-history .hint { font-size: 0.9rem; }
+.history-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+.history-totals div { border-left: 3px solid #a3b59a; padding-left: 0.6rem; }
+.history-totals dt { font-size: 0.85rem; }
+.history-totals dd { margin: 0; font-weight: 700; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.history-layout { display: grid; gap: 1rem; margin-block: 1rem; }
+.history-calendar, #history-details { min-width: 0; }
+.history-calendar { max-width: 26rem; }
+.history-month-nav { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.history-month-nav h3 { margin: 0; text-align: center; font-size: 1.1rem; }
+.history-month-nav button { min-width: 44px; }
+.history-calendar-scroll { overflow-x: auto; margin-inline: -0.5rem; padding: 4px; }
+.history-weekdays, #history-days { display: grid; grid-template-columns: repeat(7, minmax(44px, 1fr)); min-width: 308px; }
+.history-weekdays { text-align: center; font-size: 0.75rem; }
+#history-days { gap: 0; }
+.history-day { min-width: 44px; min-height: 44px; padding: 0.2rem; border: 1px solid transparent; border-radius: 0.3rem; background: transparent; color: #354c43; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.history-day.completed { background: #dce9b6; border-color: #4a6452; }
+.history-day.unfinished { background: #f5e8c8; border-style: dashed; border-color: #4a6452; }
+.history-day:hover { background: #e4e6d8; }
+.history-day[aria-pressed="true"] { outline: 2px solid #354c43; outline-offset: -3px; }
+.history-day:focus-visible { position: relative; outline: 3px solid #354c43; outline-offset: -3px; }
+#history-details h4 { margin-block: 0 0.5rem; }
+#history-details .results-statistics { font-size: 0.9rem; }
+#history-details .hint { overflow-wrap: anywhere; }
+@media (max-width: 40rem) {
+  .daily-history { margin-inline: -0.5rem; }
+}
+@media (min-width: 48rem) {
+  .daily-history { padding: 0.75rem; }
+  .history-totals { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .history-layout { grid-template-columns: minmax(20rem, 26rem) minmax(0, 1fr); gap: 1.5rem; }
+}
+
 #selection-status {
   font-size: 0.9rem;
 }

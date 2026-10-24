@@ -12,9 +12,11 @@ export function initializeSaveControls({ find }) {
   find('save-confirm-no').addEventListener('click', () => finish(false));
   dialog.addEventListener('cancel', (event) => { event.preventDefault(); finish(false); });
   return {
-    confirm(message, label, action) {
+    confirm(message, label, action, title = 'Replace progress?', cancel = 'Keep current progress') {
       if (pending) return;
       find('save-confirm-message').textContent = message;
+      find('save-confirm-title').textContent = title;
+      find('save-confirm-no').textContent = cancel;
       find('save-confirm-yes').textContent = label;
       pending = (accepted) => { if (accepted) action(); };
       dialog.showModal();

@@ -122,8 +122,12 @@ Milestone 4B.1 adds one browser-local Daily save and an independent Free Play sa
 Validated action replay restores physical tiles, bag/RNG, farm claims/rewards,
 target, status and drafts after vocabulary loading. Terminal boards/results stay
 inspectable. Unsupported/corrupt saves remain until explicitly discarded; unavailable
-storage leaves play available with a warning. There is no historical archive,
-IndexedDB, cookie, account, streak or personal statistics. All requests remain
+storage leaves play available with a warning. Milestone 4B.2 adds a separate
+browser-local [results history and personal statistics](personal-history.md), with
+a read-only UTC calendar. It records accepted terminal Daily outcomes only and keeps
+the original recorded completion across retries; replacing an old unfinished save
+does not fabricate a result. It is not a past-challenge picker or replay archive.
+There is no IndexedDB, cookie, account or streak. All requests remain
 ordinary same-origin static resources; GitHub Pages is sufficient. See
 [local persistence](local-persistence.md) for schema, compatibility and multi-tab policy.
 
@@ -175,6 +179,9 @@ and runtime modules. The QA advance button moves that clock by one day. Since
 4B.1, this page saves under isolated `wordstead.qa.` keys; loading a new date
 retains the previous QA run. Storage options simulate access denial/quota, and an
 explicit corrupt-QA-save button exercises recovery without touching production slots.
+History-only denial/quota and corruption controls exercise the separate archive.
+Fixed completion drafts for 2024-02-29 and 2026-10-23 exercise terminal capture
+through the real Commit button; these are automated observations, not human playtests.
 
 Place a draft or commit a word, advance the QA clock, switch modes, and verify the
 active date/target/progress remain until Start today's challenge is activated.

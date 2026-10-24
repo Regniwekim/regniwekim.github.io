@@ -5,7 +5,22 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 4B.1 local save and resume
+## Current status: Milestone 4B.2 personal Daily history
+
+**History · Daily Puzzle** keeps compact terminal results in a separate browser-local
+archive. Browse UTC months, select recorded dates, and see factual totals/averages
+for completed challenges. A recorded completion keeps its original statistics across
+unlimited retries; unsuccessful results can be upgraded by a completion. Missing
+dates do not imply attempts. Free Play and diagnostics are excluded.
+
+History failures leave gameplay and active saves available. Reload/retry controls
+recover storage access or conflicts; unusable data stays until explicitly cleared.
+**Clear Daily History** requires confirmation and keeps active saves and the board.
+Restored terminal runs offer an explicit save when missing from history, so clearing
+does not recreate records on refresh. Data stays in this browser/profile and device,
+without synchronization or backup, and can disappear with website-data clearing or
+browser eviction. See [personal history](docs/personal-history.md) for the schema,
+limits, statistics, compatibility, privacy and reproducible QA.
 
 Daily Puzzle and Free Play automatically save independent attempts on the current
 browser and device, including uncommitted drafts and assigned blanks. Refresh or
@@ -50,6 +65,8 @@ labs remain available.
 Finished rack runs now show actual results and offer **Copy Results** with a
 manual-copy fallback. Wordstead remains entirely static and client-side: no
 grading, rankings, analytics, accounts, or backend services.
+Daily results also acknowledge history saving and offer **View Daily History**.
+On a history-write failure, keep the terminal run available and retry saving it.
 Milestone 3B deliberately supersedes the planned efficiency grading in the
 design skeleton and grade/share-art references in the exploratory visual guide
 for the current implementation; neither source document is rewritten.

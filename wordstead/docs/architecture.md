@@ -1,5 +1,18 @@
 # Wordstead architecture
 
+Milestone 4B.2 adds independent summary persistence: `persistence/daily-history.js`
+derives/validates terminal Daily records and calculates statistics, while
+`persistence/history-storage.js` owns a separate bounded localStorage archive,
+conservative byte comparisons and explicit deletion. Neither module touches active
+save slots. `daily/calendar.js` provides pure Gregorian UTC month models.
+`ui/history.js` owns the collapsible calendar, statistics, details, recovery and
+manual terminal-save controls. The sandbox observes only accepted production Daily
+actions; history and active-save failures cannot reject gameplay or corrupt each
+other. Restored terminal sessions require explicit saving when absent from the
+archive, keeping clear-history durable across refresh. All rules, share formatting,
+active-save schemas and released fixtures are unchanged. See
+[personal history](personal-history.md) for contracts, limits and QA.
+
 Milestone 4B.1 adds `src/persistence/`: pure versioned configuration/action/draft
 serialization and all-or-nothing authoritative replay, plus an injected localStorage
 adapter. The browser restores both production modes after vocabulary preparation
