@@ -4,7 +4,14 @@ Daily Puzzle and Free Play each autosave one active attempt in `localStorage`.
 After the pinned gameplay dictionary loads, both slots are validated and replayed
 before the first board is rendered. Daily remains the initial visible mode; choose
 Free Play to resume its independent run. No account, network service, analytics,
-statistics, streaks, archive, cookies, IndexedDB or runtime dependency is added.
+streaks, cookies, IndexedDB or runtime dependency is added. Milestone 4B.2 adds
+[personal Daily history](personal-history.md) under the independent
+`wordstead.history.daily.v1` key; it never repurposes either active-save slot.
+Clearing history preserves both saves and the current board. History corruption or
+write failure cannot prevent valid active saves from restoring. Terminal save
+restoration never automatically recreates a missing historical record; the results
+panel offers an explicit Save to Daily History action instead. Active-save schema 1
+and its replay/version checks remain unchanged.
 
 ## Format and compatibility
 

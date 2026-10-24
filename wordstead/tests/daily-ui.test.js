@@ -5,6 +5,13 @@ import { demoDictionary } from '../src/core/demo-vocabulary.js';
 import { createDailySession } from '../src/daily/challenge.js';
 import { exchangeTiles } from '../src/core/session.js';
 import { STORAGE_KEYS } from '../src/persistence/storage.js';
+import { HISTORY_KEY } from '../src/persistence/history-storage.js';
+import { createHistoryRecord, createDailyHistory, recordDailyResult, serializeDailyHistory } from '../src/persistence/daily-history.js';
+import { prepareHistoryVictory } from '../scripts/history-qa.js';
+import { createDictionary } from '../src/core/dictionary.js';
+import { parseVocabulary } from '../src/vocabulary/format.js';
+import { VOCABULARY } from '../src/vocabulary/manifest.js';
+import { readFileSync } from 'node:fs';
 
 // Event surface for the real controller, renderer and input modules; no DOM dependency.
 class Element {
@@ -21,6 +28,7 @@ class Element {
   remove() { this.removed = true; }
   focus() { document.activeElement = this; }
   select() { this.selected = true; }
+  scrollIntoView() {}
   setAttribute(key, value) { this.attributes[key] = value; }
   get selectedOptions() { return [{ textContent: this.value }]; }
   querySelectorAll() { return this.controls; }
@@ -60,7 +68,7 @@ function harness(t, options = {}) {
   find('dimensions').controls = ['rows', 'columns', 'seed', 'farm-seed', 'farm-density',
     'target-mode', 'target', 'calculate-target', 'create-board'].map(find);
   find('word-controls').controls = ['commit-word', 'word', 'orientation'].map(find);
-    initializeSandbox({ dictionary: demoDictionary, vocabulary: { name: 'Controller test vocabulary' }, now: () => clock,
+    initializeSandbox({ dictionary: options.dictionary ?? demoDictionary, vocabulary: { name: 'Controller test vocabulary' }, now: () => clock,
       getStorage: () => storage, saveToken: () => `test:${++sequence}` });
   }
   boot();
@@ -283,4 +291,162 @@ test('controller pauses writes on another tab change and permits explicit reload
   await click('replace-save'); await click('save-confirm-yes');
   assert.match(find('save-status').textContent, /saved locally/);
   h.reload(); assert.match(h.rack()[0], /provisionally/);
+});
+
+const historyDictionary = createDictionary(parseVocabulary(readFileSync(new URL(`../vocabulary/${VOCABULARY.file}`, import.meta.url), 'utf8'), VOCABULARY));
+const memoryStorage = () => {
+  const data = new Map();
+  return { getItem: (key) => data.get(key) ?? null, setItem: (key, value) => data.set(key, value), removeItem: (key) => data.delete(key) };
+};
+function completionStorage(date = '2026-10-23') {
+  const fixture = prepareHistoryVictory(historyDictionary, date);
+  const storage = memoryStorage();
+  storage.setItem(STORAGE_KEYS.daily, JSON.stringify({ revision: 'fixed-completion', save: fixture.save }));
+  return { storage, fixture };
+}
+
+test('Daily victory records once; refresh, retry, unsuccessful replay and a new date preserve its original completion', async (t) => {
+  const { storage, fixture } = completionStorage();
+  const h = harness(t, { storage, dictionary: historyDictionary }), { find, click } = h;
+  assert.equal(storage.getItem(HISTORY_KEY), null); // A restored legal draft is not a completion.
+  assert.equal(find('history-average-words').textContent, '—');
+  await click('commit-word');
+  const recorded = storage.getItem(HISTORY_KEY);
+  assert.deepEqual(JSON.parse(recorded).records, [createHistoryRecord(fixture.finished)]);
+  assert.equal(find('history-completed').textContent, 1); assert.equal(find('history-unfinished').textContent, 0);
+  assert.match(find('history-result-status').textContent, /completion is saved/);
+  assert.equal(find('save-history-result').hidden, true);
+  const text = find('share-text').value; await click('copy-results'); assert.equal(h.copied, text);
+  h.reload(); await h.resize();
+  assert.equal(storage.getItem(HISTORY_KEY), recorded); assert.equal(find('share-text').value, text);
+  await click('reset'); await click('save-confirm-yes');
+  assert.equal(storage.getItem(HISTORY_KEY), recorded);
+  await click('end-run');
+  assert.equal(storage.getItem(HISTORY_KEY), recorded); assert.match(find('results-title').textContent, /Unfinished/);
+  assert.match(find('history-result-status').textContent, /original recorded statistics/);
+  h.advance(); await h.resize(); await click('start-today'); await click('save-confirm-yes');
+  assert.equal(storage.getItem(HISTORY_KEY), recorded); assert.match(find('daily-info').textContent, /Active challenge: 2026-10-24/);
+  await click('end-run');
+  assert.equal(JSON.parse(storage.getItem(HISTORY_KEY)).records.length, 2);
+  assert.equal(find('history-completed').textContent, 1); assert.equal(find('history-unfinished').textContent, 1);
+});
+
+test('explicit endings upgrade to completion; multiple completed dates update totals and calendar details', async (t) => {
+  const { storage, fixture } = completionStorage();
+  const earlier = prepareHistoryVictory(historyDictionary, '2024-02-29');
+  let archive = recordDailyResult(createDailyHistory(), createHistoryRecord(earlier.finished));
+  const initial = createDailySession('2026-10-23').session;
+  archive = recordDailyResult(archive, createHistoryRecord({ ...initial, status: 'ended' }));
+  storage.setItem(HISTORY_KEY, serializeDailyHistory(archive));
+  const h = harness(t, { storage, dictionary: historyDictionary }), { find, click } = h;
+  await click('commit-word');
+  assert.equal(find('history-completed').textContent, 2); assert.equal(find('history-unfinished').textContent, 0);
+  const expected = [createHistoryRecord(earlier.finished), createHistoryRecord(fixture.finished)];
+  assert.equal(find('history-words').textContent, 8);
+  assert.equal(find('history-strokes').textContent, expected.reduce((n, r) => n + r.strokes, 0));
+  const buttons = find('history-days').children.filter((node) => node.dataset.date);
+  const date = buttons.find((node) => node.dataset.date === '2026-10-23');
+  assert.match(date.attributes['aria-label'], /UTC: Completed/); assert.equal(date.type, 'button');
+  date.focus(); await date.emit('click');
+  assert.equal(document.activeElement, date); assert.equal(date.attributes['aria-pressed'], 'true');
+  const detail = find('history-details').children;
+  assert.match(detail[0].textContent, /2026-10-23.*UTC/);
+  assert.match(detail[1].textContent, /wordstead-daily-v1.*Harvest Complete/);
+  const rows = detail[2].children;
+  assert.equal(rows.find((row) => row.children[0].textContent === 'Total strokes').children[1].textContent, expected[1].strokes);
+  assert.equal(rows.find((row) => row.children[0].textContent === 'Farm points / target').children[1].textContent, `${expected[1].totalPoints} / ${expected[1].target}`);
+  await click('history-previous'); assert.equal(find('history-month').textContent, 'September 2026');
+  await click('history-next'); assert.equal(find('history-month').textContent, 'October 2026');
+  const empty = find('history-days').children.find((node) => node.dataset.date === '2026-10-22');
+  assert.match(empty.attributes['aria-label'], /No recorded result/); await empty.emit('click');
+  assert.match(find('history-details').children[1].textContent, /No recorded result/);
+  const before = storage.getItem(STORAGE_KEYS.daily);
+  await click('history-link'); assert.equal(find('history').open, true);
+  assert.equal(storage.getItem(STORAGE_KEYS.daily), before);
+});
+
+test('clear history requires confirmation and never recreates records from terminal restoration or affects active saves', async (t) => {
+  const { storage } = completionStorage();
+  const h = harness(t, { storage, dictionary: historyDictionary }), { find, click } = h;
+  await click('commit-word'); const history = storage.getItem(HISTORY_KEY);
+  const daily = storage.getItem(STORAGE_KEYS.daily), free = storage.getItem(STORAGE_KEYS.free);
+  const share = find('share-text').value;
+  await click('history-clear'); assert.match(find('save-confirm-title').textContent, /Clear Daily History/);
+  assert.match(find('save-confirm-message').textContent, /cannot be undone.*does not delete.*does not reset/);
+  await find('save-confirm').emit('cancel'); assert.equal(storage.getItem(HISTORY_KEY), history);
+  await click('history-clear'); await click('save-confirm-yes'); await h.resize();
+  assert.equal(storage.getItem(HISTORY_KEY), null);
+  assert.equal(storage.getItem(STORAGE_KEYS.daily), daily); assert.equal(storage.getItem(STORAGE_KEYS.free), free);
+  assert.equal(find('share-text').value, share); assert.equal(find('history-completed').textContent, 0);
+  assert.equal(find('save-history-result').hidden, false);
+  h.reload(); assert.equal(storage.getItem(HISTORY_KEY), null); assert.equal(find('share-text').value, share);
+  await click('save-history-result'); assert.equal(JSON.parse(storage.getItem(HISTORY_KEY)).records.length, 1);
+  assert.equal(storage.getItem(STORAGE_KEYS.daily), daily); assert.equal(storage.getItem(STORAGE_KEYS.free), free);
+});
+
+test('history failure cannot invalidate accepted gameplay or active save restoration; explicit retry recovers', async (t) => {
+  const { storage } = completionStorage();
+  const write = storage.setItem; let fail = true;
+  storage.setItem = (key, value) => { if (key === HISTORY_KEY && fail) throw new Error('quota'); write(key, value); };
+  const h = harness(t, { storage, dictionary: historyDictionary }), { find, click } = h;
+  await click('commit-word');
+  assert.equal(find('results-title').textContent, 'Harvest Complete!');
+  assert.equal(storage.getItem(HISTORY_KEY), null); assert.equal(JSON.parse(storage.getItem(STORAGE_KEYS.daily)).save.actions.at(-1).type, 'word');
+  assert.match(find('history-result-status').textContent, /could not be saved/);
+  assert.equal(find('history-status').attributes.role, 'alert');
+  await click('copy-results'); assert.equal(h.copied, find('share-text').value);
+  fail = false; await click('save-history-result');
+  assert.equal(JSON.parse(storage.getItem(HISTORY_KEY)).records[0].status, 'won');
+  assert.match(find('history-result-status').textContent, /completion is saved/);
+  // Conversely a failed active-save write does not stop history capture.
+  await click('reset'); await click('save-confirm-yes');
+  storage.setItem = (key, value) => { if (key === STORAGE_KEYS.daily) throw new Error('active quota'); write(key, value); };
+  h.advance(); await h.resize(); await click('start-today'); await click('end-run');
+  assert.match(find('save-status').textContent, /Saving unavailable/);
+  assert.equal(JSON.parse(storage.getItem(HISTORY_KEY)).records.length, 2);
+});
+
+test('history corruption, denied access and external changes do not prevent restoration; safe reload and clear are isolated', async (t) => {
+  const { storage } = completionStorage(); storage.setItem(HISTORY_KEY, '{broken-history');
+  const h = harness(t, { storage, dictionary: historyDictionary }), { find, click } = h;
+  assert.equal(find('commit-word').disabled, false); assert.equal(find('history-content').hidden, true);
+  assert.equal(find('history-status').attributes.role, 'alert');
+  await click('commit-word'); assert.equal(storage.getItem(HISTORY_KEY), '{broken-history');
+  assert.equal(find('results-title').textContent, 'Harvest Complete!');
+  const daily = storage.getItem(STORAGE_KEYS.daily);
+  await click('history-clear'); await click('save-confirm-yes');
+  assert.equal(storage.getItem(STORAGE_KEYS.daily), daily); assert.equal(storage.getItem(HISTORY_KEY), null);
+  await click('save-history-result'); const original = storage.getItem(HISTORY_KEY);
+  storage.removeItem(HISTORY_KEY); await window.emit('storage', { key: HISTORY_KEY });
+  assert.match(find('history-status').textContent, /Another tab/);
+  await click('save-history-result'); assert.equal(storage.getItem(HISTORY_KEY), null);
+  await click('history-reload'); assert.equal(find('history-completed').textContent, 0);
+  await click('save-history-result'); assert.equal(storage.getItem(HISTORY_KEY), original);
+  const read = storage.getItem; storage.getItem = (key) => { if (key === HISTORY_KEY) throw new Error('denied'); return read(key); };
+  h.reload(); assert.equal(find('results-title').textContent, 'Harvest Complete!');
+  assert.match(find('history-status').textContent, /unavailable/); assert.equal(find('history-content').hidden, true);
+  storage.getItem = read; await click('history-reload'); assert.equal(find('history-completed').textContent, 1);
+  assert.equal(storage.getItem(STORAGE_KEYS.daily), daily);
+});
+
+test('replacing an unfinished previous Daily, Free Play endings, lab actions and fixture victories never fabricate history', async (t) => {
+  const h = harness(t), { click, change, find } = h;
+  await h.tile(0); h.advance(); await h.resize();
+  await click('start-today'); await click('save-confirm-yes');
+  assert.equal(h.storage.getItem(HISTORY_KEY), null);
+  await change('rack'); await click('end-run'); assert.equal(h.storage.getItem(HISTORY_KEY), null);
+  await click('rack-example');
+  const place = async (letter, row, column) => {
+    const slot = find('rack').children.findIndex((node) => node.attributes['aria-label'].includes(`: ${letter}, physical`)
+      && !node.attributes['aria-label'].includes('provisionally'));
+    assert.ok(slot >= 0); await h.tile(slot, row, column);
+  };
+  await place('C', 4, 4); await place('A', 4, 5); await place('R', 4, 6); await click('commit-word');
+  await place('A', 5, 4); await place('B', 6, 4); await click('commit-word');
+  await place('A', 5, 6); await place('T', 6, 6); await click('commit-word');
+  await place('A', 6, 5); await click('commit-word');
+  assert.equal(find('results-title').textContent, 'Harvest Complete!'); assert.equal(h.storage.getItem(HISTORY_KEY), null);
+  assert.equal(find('history-result-status').hidden, true);
+  await change('words'); await click('example'); await click('commit-word');
+  await change('freeform'); await click('toggle-letter'); assert.equal(h.storage.getItem(HISTORY_KEY), null);
 });
