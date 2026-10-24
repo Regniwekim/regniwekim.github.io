@@ -1,0 +1,128 @@
+[
+  {
+    "date": "2023-12-31",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2023-12-31",
+    "farmSeed": "wordstead-daily-v1:farm:2023-12-31",
+    "initialTileIds": [
+      27,
+      15,
+      6,
+      63,
+      35,
+      56,
+      55
+    ],
+    "farmSignature": "32:building,77:crop,91:fertile,99:building,110:fertile,124:fertile,129:livestock,171:building,173:livestock,174:crop,178:fertile,190:livestock,200:livestock",
+    "target": 11,
+    "initializationSha256": "8faf775b8abe8824eb11f6775fb4f6671d4b57d959c21a06b6a52b81673c0ea4"
+  },
+  {
+    "date": "2024-01-01",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2024-01-01",
+    "farmSeed": "wordstead-daily-v1:farm:2024-01-01",
+    "initialTileIds": [
+      68,
+      9,
+      92,
+      22,
+      37,
+      95,
+      96
+    ],
+    "farmSignature": "22:building,28:crop,57:crop,66:fertile,80:crop,91:crop,108:crop,123:fertile,137:crop,138:crop,142:building,162:fertile,205:crop",
+    "target": 11,
+    "initializationSha256": "18d86e496cfb16ddfd1e4cba908d795d6461c4ccbbc22c88afd21fe28b526d6e"
+  },
+  {
+    "date": "2024-02-28",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2024-02-28",
+    "farmSeed": "wordstead-daily-v1:farm:2024-02-28",
+    "initialTileIds": [
+      94,
+      12,
+      15,
+      43,
+      97,
+      10,
+      71
+    ],
+    "farmSignature": "17:crop,26:livestock,79:crop,91:livestock,100:fertile,115:building,126:fertile,132:crop,138:livestock,147:building,160:crop,163:fertile,192:crop",
+    "target": 12,
+    "initializationSha256": "e0fc727cc2414258114a79326dda77d0b28572f605e3d1bbf40445edb97eeac5"
+  },
+  {
+    "date": "2024-02-29",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2024-02-29",
+    "farmSeed": "wordstead-daily-v1:farm:2024-02-29",
+    "initialTileIds": [
+      12,
+      34,
+      77,
+      39,
+      53,
+      16,
+      13
+    ],
+    "farmSignature": "19:fertile,23:building,58:fertile,62:crop,63:crop,68:fertile,73:crop,76:building,102:fertile,121:building,143:fertile,153:crop,205:livestock",
+    "target": 11,
+    "initializationSha256": "0e9b1697f1dd637b629fa0cdd3a3d299a2987d910db37d1a4452b39041ab157d"
+  },
+  {
+    "date": "2024-03-01",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2024-03-01",
+    "farmSeed": "wordstead-daily-v1:farm:2024-03-01",
+    "initialTileIds": [
+      21,
+      44,
+      84,
+      66,
+      98,
+      10,
+      55
+    ],
+    "farmSignature": "22:building,24:crop,35:livestock,46:fertile,108:fertile,130:crop,140:crop,154:building,168:fertile,174:fertile,189:crop,200:fertile,205:livestock",
+    "target": 13,
+    "initializationSha256": "517dfb301796679134c5b2be1a5f46753e062ab896653a70e9633b278016e8dc"
+  },
+  {
+    "date": "2026-10-23",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2026-10-23",
+    "farmSeed": "wordstead-daily-v1:farm:2026-10-23",
+    "initialTileIds": [
+      68,
+      34,
+      91,
+      42,
+      58,
+      40,
+      61
+    ],
+    "farmSignature": "25:fertile,41:fertile,76:crop,82:livestock,83:crop,122:fertile,131:fertile,147:livestock,148:crop,153:crop,176:crop,188:fertile,201:crop",
+    "target": 12,
+    "initializationSha256": "b98d01c6c7163da11bb50c66726fadc33a231bd7fec4b19e314c03b6abba414a"
+  },
+  {
+    "date": "2026-10-24",
+    "formatVersion": "wordstead-daily-v1",
+    "letterSeed": "wordstead-daily-v1:letters:2026-10-24",
+    "farmSeed": "wordstead-daily-v1:farm:2026-10-24",
+    "initialTileIds": [
+      78,
+      95,
+      51,
+      17,
+      93,
+      54,
+      27
+    ],
+    "farmSignature": "34:building,51:fertile,63:livestock,65:crop,79:building,100:livestock,143:crop,171:building,177:fertile,188:crop,189:fertile,192:crop,201:building",
+    "target": 15,
+    "initializationSha256": "ab9f3624aa17039c8666d36b6bfb05e521ab99603bc4cbc79152c889203b81b1"
+  }
+]

@@ -5,7 +5,22 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 3C.3 experimental automatic targets
+## Current status: Milestone 4A shared daily puzzles
+
+**Daily Puzzle** is the default: the same UTC date and game revision produce the
+same 15×15 farm, 100-tile bag order, seven-tile opening rack and automatic target.
+Daily v1 fixes density at 0.08 and the existing standard feature weights, ESDB
+vocabulary and `auto-target-v1` model. **Free Play** keeps the customizable seeded
+puzzle and manual/automatic targets. Both labs remain independent. See
+[daily rules, compatibility, reproducibility and QA](docs/daily-puzzles.md).
+
+Dates roll over at **00:00 UTC**, using the device clock. An active run keeps its
+date and target; **Start today's challenge** explicitly starts the newest date.
+Restart repeats the active challenge, including after midnight. Unlimited retries
+are allowed. Daily shares include the date and concise revision. No progress is
+stored: **refresh loses unfinished runs** and regenerates today's opening puzzle.
+Incorrect device clocks can select the wrong date. Experimental targets are not
+guaranteed reachable, and different days may vary in actual difficulty.
 
 The browser prototype accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
@@ -15,7 +30,7 @@ per newly claimed cell. Total puzzle score adds captured crop and fertile bonuse
 derived from that same claim mask. Farm cells remain passable land for flood fill
 but are reserved against letter placement in this prototype.
 
-The default **Rack-limited puzzle** draws seven physical tiles from a seeded
+**Daily Puzzle** and **Free Play** draw seven physical tiles from a seeded
 100-tile bag, replenishes after accepted words, permits exchanges, and finishes
 when the total score target is reached. Captured livestock adds rack slots (up to
 nine); buildings grant free exchange credits. The page tracks accepted words;
@@ -53,7 +68,7 @@ or solvability. Both original analysis methods and their artifacts are unchanged
 
 Milestone **3C.3** combines bounded board opportunities with a compact approximation
 of seeded rack flexibility to propose **Automatic — Experimental** score targets.
-The default puzzle resolves to **12 farm points**. Manual targets remain available;
+The initial Free Play puzzle resolves to **12 farm points**. Manual targets remain available in Free Play;
 the integer core constructor and every scripted fixture retain their original behavior.
 Run `node scripts/analyze-targets.js --help`; see [formula, calibration, held-out
 findings, browser measurements and limitations](docs/automatic-targets.md).
@@ -64,7 +79,7 @@ remain unchanged. **Legal word placement lab** keeps unrestricted word entry and
 automatic claims. **Freeform enclosure lab** retains arbitrary A-tile
 editing/removal and manual claims. Each mode has its own state; lab edits cannot
 enter legal play. Switching modes preserves their separate sessions; refresh clears
-all three. Canvas primitives and system fonts require no third-party assets. Existing
+all four. Canvas primitives and system fonts require no third-party assets. Existing
 [asset audit](ASSET-AUDIT.md), [organization records](asset-organization/README.md),
 [license scope](docs/license.md), and exploratory [visual guide](docs/visual-guide-v0.1.md)
 continue to govern future art.
@@ -85,7 +100,7 @@ Wordstead yet; adding its card is outside this milestone.
 
 ## Rack-limited puzzle controls
 
-The default mode is **Rack-limited puzzle**. **Board setup** provides separate letter
+Choose **Free Play** for customization. **Board setup** provides separate letter
 and farm seeds, farm density, independent 1–30 board dimensions, and target mode.
 **Automatic — Experimental** is the normal default. **Calculate Target** previews
 the current setup before **New Puzzle** starts it. Editing settings invalidates the
@@ -309,7 +324,8 @@ plain-text newlines: WORDSTEAD, the correct finish heading, score/target, words,
 exchanges, territory plus total farm bonus, tagline and
 `https://games.regniwekim.com/wordstead/`. The default text excludes played words,
 letters, positions, board layout, unrevealed tiles and seeds/settings. It makes no
-daily-puzzle or identical-puzzle claim and encodes no session in the URL.
+identical-puzzle claim for Free Play and encodes no session in the URL. Daily adds
+its date and concise revision after WORDSTEAD; all other result fields are shared.
 
 **Copy Results** requests the browser Clipboard API only on activation. Success
 appears after the write completes. If unavailable or denied, a useful status opens
@@ -470,7 +486,7 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
   in the rack, and the committed A must display ◇ and report assigned blank.
 - Try outside releases, returning to a different slot, Escape, pointer cancellation
   and losing focus mid-drag; pending tiles must be restored exactly. Try exchanges
-  with a draft and after clearing. End/restart and switch all three modes.
+  with a draft and after clearing. End/restart and switch all four modes.
 - On a phone, pan empty/committed cells while a tile is selected: no letter should
   be placed by scrolling. Test a rack-origin touch drag and a drafted tile drag,
   as well as tap placement. Real-device behavior remains a manual QA requirement.
@@ -550,8 +566,10 @@ src/
     results.js              Immutable terminal summary and spoiler-free share text
     draft.js                Reversible physical drafts, continuity and run inference
     session-fixture.js      Complete scripted bag and four enclosure QA moves
+  daily/                    Pure UTC dates, v1 definitions, session creation/restart
   rendering/board.js        Shared Canvas view and coordinate transforms
-  ui/sandbox.js             DOM controller and isolated development sessions
+  ui/sandbox.js             DOM controller and four isolated mode sessions
+  ui/daily-mode.js          Explicit browser clock boundary and daily availability
   ui/tile-input.js          Selection, blank dialog and transactional pointer input
   ui/startup.js             Loading/error/retry gate before gameplay initialization
   ui/results.js             Result presentation, clipboard feedback and manual copy
@@ -626,9 +644,16 @@ The two earlier development-only import assertions now permit the compact target
 path while continuing to exclude trie construction, baseline sampling and full
 development reports. See [target validation commands](docs/automatic-targets.md#reproduce).
 
+Daily tests pin strict Gregorian/UTC dates, timezone independence, month/year/leap
+boundaries, seven full initialization fixtures, restart, unavailable models,
+dated spoiler-free sharing and the real controller's four-mode isolation,
+custom-setting isolation, Copy Results and controlled midnight navigation.
+The [separate browser QA page](scripts/daily-qa.html) supports explicit dates and
+390/1440px previews without adding date controls to ordinary play.
+
 Run `node --check` on affected JavaScript and `git diff --check`. For browser
 validation use the manual examples above; inspect console/network errors and test
-all three modes, direct loading/refresh, return navigation, narrow/wide layouts, pointer,
+all four modes, direct loading/refresh, return navigation, narrow/wide layouts, pointer,
 keyboard, and touch behavior. No automated browser framework is installed.
 
 ## Limits and future integration points
@@ -642,7 +667,7 @@ exchange accounting and target without grading or comparison.
 Feature-layout randomness is explicit and separate from letter seeds.
 
 Tournament dictionary compatibility, complete no-legal-move detection,
-campaign/daily modes, persistence, leaderboards, final
+campaign mode, persistence, leaderboards, final
 Sprout Lands integration, decorative animation, and sound remain deferred. The
 core expects valid in-memory boards/territory from its constructors; saved-state
 validation/deserialization is outside this milestone. Practical board sizes depend
@@ -654,8 +679,9 @@ targets with the expanded vocabulary. Multi-cell buildings, animated animals,
 growing/harvesting timers, upgrades and advanced feature interactions are deferred.
 
 Vocabulary updates can change word acceptance and whether old puzzles are solvable.
-Future daily puzzle definitions must pin a stable dictionary version; this milestone
-adds no daily infrastructure.
+Daily v1 pins its dictionary version/checksum and target method. Incompatible future
+updates require a new daily revision; retaining old play requires a compatible
+engine and vocabulary. See the [released-definition policy](docs/daily-puzzles.md#compatibility-and-released-definition-policy).
 
 ## Static hosting
 

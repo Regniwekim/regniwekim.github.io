@@ -48,7 +48,7 @@ export function initializeResults({ find, writeClipboard = (text) => {
     find('results').open = Boolean(results);
     find('results').scrollTop = 0;
     find('results-link').hidden = !results;
-    find('new-puzzle-link').hidden = !results;
+    find('new-puzzle-link').hidden = !results || Boolean(results.daily);
     find('copy-status').textContent = '';
     find('copy-results').disabled = !results;
     find('results-breakdown').open = false;
@@ -58,7 +58,9 @@ export function initializeResults({ find, writeClipboard = (text) => {
     // Clear the old presentation as well as hiding it on restart/mode changes.
     const fields = {
       'results-title': results ? RESULT_HEADINGS[results.status] : '',
-      'results-context': results ? `${session.source === 'scripted' ? 'Scripted QA' : 'Free Play'} · ${results.board.rows} × ${results.board.columns} farm` : '',
+      'results-context': results ? results.daily
+        ? `Daily Puzzle · ${results.daily.date} · ${results.daily.formatVersion.replace('wordstead-daily-', '')}`
+        : `${session.source === 'scripted' ? 'Scripted QA' : 'Free Play'} · ${results.board.rows} × ${results.board.columns} farm` : '',
       'results-points': results ? `${results.totalPoints} / ${results.target}` : '',
       'results-words': results?.wordCount ?? '',
       'results-territory': results?.basePoints ?? '',

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta name="description" content="Wordstead's word placement prototype: build connected words and enclose land.">
-    <title>Wordstead · Rack-limited puzzle</title>
+    <title>Wordstead · Daily Puzzle &amp; Free Play</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./styles/main.css">
     <script type="module" src="./src/main.js"></script>
@@ -22,7 +22,7 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 3C.3 · Development prototype</span>
+        <span class="development-label">Milestone 4A · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
@@ -42,7 +42,18 @@
             <div><p class="eyebrow">Letters &amp; land</p><h2 id="board-title">A little room to grow</h2></div>
             <p id="board-summary">Board initialization pending.</p>
           </div>
-          <label class="mode-control">Play / development mode<select id="mode"><option value="rack">Rack-limited puzzle</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
+          <label class="mode-control">Play / development mode<select id="mode"><option value="daily">Daily Puzzle</option><option value="rack">Free Play</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
+          <p class="hint">Runs stay in memory only. Refreshing loses unfinished progress. Daily puzzles regenerate with the same starting conditions; retries are allowed.</p>
+          <section id="daily-context" aria-labelledby="daily-title" hidden>
+            <h3 id="daily-title">Daily Puzzle</h3>
+            <p id="daily-info" role="status" aria-live="polite" aria-atomic="true"></p>
+            <p class="hint">A shared 15 × 15 farm, seven starting tiles and an experimental automatic target. New dates begin at 00:00 UTC using your device clock. Difficulty varies; completion is not guaranteed.</p>
+            <div class="actions">
+              <button id="start-today" type="button">Start today's challenge</button>
+              <button id="daily-free-play" class="secondary" type="button">Return to Free Play</button>
+            </div>
+          </section>
+          <div id="play-surface">
           <p id="starting-square"></p>
           <dl id="main-metrics" class="metrics" aria-label="Placement statistics">
             <div id="word-metrics"><dt>Accepted placements</dt><dd id="word-count">0</dd></div>
@@ -237,13 +248,14 @@
                   </div>
                   <button id="create-board" class="secondary" type="submit">New Puzzle</button>
                 </form>
-                <p class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
+                <p id="setup-help" class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
               </section>
             </div>
           </div>
+          </div>
           <details class="rules"><summary>Development diagnostics: four words, one enclosure</summary>
             <button id="rack-example" class="secondary" type="button">Load scripted rack QA example</button>
-            <p>The scripted QA example switches to Rack-limited puzzle, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. It uses the preserved hand-selected demo vocabulary for QA. New puzzle returns to ESDB. The unrestricted example remains in Legal word placement lab.</p>
+            <p>The scripted QA example switches to Free Play, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. Daily Puzzle stays separate. It uses the preserved hand-selected demo vocabulary for QA. New puzzle returns to ESDB. The unrestricted example remains in Legal word placement lab.</p>
             <p>In rack mode, place C, A, R at (4, 4–6), then commit CAR. Place A and B at (5–6, 4), then commit CAB. Place A and T at (5–6, 6), then commit RAT. Place A at (6, 5), then commit BAT. Coordinates are 1-based. Shared letters are reused automatically; no typing is needed. In the word lab, enter the full words instead.</p>
             <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
           </details>
@@ -262,7 +274,7 @@
           </details>
         </section>
       </main>
-      <footer><p>Milestone 3C.3 · Experimental targets · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 4A · Shared daily puzzles · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

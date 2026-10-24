@@ -1,5 +1,13 @@
 # Wordstead architecture
 
+Milestone 4A adds the pure `src/daily/` boundary for strict UTC dates and versioned
+daily definitions, reusing the existing target/session engines. The default Daily
+Puzzle and customizable Free Play have separate in-memory sessions alongside both
+labs. `ui/daily-mode.js` supplies the browser clock; explicit newest-date navigation
+cannot silently replace an active run. Results carry compact date/revision metadata.
+See [daily puzzles](daily-puzzles.md) for canonical settings, regression fixtures,
+clock injection, unavailable results and the released-version compatibility policy.
+
 Milestone 3C.3 adds `auto-target-v1`: pure bounded board opportunity, compact
 seeded letter-flexibility approximation and conservative integer target selection.
 The browser resolves automatic/manual settings before invoking the unchanged
@@ -383,7 +391,9 @@ plain text. It includes score/target, words/exchanges, territory plus combined
 farm bonuses, tagline and the fixed `https://games.regniwekim.com/wordstead/` URL.
 It omits strokes, words played, letters, positions, layouts, unrevealed tiles and seeds.
 Gameplay stroke accounting is unchanged; results no longer derive or display it.
-There are no daily IDs, comparison claims or encoded session links.
+Daily snapshots additionally include frozen `daily: { date, formatVersion }`;
+sharing inserts the date and concise revision after WORDSTEAD. Free Play formatting
+is unchanged. There are no comparison claims or encoded session links.
 
 This milestone deliberately supersedes planned efficiency grading in the design
 skeleton and grade/share-art references in the visual guide for the current
@@ -530,13 +540,15 @@ and release the interaction gate. Offline play works for that loaded page; offli
 reload, service workers, custom compression and persistent caching are not added.
 Word checks never make network requests. The core has no Fetch or async API.
 
-The controller owns three separate in-memory
-sessions: `rack` (default), `words` and `freeform`. Rack owns a core session and
-physical draft; labs own the original puzzle state. Each has independent board
+The controller owns four separate in-memory
+sessions: `daily` (default), `rack` (Free Play), `words` and `freeform`. Daily and
+Free Play each own a core session and physical draft; labs own the original puzzle state. Each has independent board
 selection, latest award and recent claim indices. The word lab retains typed
 word/orientation input. Mode switching preserves each session, clears transient
 input, and reconstructs the rack preview on return. Resets/dimension changes affect only the
-active session; refresh clears all three. There is no path to import lab edits into play.
+active session; refresh clears all four and regenerates the current UTC daily.
+Daily creation accepts no custom setup, and restart keeps the active daily date
+and resolved target even after midnight. There is no path to import lab edits into play.
 Each session also owns a dictionary reference and display name, shared by preview
 and commitment. Normal sessions receive ESDB. Loading a scripted rack/farm or word
 lab example resets that run with `demoDictionary`, labeled QA fixture only. Restart
@@ -874,13 +886,15 @@ Only English A–Z assignments and standard blanks are modeled. The unrestricted
 word lab normally uses ESDB; explicit QA examples retain the demo dictionary.
 Freeform toggles A and allows removal.
 Full saved-state validation/persistence, tournament dictionary compatibility, exhaustive move
-solver, daily/campaign,
+solver, historical daily archive/engine dispatch, campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
 Vocabulary changes must use a distinct pinned ID and regenerate the artifact,
 manifest, report and notices after reviewing upstream terms. They may change old
-puzzle solvability even with identical seeds; future daily definitions must pin a
-stable vocabulary version. No daily infrastructure is added.
+puzzle solvability even with identical seeds. Daily v1 pins the vocabulary and
+target method; incompatible updates need new daily identities and fixtures.
+Older-date compatibility requires retaining its original engines and data;
+the current implementation does not archive previous engine revisions.
 Farm bonuses extend the atomic transition after territory claiming;
 results consume the existing word/exchange counters and target without grading.
 Layout randomness stays explicit and separate from letter-order seeds;
