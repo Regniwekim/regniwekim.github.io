@@ -5,7 +5,15 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 4A shared daily puzzles
+## Current status: Milestone 4B.1 local save and resume
+
+Daily Puzzle and Free Play automatically save independent attempts on the current
+browser and device, including uncommitted drafts and assigned blanks. Refresh or
+return later to resume the original puzzle, resources, target and terminal results.
+Restoration validates versioned action histories through the existing rules and
+dictionary. Storage failures leave play available with a warning; incompatible
+saves remain until explicitly discarded. See [local persistence](docs/local-persistence.md)
+for schema, limits, privacy, compatibility, conflict handling and reproducible QA.
 
 **Daily Puzzle** is the default: the same UTC date and game revision produce the
 same 15×15 farm, 100-tile bag order, seven-tile opening rack and automatic target.
@@ -17,8 +25,9 @@ puzzle and manual/automatic targets. Both labs remain independent. See
 Dates roll over at **00:00 UTC**, using the device clock. An active run keeps its
 date and target; **Start today's challenge** explicitly starts the newest date.
 Restart repeats the active challenge, including after midnight. Unlimited retries
-are allowed. Daily shares include the date and concise revision. No progress is
-stored: **refresh loses unfinished runs** and regenerates today's opening puzzle.
+are allowed. Daily shares include the date and concise revision. A saved previous
+Daily resumes with its original date. Starting today's challenge replaces its
+single save; meaningful progress requires confirmation before replacement/restart.
 Incorrect device clocks can select the wrong date. Experimental targets are not
 guaranteed reachable, and different days may vary in actual difficulty.
 
@@ -40,7 +49,7 @@ labs remain available.
 
 Finished rack runs now show actual results and offer **Copy Results** with a
 manual-copy fallback. Wordstead remains entirely static and client-side: no
-grading, rankings, persistence, analytics, accounts, or backend services.
+grading, rankings, analytics, accounts, or backend services.
 Milestone 3B deliberately supersedes the planned efficiency grading in the
 design skeleton and grade/share-art references in the exploratory visual guide
 for the current implementation; neither source document is rewritten.
@@ -79,7 +88,8 @@ remain unchanged. **Legal word placement lab** keeps unrestricted word entry and
 automatic claims. **Freeform enclosure lab** retains arbitrary A-tile
 editing/removal and manual claims. Each mode has its own state; lab edits cannot
 enter legal play. Switching modes preserves their separate sessions; refresh clears
-all four. Canvas primitives and system fonts require no third-party assets. Existing
+only the labs and diagnostic fixtures. Scripted fixtures never overwrite the Free
+Play save. Canvas primitives and system fonts require no third-party assets. Existing
 [asset audit](ASSET-AUDIT.md), [organization records](asset-organization/README.md),
 [license scope](docs/license.md), and exploratory [visual guide](docs/visual-guide-v0.1.md)
 continue to govern future art.
@@ -335,7 +345,8 @@ it on explicit activation; use the device’s Copy command or Ctrl+C/Command+C.
 Copying, inspecting and opening disclosures never change the run. Results and
 share text omit strokes; the gameplay accounting remains unchanged.
 **More Games (new tab)** opens `https://games.regniwekim.com/` in a separate tab
-only when activated, keeping the completed farm available. Nothing is saved on refresh.
+only when activated, keeping the completed farm available. Production terminal
+runs also resume with the same board, summary and Copy Results after refresh.
 
 ## Typed-word controls (Legal word placement lab only)
 
@@ -377,7 +388,8 @@ claim and **✓** marks older claims. ☆ marks the starting square while empty.
 Pan with native touch scrolling, scrollbars, or a trackpad; cells never shrink
 below 44 CSS pixels. **Cell display size** offers 44, 56, or 72 pixels. All primary
 controls are semantic DOM inputs/buttons; dragging is not required. Board keys
-never commit a legal word. There is no persistence, animation, or audio.
+never commit a legal word. Daily and Free Play save locally; labs remain transient.
+There is no animation or audio.
 
 ## Manual playtesting
 
@@ -567,9 +579,11 @@ src/
     draft.js                Reversible physical drafts, continuity and run inference
     session-fixture.js      Complete scripted bag and four enclosure QA moves
   daily/                    Pure UTC dates, v1 definitions, session creation/restart
+  persistence/              Versioned action history, validated replay and storage adapter
   rendering/board.js        Shared Canvas view and coordinate transforms
   ui/sandbox.js             DOM controller and four isolated mode sessions
   ui/daily-mode.js          Explicit browser clock boundary and daily availability
+  ui/save-controls.js       Local status, recovery controls and replacement dialog
   ui/tile-input.js          Selection, blank dialog and transactional pointer input
   ui/startup.js             Loading/error/retry gate before gameplay initialization
   ui/results.js             Result presentation, clipboard feedback and manual copy
@@ -648,8 +662,12 @@ Daily tests pin strict Gregorian/UTC dates, timezone independence, month/year/le
 boundaries, seven full initialization fixtures, restart, unavailable models,
 dated spoiler-free sharing and the real controller's four-mode isolation,
 custom-setting isolation, Copy Results and controlled midnight navigation.
-The [separate browser QA page](scripts/daily-qa.html) supports explicit dates and
-390/1440px previews without adding date controls to ordinary play.
+The [separate browser QA page](scripts/daily-qa.html) supports explicit dates,
+390/1440px previews, isolated QA saves and simulated storage failures without
+adding date controls to ordinary play. Persistence tests compare complete replayed
+sessions, drafts, terminal results, targets, captures, bag order and RNG; real
+controller tests cover autosaving, refresh, rollover, replacement, fixture isolation,
+corruption, unavailable storage and two-tab conflicts.
 
 Run `node --check` on affected JavaScript and `git diff --check`. For browser
 validation use the manual examples above; inspect console/network errors and test
@@ -667,10 +685,10 @@ exchange accounting and target without grading or comparison.
 Feature-layout randomness is explicit and separate from letter seeds.
 
 Tournament dictionary compatibility, complete no-legal-move detection,
-campaign mode, persistence, leaderboards, final
+campaign mode, leaderboards, final
 Sprout Lands integration, decorative animation, and sound remain deferred. The
-core expects valid in-memory boards/territory from its constructors; saved-state
-validation/deserialization is outside this milestone. Practical board sizes depend
+core expects valid in-memory boards/territory from its constructors; the persistence
+boundary reconstructs them through validated action replay. Practical board sizes depend
 on memory; UI dimensions are capped at 30. No complete game schema is claimed.
 
 Open playtest questions include reserved-cell placement policy, feature density

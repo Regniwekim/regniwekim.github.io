@@ -20,7 +20,8 @@ The page checks its clock when rendering and when explicitly entering Daily.
 There are no rollover timers or notifications. An active run retains its original
 date, farm, bag, drafts and target across midnight. The Daily panel shows that a
 new date is available; **Start today's challenge** explicitly replaces that daily
-run. Returning from Free Play resumes the older run until this action is chosen.
+run and its single local save. Meaningful progress requires confirmation before
+replacement. Returning from Free Play or reloading resumes the older run until this action is chosen.
 If the new challenge is unavailable, the older run remains intact.
 
 ## Released v1 contract
@@ -99,13 +100,15 @@ date, retaining the previous definition if generation is unavailable.
 `words`, `freeform`. Daily and Free Play each own committed board, bag, rack, RNG,
 target, draft, dictionary and view selection. Switching cancels transient gestures
 and reconstructs the active preview, without transferring draft tiles or mutating
-the other run. Diagnostic fixtures reset Free Play only; they cannot replace Daily.
+the other run. Diagnostic fixtures use Free Play's view but cannot overwrite either
+production save; the production Free Play session is also retained in memory.
 Display cell size is shared presentation and cannot affect any rules or generation.
 
 Restart is a fresh attempt at the **active date**, even after UTC midnight. It
 restores the same ordered tiles, farm and target and clears all commitments,
-claims, exchanges and drafts. Reloading instead starts the device's current UTC
-date. Unlimited retries are allowed; results are never verified first attempts.
+claims, exchanges and drafts, replacing its save after confirmation when progress
+exists. Reloading resumes the saved date, including an older unfinished or terminal
+challenge. Unlimited retries are allowed; results are never verified first attempts.
 
 `getSessionResults()` includes only date/format identity in addition to the existing
 terminal snapshot. `formatResultsShare()` adds `Daily Puzzle · YYYY-MM-DD · v1`
@@ -115,10 +118,14 @@ points, words and free/charged exchanges retain the original calculations. Share
 contain no played words, positions, future tiles, seeds or solutions. Free Play
 share text remains byte-for-byte unchanged and makes no same-challenge claim.
 
-There is no localStorage, IndexedDB, cookie, account, save, streak or attempt history.
-**Refresh loses unfinished progress.** Reproducible initialization is not progress
-persistence. All requests are ordinary same-origin static resources; GitHub Pages
-is sufficient. Local progress and history remain outside 4A.
+Milestone 4B.1 adds one browser-local Daily save and an independent Free Play save.
+Validated action replay restores physical tiles, bag/RNG, farm claims/rewards,
+target, status and drafts after vocabulary loading. Terminal boards/results stay
+inspectable. Unsupported/corrupt saves remain until explicitly discarded; unavailable
+storage leaves play available with a warning. There is no historical archive,
+IndexedDB, cookie, account, streak or personal statistics. All requests remain
+ordinary same-origin static resources; GitHub Pages is sufficient. See
+[local persistence](local-persistence.md) for schema, compatibility and multi-tab policy.
 
 ## Compatibility and released-definition policy
 
@@ -164,7 +171,10 @@ no date picker or future-date control. For browser QA, use the README's static
 server and open `/wordstead/scripts/daily-qa.html`. Supply a canonical date, choose
 390 or 1440 CSS pixels and load the challenge. The separate page injects a clock
 at 23:59:59.999 UTC into the real controller, loading the same markup, vocabulary
-and runtime modules. The QA advance button moves that clock by one day.
+and runtime modules. The QA advance button moves that clock by one day. Since
+4B.1, this page saves under isolated `wordstead.qa.` keys; loading a new date
+retains the previous QA run. Storage options simulate access denial/quota, and an
+explicit corrupt-QA-save button exercises recovery without touching production slots.
 
 Place a draft or commit a word, advance the QA clock, switch modes, and verify the
 active date/target/progress remain until Start today's challenge is activated.

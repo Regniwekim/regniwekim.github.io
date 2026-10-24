@@ -20,12 +20,20 @@ import { createTargetSession, restartTargetSession } from '../analysis/target-se
 import { initializeTargetSetup } from './target-setup.js';
 import { createDailyMode } from './daily-mode.js';
 import { restartDailySession } from '../daily/challenge.js';
+import { createSave, appendAction, withDraft, wordAction, hasProgress } from '../persistence/history.js';
+import { createSaveSlot } from '../persistence/storage.js';
+import { initializeSaveControls } from './save-controls.js';
 
 /** Four isolated in-memory sessions, one shared renderer and input surface. */
-export function initializeSandbox({ dictionary, vocabulary, now }) {
+export function initializeSandbox({ dictionary, vocabulary, now, getStorage = () => window.localStorage,
+  saveToken = () => crypto.randomUUID(), saveKeyPrefix = '' }) {
   if (typeof dictionary?.has !== 'function') throw new TypeError('Load the gameplay vocabulary before initialization.');
   const find = (id) => document.getElementById(id);
   const resultsView = initializeResults({ find });
+  const saveView = initializeSaveControls({ find });
+  const slots = Object.fromEntries(['daily', 'free'].map((key) => [key,
+    createSaveSlot({ mode: key, dictionary, getStorage, token: saveToken, keyPrefix: saveKeyPrefix })]));
+  const restored = { daily: slots.daily.load(), free: slots.free.load() };
   const canvas = find('board');
   const viewport = find('board-viewport');
   const rowInput = find('cell-row');
@@ -36,12 +44,21 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     const board = rackState ? state.puzzle.board : state.board;
     return { state, selected: getStartingSquare(board), recentClaims: [], latestAward: 0,
       word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [], draft: createDraft(),
-      dictionary: qa ? demoDictionary : dictionary, vocabularyName: qa ? 'Hand-selected demo · QA fixture only' : vocabulary.name };
+      dictionary: qa ? demoDictionary : dictionary, vocabularyName: qa ? 'Hand-selected demo · QA fixture only' : vocabulary.name,
+      save: rackState?.source === 'seeded' ? createSave(rackState.daily ? 'daily' : 'free', rackState) : null };
   }
-  const sessions = { rack: session(null, createTargetSession({ farmSeed: DEFAULT_FARM_SEED }).session), words: session(), freeform: session() };
+  function recovered(result) {
+    return { ...session(null, result.state), draft: result.draft, save: result.save };
+  }
+  const sessions = { rack: restored.free ? recovered(restored.free)
+    : session(null, createTargetSession({ farmSeed: DEFAULT_FARM_SEED }).session), words: session(), freeform: session() };
+  let productionRack = sessions.rack;
   const dailyMode = createDailyMode({ now });
-  let dailyResult = dailyMode.startToday();
-  sessions.daily = dailyResult.available ? session(null, dailyResult.session) : null;
+  let dailyResult = restored.daily ? { available: true, session: restored.daily.state } : dailyMode.startToday();
+  sessions.daily = restored.daily ? recovered(restored.daily) : dailyResult.available ? session(null, dailyResult.session) : null;
+  for (const [key, run] of [['daily', sessions.daily], ['free', sessions.rack]]) {
+    if (!restored[key] && run) slots[key].write(run.save);
+  }
   let mode = 'rack';
   const isRackMode = () => mode === 'rack' || mode === 'daily';
   const targetSetup = initializeTargetSetup({ find, isRackMode: () => mode === 'rack' });
@@ -49,6 +66,20 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
   let boardView = null;
   let cellSize = Number(find('cell-size').value);
   const active = () => sessions[mode];
+  const activeSlot = () => isRackMode() ? slots[mode === 'daily' ? 'daily' : 'free'] : null;
+  function persist(action) {
+    const current = active();
+    if (!isRackMode() || !current?.save) return;
+    if (action) current.save = appendAction(current.save, action);
+    current.save = withDraft(current.save, current.draft);
+    activeSlot().write(current.save);
+  }
+  function replaceRun(message, label, action, savedRack = false) {
+    const current = savedRack && mode === 'rack' && !active()?.save ? productionRack : active();
+    if (isRackMode() && current && hasProgress(current.state, current.draft)) {
+      saveView.confirm(message, label, action);
+    } else action();
+  }
   const puzzle = () => isRackMode() ? active().state.puzzle : active().state;
   const proposal = () => ({
     word: wordInput.value, ...active().selected, orientation: find('orientation').value,
@@ -73,7 +104,11 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
   const tileInput = initializeTileInput({ canvas, viewport, rackButtons,
     enabled: () => isRackMode() && Boolean(active()) && !active().exchanging && active().state.status === 'playing',
     getState: () => active().state, getDraft: () => active().draft,
-    setDraft: (draft) => { active().draft = draft; }, getCellSize: () => cellSize,
+    setDraft: (draft) => {
+      if (draft === active().draft) return;
+      active().draft = draft;
+      persist();
+    }, getCellSize: () => cellSize,
     selectCell: (cell) => { active().selected = cell; },
     refresh: (message) => { if (isRackMode()) updatePreview(message); else render(message); },
     redraw: () => {
@@ -124,13 +159,14 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
   }
 
   function render(message) {
+    saveView.render(activeSlot(), isRackMode() && Boolean(active()) && !active().save);
     find('daily-context').hidden = mode !== 'daily';
     find('play-surface').hidden = !active();
     if (mode === 'daily') {
       const today = dailyMode.today();
       const date = active()?.state.daily.date;
       find('daily-info').textContent = date
-        ? `Active challenge: ${date} · UTC · ${active().state.daily.formatVersion}. ${date !== today ? `Today's challenge (${today}) is available. Your active run stays here until you choose Start today's challenge.` : 'You are playing today’s challenge.'}`
+        ? `Active challenge: ${date} · UTC · ${active().state.daily.formatVersion}. ${date !== today ? `Resuming your previous challenge. Today's challenge (${today}) is available. Start today's challenge replaces this Daily save and discards its progress.` : 'You are playing today’s challenge.'}`
         : `Daily Puzzle unavailable for ${today}. ${dailyResult.message} Free Play and the labs are still available.`;
       find('start-today').disabled = date === today;
       if (date && !dailyResult.available) find('daily-info').textContent += ` New challenge unavailable: ${dailyResult.message}`;
@@ -237,6 +273,8 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
           : restartTargetSession(current);
     }
     sessions[mode] = session({ rows: dimensions.rows, columns: dimensions.columns }, rackState, qa);
+    if (mode === 'rack' && sessions.rack.save) productionRack = sessions.rack;
+    persist();
     preview = null;
     wordInput.value = '';
     find('orientation').value = 'horizontal';
@@ -316,15 +354,18 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
   find('daily-free-play').addEventListener('click', () => changeMode('rack'));
   find('start-today').addEventListener('click', () => {
     if (mode !== 'daily' || active()?.state.daily.date === dailyMode.today()) return;
-    dailyResult = dailyMode.startToday();
-    if (dailyResult.available) {
-      tileInput.reset();
-      sessions.daily = session(null, dailyResult.session);
-      preview = null;
-      viewport.scrollTop = 0;
-      viewport.scrollLeft = 0;
-      changeMode('daily');
-    } else render();
+    replaceRun('Start today’s challenge? This replaces the single Daily save and discards the active challenge’s progress.', 'Start today’s challenge', () => {
+      dailyResult = dailyMode.startToday();
+      if (dailyResult.available) {
+        tileInput.reset();
+        sessions.daily = session(null, dailyResult.session);
+        persist();
+        preview = null;
+        viewport.scrollTop = 0;
+        viewport.scrollLeft = 0;
+        changeMode('daily');
+      } else render();
+    });
   });
   find('mode').addEventListener('change', () => changeMode(find('mode').value));
   find('word-form').addEventListener('submit', (event) => { event.preventDefault(); updatePreview(); });
@@ -341,7 +382,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
       return;
     }
     active().state = result.state;
-    if (isRackMode()) { active().draft = result.draft; tileInput.reset(); }
+    if (isRackMode()) { active().draft = result.draft; tileInput.reset(); persist(wordAction(result)); }
     active().recentClaims = result.newlyClaimed;
     active().latestAward = result.points;
     preview = null;
@@ -391,6 +432,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     const result = exchangeTiles(active().state, active().exchangeIds);
     if (!result.accepted) { render(result.reason.message); return; }
     active().state = result.state;
+    persist({ type: 'exchange', tileIds: [...active().exchangeIds] });
     active().exchanging = false;
     active().exchangeIds = [];
     preview = null;
@@ -402,6 +444,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     if (!result.accepted) return;
     active().state = result.state;
     active().draft = createDraft();
+    persist({ type: 'end' });
     tileInput.reset();
     active().exchanging = false;
     active().exchangeIds = [];
@@ -412,6 +455,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     if (!isRackMode() || active().exchanging || active().state.status !== 'playing') return;
     tileInput.reset();
     active().draft = undoDraft(active().draft);
+    persist();
     updatePreview();
     render('Most recently placed or moved tile returned to its original rack slot.');
   });
@@ -419,6 +463,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     if (!isRackMode() || active().exchanging || active().state.status !== 'playing') return;
     tileInput.reset();
     active().draft = createDraft();
+    persist();
     updatePreview();
     render('Draft cleared. Every tile remains in its original rack slot; nothing spent.');
   });
@@ -459,7 +504,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     current.latestAward = result.points;
     render(`Claimed ${result.newlyClaimed.length} new cells. +${result.points} territory points. Total ${result.totalPoints}.`);
   });
-  find('reset').addEventListener('click', () => reset());
+  find('reset').addEventListener('click', () => replaceRun('Restart this puzzle? Its saved actions and draft will be discarded. The original farm, tiles and target will repeat.', 'Restart puzzle', () => reset()));
   find('dimensions').addEventListener('submit', (event) => {
     event.preventDefault();
     if (mode === 'daily') return;
@@ -473,7 +518,7 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
         if (!result.available) { targetSetup.calculate(); return; }
         rackState = result.session;
       }
-      reset(dimensions, rackState, false);
+      replaceRun('Create a new Free Play puzzle? This replaces your Free Play save and discards its progress. Daily progress is kept.', 'New Free Play puzzle', () => reset(dimensions, rackState, false), true);
     } catch (error) { render(error.message); }
   });
   find('cell-size').addEventListener('change', () => {
@@ -522,6 +567,50 @@ export function initializeSandbox({ dictionary, vocabulary, now }) {
     }
   });
   window.addEventListener('resize', () => render());
+  window.addEventListener('storage', (event) => {
+    for (const slot of Object.values(slots)) {
+      if (event.key === null || event.key === slot.key) slot.changed();
+    }
+    render();
+  });
+  find('reload-save').addEventListener('click', () => {
+    if (!isRackMode()) return;
+    const slot = activeSlot();
+    const load = () => {
+      if (mode === 'rack' && !active()?.save && slot.info.kind !== 'conflict') {
+        sessions.rack = productionRack;
+        changeMode(mode);
+        return;
+      }
+      const result = slot.load();
+      if (result) {
+        sessions[mode] = recovered(result);
+        if (mode === 'rack') productionRack = sessions.rack;
+      } else if (slot.info.kind === 'empty' && active()?.save) {
+        reset();
+      } else if (mode === 'rack' && !active()?.save) sessions.rack = productionRack;
+      changeMode(mode);
+    };
+    replaceRun('Reload this mode’s saved version? Unsaved progress in this tab will be discarded.', 'Reload saved version', load);
+  });
+  find('replace-save').addEventListener('click', () => {
+    const slot = activeSlot();
+    if (!slot || !active()?.save) return;
+    const approval = slot.replacementToken();
+    saveView.confirm('Replace the other tab’s saved version with this run? Its saved progress will be discarded. Other tabs will be warned.', 'Replace saved version', () => {
+      slot.replace(withDraft(active().save, active().draft), approval);
+      render();
+    });
+  });
+  find('discard-save').addEventListener('click', () => {
+    const slot = activeSlot();
+    if (!slot) return;
+    const approval = slot.replacementToken();
+    saveView.confirm('Discard this mode’s unusable save? Only this Wordstead save will be removed. The current playable run can then be saved.', 'Discard unusable save', () => {
+      if (slot.discard(approval)) persist();
+      render();
+    });
+  });
   changeMode('daily');
   render('Daily Puzzle ready. Select a physical rack tile, then place it on the board.');
 }
