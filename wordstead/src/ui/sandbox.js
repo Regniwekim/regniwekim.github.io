@@ -414,6 +414,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   find('clear-preview').addEventListener('click', () => { preview = null; render('Preview cleared. No letters or claims changed.'); });
   find('commit-word').addEventListener('click', () => {
     if (mode === 'freeform' || active().exchanging || !preview) return;
+    const restoreFocus = document.activeElement === find('commit-word');
     const previousStatus = active().state.status;
     const result = isRackMode() ? commitSessionDraft(active().state, active().draft, active().dictionary)
       : commitWord(active().state, proposal(), active().dictionary);
@@ -434,6 +435,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     const captured = rewards?.features.map(({ type }) => FEATURE_TYPES[type].label).join(', ');
     const farmMessage = captured ? ` Captured: ${captured}. +${rewards.cropPoints} crop points, +${rewards.fertilityPoints} fertility points; rack capacity +${rewards.rackCapacityGained}; free exchange credits +${rewards.buildings}.` : '';
     render(`Accepted placement ${puzzle().wordCount}: ${formed}. Claimed ${result.newlyClaimed.length} new cells. +${result.points} total points.${farmMessage}`);
+    if (restoreFocus) canvas.focus({ preventScroll: true });
     feedback.emit(commitmentFeedback(result, previousStatus));
   });
   find('example').addEventListener('click', () => {
@@ -457,21 +459,26 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   });
   find('start-exchange').addEventListener('click', () => {
     if (!isRackMode() || active().state.status !== 'playing' || active().draft.tiles.length) return;
+    const restoreFocus = document.activeElement === find('start-exchange');
     tileInput.reset();
     active().exchanging = true;
     active().exchangeIds = [];
     preview = null;
     render('Exchange selection active. Word placement is paused until you confirm or cancel.');
+    if (restoreFocus) rackButtons[0].focus({ preventScroll: true });
   });
   find('cancel-exchange').addEventListener('click', () => {
     if (!isRackMode()) return;
+    const restoreFocus = document.activeElement === find('cancel-exchange');
     active().exchanging = false;
     active().exchangeIds = [];
     updatePreview();
     render('Exchange cancelled. No tiles moved and no stroke spent.');
+    if (restoreFocus) find('start-exchange').focus({ preventScroll: true });
   });
   find('confirm-exchange').addEventListener('click', () => {
     if (!isRackMode() || !active().exchanging) return;
+    const restoreFocus = document.activeElement === find('confirm-exchange');
     const result = exchangeTiles(active().state, active().exchangeIds);
     if (!result.accepted) { render(result.reason.message); return; }
     const exchangedSlots = active().state.rack.flatMap((tile, slot) => active().exchangeIds.includes(tile.id) ? [slot] : []);
@@ -481,10 +488,12 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     active().exchangeIds = [];
     preview = null;
     render(`Exchange complete. Returned ${result.returned.map(tileLabel).join(', ')}; drew ${result.replacements.map(tileLabel).join(', ')}. ${result.freeExchange ? 'Used one free exchange credit; no stroke charged.' : 'Charged one stroke.'} Exchanges ${result.state.exchangeCount}; strokes ${getStrokes(result.state)}.`);
+    if (restoreFocus) rackButtons[exchangedSlots[0]].focus({ preventScroll: true });
     feedback.emit({ type: 'tiles-exchanged', slots: exchangedSlots });
   });
   find('end-run').addEventListener('click', () => {
     if (!isRackMode()) return;
+    const restoreFocus = document.activeElement === find('end-run');
     const result = endSession(active().state);
     if (!result.accepted) return;
     active().state = result.state;
@@ -495,26 +504,31 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     active().exchangeIds = [];
     preview = null;
     render('Unfinished run ended. Restart or create a new puzzle to play again.');
+    if (restoreFocus) canvas.focus({ preventScroll: true });
     feedback.emit({ type: 'run-ended' });
   });
   find('undo-draft').addEventListener('click', () => {
     if (!isRackMode() || active().exchanging || active().state.status !== 'playing') return;
+    const restoreFocus = document.activeElement === find('undo-draft');
     const returnedId = active().draft.tiles.at(-1)?.tileId;
     tileInput.reset();
     active().draft = undoDraft(active().draft);
     persist();
     updatePreview();
     render('Most recently placed or moved tile returned to its original rack slot.');
+    if (restoreFocus && find('undo-draft').disabled) canvas.focus({ preventScroll: true });
     if (returnedId !== undefined) feedback.emit({ type: 'tile-returned', slots: [active().state.rack.findIndex((tile) => tile.id === returnedId)] });
   });
   find('clear-draft').addEventListener('click', () => {
     if (!isRackMode() || active().exchanging || active().state.status !== 'playing') return;
+    const restoreFocus = document.activeElement === find('clear-draft');
     const returnedIds = new Set(active().draft.tiles.map((tile) => tile.tileId));
     tileInput.reset();
     active().draft = createDraft();
     persist();
     updatePreview();
     render('Draft cleared. Every tile remains in its original rack slot; nothing spent.');
+    if (restoreFocus) canvas.focus({ preventScroll: true });
     if (returnedIds.size) feedback.emit({ type: 'tile-returned', slots: active().state.rack.flatMap((tile, slot) => returnedIds.has(tile.id) ? [slot] : []) });
   });
   find('coordinates').addEventListener('submit', (event) => {

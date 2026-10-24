@@ -1,4 +1,19 @@
-# Player interface — Milestones 5A / 5B / 5C
+# Player interface — Milestones 5A / 5B / 5C / 5D
+
+Milestone 5D adds original SVG favicon/arcade-card artwork, a theme color and Open
+Graph title/description/URL while retaining `noindex, nofollow`. The footer now
+names the playable modes. Help distinguishes Daily and custom Free Play and keeps
+experimental-target, solvability, storage and dictionary caveats.
+
+Keyboard activation of Commit returns focus to the board when that control
+disables. Clear, the last Undo and End Run do the same. Starting exchange focuses the
+first rack tile; cancel returns to Exchange and confirmation focuses a replaced
+slot. These transfers happen only when the activated control had focus. Preview
+rejection, rendering and restoration do not take focus. Dragging retains native
+pointer transactions while skipping redundant same-cell evaluation/redraw.
+At larger text sizes, rack and blank-choice grids reflow to fewer columns while
+retaining 44px targets; the toolbar wraps and History month controls stay within
+their panel. The [release report](release-readiness.md) records the checks and gaps.
 
 Milestone 5C adds restrained, cancelable action feedback and an accessible
 **Sound: Off/On** toggle in play navigation. Original procedural sounds default
@@ -176,7 +191,7 @@ explicit results focus. All prior gameplay/save/history/input tests still run.
 Serve the repository root with `python -m http.server 8000 --bind 127.0.0.1`.
 Use a fresh local origin/profile or hard reload after editing native modules to
 avoid cached dependencies. Open `/wordstead/` directly, refresh, and follow the
-arcade return link. There is still no Wordstead homepage card.
+arcade return link and the Wordstead homepage card.
 
 1. Inspect fresh and partly played puzzles at **320, 360, 390, 768, 1024 and 1440px**.
    Verify document scroll width does not exceed viewport width. Open each secondary
@@ -208,6 +223,12 @@ arcade return link. There is still no Wordstead homepage card.
 7. Inspect browser logs and static resource paths. On real phones, test touch
    scrolling/drag negotiation and actual on-screen keyboard behavior. Use assistive
    technology and other engines for checks that desktop emulation cannot establish.
+
+The existing Daily QA page also offers a three-second vocabulary delay, first
+request 404/abort, and missing animation/audio/clipboard APIs in its isolated
+iframe. Its startup report records the initial inert/busy gate, rack button count,
+load/preparation time and final state. Retry uses the real pinned loader. Normal
+play imports none of these injections; QA storage keeps its existing prefix.
 
 ## Validation performed for 5A
 

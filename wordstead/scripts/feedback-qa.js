@@ -4,6 +4,7 @@ import { createFeatureCell } from '../src/core/features.js';
 import { drawBoard } from '../src/rendering/board.js';
 import { initializeFeedback } from '../src/ui/feedback.js';
 import { createSounds } from '../src/audio/sounds.js';
+import { createDailySession } from '../src/daily/challenge.js';
 
 const find = (id) => document.getElementById(id);
 const puzzle = createPuzzle({ rows: 30, columns: 30 });
@@ -22,6 +23,7 @@ for (let row = 0; row < 30; row += 1) for (let column = 0; column < 30; column +
   }
 }
 const view = { ...puzzle, evaluation: { enclosed: indices }, recentClaims: indices, cellSize: 44, selected: null };
+const dailyPuzzle = createDailySession('2026-10-24').session.puzzle;
 const motion = new EventTarget(), nativeMotion = matchMedia('(prefers-reduced-motion: reduce)');
 let reduced = false, draws = 0;
 Object.defineProperty(motion, 'matches', { get: () => reduced || nativeMotion.matches });
@@ -58,6 +60,15 @@ find('measure').addEventListener('click', async () => {
     return stats(Array.from({ length: 60 }, () => { const start = performance.now(); action(); return performance.now() - start; }));
   };
   report.redraw = measure(render);
+  // Detached Canvas isolates command submission for the actual released Daily
+  // opening. It does not measure compositor completion or physical-device FPS.
+  const dailyCanvas = document.createElement('canvas');
+  const dailyView = { ...dailyPuzzle, evaluation: { enclosed: [] }, recentClaims: [],
+    selected: { row: 7, column: 7 }, cellSize: view.cellSize };
+  report.dailyRedraw = measure(() => drawBoard(dailyCanvas, dailyView));
+  report.dailyBackingBytes = dailyCanvas.width * dailyCanvas.height * 4;
+  report.largeBackingBytes = find('board').width * find('board').height * 4;
+  dailyCanvas.width = 0; dailyCanvas.height = 0;
   const before = draws;
   for (const [name, events] of [
     ['selection', [{ type: 'tile-selected' }]],

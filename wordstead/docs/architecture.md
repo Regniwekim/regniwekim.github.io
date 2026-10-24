@@ -1,5 +1,16 @@
 # Wordstead architecture
 
+Milestone 5D retains the existing architecture and all released identities. The
+tile-input controller moves the drag ghost on each pointer sample but repeats
+structural drop evaluation and board redraw only when the destination cell
+changes (including entering/leaving the board). Pointer release independently
+revalidates the actual destination. No frame scheduler or new gameplay cache is
+introduced. Explicit commit, exchange, end-run and draft-clear/last-undo actions transfer
+focus from controls that disable/disappear to the board or relevant rack slot;
+passive render/restore/completion never initiates a focus transfer. Static metadata,
+original SVG branding and the arcade listing have no gameplay dependencies.
+See [release readiness](release-readiness.md) for findings, QA and limitations.
+
 Milestone 5C adds presentation-only `ui/feedback.js` and original procedural
 `audio/sounds.js`. Accepted UI transitions supply exact new-letter, claim, feature
 and physical-slot deltas after publishing state and rendering. Coordinated batches
@@ -658,7 +669,7 @@ the ghost and +/× destination overlay are presentation only: `placeDraftTile`
 previews structural eligibility without publishing a replacement draft. The
 underlying cell comes from `pointerToCell`, clipped to the visible scroll pane.
 Pointer movement redraws the cached board view and changes drop text only when
-the destination feedback changes; it does not rebuild controls or check dictionary
+the destination cell changes; it does not rebuild controls or check dictionary
 membership on every pointer event.
 Only an eligible pointer release publishes a draft; invalid/outside drops,
 pointercancel, lost capture, window blur, Escape and mode/reset changes cancel.

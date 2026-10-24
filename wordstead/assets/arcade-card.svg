@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 160" fill="none">
+  <!-- Original Wordstead tile and fenced plot, in the arcade's neon palette. -->
+  <path d="M20 115 90 146 160 115 90 84Z" fill="#354c43" stroke="#2edbd6" stroke-width="3"/>
+  <path d="M27 112v-12m21 22v-12m84 12v-12m21 2v-12M27 106l21 10m84 0 21-10" stroke="#eff84b" stroke-width="4"/>
+  <rect x="49" y="22" width="82" height="84" rx="7" fill="#a67c61" stroke="#ee3295" stroke-width="3"/>
+  <rect x="55" y="27" width="70" height="70" rx="3" fill="#f0d7af"/>
+  <path d="m65 44 11 37 14-26 14 26 11-37" stroke="#354c43" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M90 22V8m0 7C78 16 76 8 76 5c10-1 14 4 14 10Zm0-3c0-8 7-10 14-9 0 7-6 11-14 9Z" fill="#2edbd6" stroke="#2edbd6" stroke-width="2"/>
+</svg>

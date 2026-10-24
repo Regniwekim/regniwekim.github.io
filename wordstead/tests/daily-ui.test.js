@@ -85,6 +85,36 @@ function harness(t, options = {}) {
     advance() { clock += 1; }, resize: () => window.emit('resize') };
 }
 
+test('explicit draft and exchange actions retain keyboard focus when their controls disappear or disable', async (t) => {
+  const h = harness(t);
+  const { find, click } = h;
+  await click('rack-example');
+  await h.tile(0, 4, 4); await h.tile(1, 4, 5); await h.tile(2, 4, 6);
+  find('commit-word').focus();
+  await click('commit-word');
+  assert.equal(find('word-count').textContent, 1);
+  assert.equal(document.activeElement, find('board'));
+  find('start-exchange').focus(); await click('start-exchange');
+  assert.equal(document.activeElement, find('rack').children[0]);
+  find('cancel-exchange').focus(); await click('cancel-exchange');
+  assert.equal(document.activeElement, find('start-exchange'));
+  await click('start-exchange');
+  await find('rack').children[0].emit('click');
+  find('confirm-exchange').focus(); await click('confirm-exchange');
+  assert.equal(document.activeElement, find('rack').children[0]);
+  await h.tile(0, 5, 4);
+  find('undo-draft').focus(); await click('undo-draft');
+  assert.equal(document.activeElement, find('board'));
+  await h.tile(0, 5, 4);
+  find('clear-draft').focus(); await click('clear-draft');
+  assert.equal(document.activeElement, find('board'));
+  // Passive rendering must never take focus from another control.
+  find('sound-toggle').focus(); await h.resize();
+  assert.equal(document.activeElement, find('sound-toggle'));
+  find('end-run').focus(); await click('end-run');
+  assert.equal(document.activeElement, find('board'));
+});
+
 test('feedback follows authoritative controller transitions once; preview/render/restore/restart never replay actions', async (t) => {
   const events = []; let cancellations = 0;
   const h = harness(t, { feedbackFactory: () => ({ emit(input) { events.push(...(Array.isArray(input) ? input : [input])); },

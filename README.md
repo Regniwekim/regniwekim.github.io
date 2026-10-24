@@ -15,8 +15,10 @@ no packages, third-party requests, or build step are required.
 │   ├── joystick.svg      # Homepage illustration
 │   ├── favicon.svg       # Arcade joystick icon
 │   └── fonts/            # Local fonts and their SIL Open Font Licenses
-└── demo-game/
-    └── index.html        # Playable Target Tap canvas demo
+├── demo-game/
+│   └── index.html        # Playable Target Tap canvas demo
+└── wordstead/            # Daily word puzzle and farm enclosure game
+    └── index.html        # Native ES modules; preview over HTTP
 ```
 
 ## Add a game
@@ -40,7 +42,8 @@ configured for that domain.
 
 ## Preview locally
 
-Open the root `index.html` directly in a browser, or, with Python installed,
+The arcade and Target Tap can open directly. Wordstead uses native ES modules
+and needs HTTP. With Python installed,
 run this command from the repository root:
 
 ```sh
@@ -50,6 +53,9 @@ python -m http.server 8000
 Visit `http://localhost:8000/`, then follow **Play now** to check subfolder
 routing. Target Tap supports clicking, touch, and keyboard controls. Each round
 lasts 30 seconds; use **Play again** to restart after it finishes.
+Wordstead offers Daily Puzzle and custom Free Play, with browser-local progress
+and history. See [its README](wordstead/README.md) and
+[release assessment](wordstead/docs/release-readiness.md) for controls and limits.
 
 ## Arcade theme
 
@@ -65,7 +71,7 @@ screens, visible keyboard focus, and reduced-motion preferences.
 
 ## Search visibility
 
-`robots.txt` asks all compliant crawlers to skip every path. Both included pages
+`robots.txt` asks all compliant crawlers to skip every path. All game entry pages
 also have a `noindex, nofollow` meta tag; copy it into new game pages. These
 directives do not make the games private or guarantee removal from search
 results: anyone with a URL can still visit them.
