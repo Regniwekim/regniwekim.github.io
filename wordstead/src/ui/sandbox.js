@@ -24,10 +24,11 @@ import { createSave, appendAction, withDraft, wordAction, hasProgress } from '..
 import { createSaveSlot } from '../persistence/storage.js';
 import { initializeSaveControls } from './save-controls.js';
 import { initializeHistory } from './history.js';
+import { initializeFeedback, commitmentFeedback } from './feedback.js';
 
 /** Four isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox({ dictionary, vocabulary, now, getStorage = () => window.localStorage,
-  saveToken = () => crypto.randomUUID(), saveKeyPrefix = '' }) {
+  saveToken = () => crypto.randomUUID(), saveKeyPrefix = '', feedbackFactory = initializeFeedback }) {
   if (typeof dictionary?.has !== 'function') throw new TypeError('Load the gameplay vocabulary before initialization.');
   const find = (id) => document.getElementById(id);
   const resultsView = initializeResults({ find });
@@ -106,7 +107,9 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     return button;
   });
   const tileLabel = (tile) => tile.letter ?? '◇ (blank)';
+  const feedback = feedbackFactory({ find, getView: () => boardView, rackButtons, getStorage });
   const tileInput = initializeTileInput({ canvas, viewport, rackButtons,
+    feedback: (event) => feedback.emit(event),
     enabled: () => isRackMode() && Boolean(active()) && !active().exchanging && active().state.status === 'playing',
     getState: () => active().state, getDraft: () => active().draft,
     setDraft: (draft) => {
@@ -228,7 +231,10 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     for (const control of find('word-controls').querySelectorAll('input, select, button')) {
       control.disabled = exchanging || (isRackMode() && active().state.status !== 'playing');
     }
-    find('commit-word').disabled = mode === 'freeform' || exchanging || !preview?.legal;
+    // A nonempty draft can be explicitly checked even when its preview is invalid.
+    // Only the existing atomic commit transition may accept or reject it.
+    find('commit-word').disabled = mode === 'freeform' || exchanging || !preview
+      || (isRackMode() && (active().state.status !== 'playing' || !active().draft.tiles.length));
     find('placement-feedback').textContent = preview
       ? preview.legal
         ? `Valid preview · ${preview.words.map((run) => run.text).join(', ')}. Ready to commit: +${previewTerritory.points + summarizeFeatures(board, previewTerritory.newlyClaimed).bonusPoints} farm points from ${previewTerritory.points} enclosed cells.`
@@ -281,6 +287,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   }
 
   function reset(dimensions = puzzle().board, rackState = null, qa = active().dictionary === demoDictionary) {
+    feedback.cancel();
     tileInput.reset();
     if (isRackMode() && !rackState) {
       const current = active().state;
@@ -331,6 +338,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   }
 
   function changeMode(nextMode) {
+    feedback.cancel();
     tileInput.reset();
     if (active()) {
       active().word = wordInput.value;
@@ -406,11 +414,13 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   find('clear-preview').addEventListener('click', () => { preview = null; render('Preview cleared. No letters or claims changed.'); });
   find('commit-word').addEventListener('click', () => {
     if (mode === 'freeform' || active().exchanging || !preview) return;
+    const previousStatus = active().state.status;
     const result = isRackMode() ? commitSessionDraft(active().state, active().draft, active().dictionary)
       : commitWord(active().state, proposal(), active().dictionary);
     if (!result.accepted) {
       preview = result.evaluation;
       render(`Placement rejected: ${result.evaluation.reason.message}`);
+      feedback.emit(commitmentFeedback(result, previousStatus));
       return;
     }
     active().state = result.state;
@@ -424,6 +434,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     const captured = rewards?.features.map(({ type }) => FEATURE_TYPES[type].label).join(', ');
     const farmMessage = captured ? ` Captured: ${captured}. +${rewards.cropPoints} crop points, +${rewards.fertilityPoints} fertility points; rack capacity +${rewards.rackCapacityGained}; free exchange credits +${rewards.buildings}.` : '';
     render(`Accepted placement ${puzzle().wordCount}: ${formed}. Claimed ${result.newlyClaimed.length} new cells. +${result.points} total points.${farmMessage}`);
+    feedback.emit(commitmentFeedback(result, previousStatus));
   });
   find('example').addEventListener('click', () => {
     if (mode !== 'words') return;
@@ -463,12 +474,14 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     if (!isRackMode() || !active().exchanging) return;
     const result = exchangeTiles(active().state, active().exchangeIds);
     if (!result.accepted) { render(result.reason.message); return; }
+    const exchangedSlots = active().state.rack.flatMap((tile, slot) => active().exchangeIds.includes(tile.id) ? [slot] : []);
     active().state = result.state;
     persist({ type: 'exchange', tileIds: [...active().exchangeIds] });
     active().exchanging = false;
     active().exchangeIds = [];
     preview = null;
     render(`Exchange complete. Returned ${result.returned.map(tileLabel).join(', ')}; drew ${result.replacements.map(tileLabel).join(', ')}. ${result.freeExchange ? 'Used one free exchange credit; no stroke charged.' : 'Charged one stroke.'} Exchanges ${result.state.exchangeCount}; strokes ${getStrokes(result.state)}.`);
+    feedback.emit({ type: 'tiles-exchanged', slots: exchangedSlots });
   });
   find('end-run').addEventListener('click', () => {
     if (!isRackMode()) return;
@@ -482,22 +495,27 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     active().exchangeIds = [];
     preview = null;
     render('Unfinished run ended. Restart or create a new puzzle to play again.');
+    feedback.emit({ type: 'run-ended' });
   });
   find('undo-draft').addEventListener('click', () => {
     if (!isRackMode() || active().exchanging || active().state.status !== 'playing') return;
+    const returnedId = active().draft.tiles.at(-1)?.tileId;
     tileInput.reset();
     active().draft = undoDraft(active().draft);
     persist();
     updatePreview();
     render('Most recently placed or moved tile returned to its original rack slot.');
+    if (returnedId !== undefined) feedback.emit({ type: 'tile-returned', slots: [active().state.rack.findIndex((tile) => tile.id === returnedId)] });
   });
   find('clear-draft').addEventListener('click', () => {
     if (!isRackMode() || active().exchanging || active().state.status !== 'playing') return;
+    const returnedIds = new Set(active().draft.tiles.map((tile) => tile.tileId));
     tileInput.reset();
     active().draft = createDraft();
     persist();
     updatePreview();
     render('Draft cleared. Every tile remains in its original rack slot; nothing spent.');
+    if (returnedIds.size) feedback.emit({ type: 'tile-returned', slots: active().state.rack.flatMap((tile, slot) => returnedIds.has(tile.id) ? [slot] : []) });
   });
   find('coordinates').addEventListener('submit', (event) => {
     event.preventDefault();
@@ -554,6 +572,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     } catch (error) { render(error.message); }
   });
   find('cell-size').addEventListener('change', () => {
+    feedback.cancel();
     cellSize = Number(find('cell-size').value);
     render('Cell display size changed.');
     revealSelection(viewport, active().selected, cellSize);
@@ -599,6 +618,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     }
   });
   window.addEventListener('resize', () => {
+    feedback.cancel();
     render();
     if (active()) revealSelection(viewport, active().selected, cellSize);
   });

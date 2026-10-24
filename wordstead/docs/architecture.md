@@ -1,5 +1,17 @@
 # Wordstead architecture
 
+Milestone 5C adds presentation-only `ui/feedback.js` and original procedural
+`audio/sounds.js`. Accepted UI transitions supply exact new-letter, claim, feature
+and physical-slot deltas after publishing state and rendering. Coordinated batches
+animate inert SVG paths/local hen copies through one-shot Web Animations and pick
+one bounded audio cue. Rendering/restoration never emit events. Effects cancel on
+board/lifecycle/motion changes, with no idle loop or per-frame board redraw.
+The Sound toggle defaults off and stores only an optional independent versioned
+preference; trusted input lazily activates Web Audio. Nonempty drafts can be
+explicitly committed for validation, with rejection preserving input. Core rules,
+Daily v1, RNG, saves/history/results remain unchanged. See
+[interaction feedback](interaction-feedback.md) for contracts and measurements.
+
 Milestone 5B adds `rendering/artwork.js`, a small original presentation library:
 deterministic ground, four pixel motifs, wooden letter faces, badges and cardinal
 fence half-joins. `board.js` composes ground → committed fences → features/letters
@@ -674,15 +686,16 @@ claim mask. Exterior is textured meadow, unclaimed enclosure has a dashed inset,
 new claims show + on pale harvest furrows, previous claims show ✓ on warm cultivated
 soil, and letters have oat faces/wood rims. Selection has a dark outline and cream
 halo. Committed cardinal neighbors share short wooden rails beneath their faces.
-No animation or third-party
-assets are loaded; symbols and textual statuses supplement color.
+The board renderer stays static; `ui/feedback.js` owns the separate transient
+overlay. No third-party assets are loaded; symbols and textual statuses supplement color.
 
 Features use original pixel growing-plot/hen/shed/enriched-soil motifs plus C/L/B/F
 labels, drawn over their land state. A corner badge shows prospective ?, new +
 or historical ✓ without obscuring type. Selected-cell and Canvas accessible text
 report the type, capture/activation status, effect and reservation. Capture action
 text reports types, total award, crop/fertility points, actual capacity gain and
-building credits. No effects are applied in the renderer or event handlers.
+building credits. Reward rules remain in core; the controller forwards accepted
+reward deltas to cosmetic feedback without changing them.
 
 Rack statistics display total score/target, base territory, farm bonus, accepted
 placements, exchange actions, charged exchanges, credits, strokes, rack/capacity
@@ -953,7 +966,7 @@ word lab normally uses ESDB; explicit QA examples retain the demo dictionary.
 Freeform toggles A and allows removal.
 Tournament dictionary compatibility, exhaustive move
 solver, historical daily archive/engine dispatch, campaign,
-leaderboards, final sprites, decorative animation, and sound are deferred.
+leaderboards, final sprites and continuous decorative animation are deferred.
 
 Vocabulary changes must use a distinct pinned ID and regenerate the artifact,
 manifest, report and notices after reviewing upstream terms. They may change old
