@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Wordstead · Feedback QA</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../styles/main.css">
+<main class="page-shell">
+  <h1>Interaction feedback QA</h1>
+  <p>Synthetic 30×30 presentation fixture, independent of gameplay and saves. All four feature types
+    and a 784-cell harvest test effect setup cost. No solvability or device performance is implied.</p>
+  <p><a href="../">Play Wordstead</a> · <a href="daily-qa.html">Controlled-clock six-width gameplay QA</a> ·
+    <a href="rack-layout-qa.html">7/8/9-slot racks</a></p>
+  <div class="actions">
+    <label>Cell size <select id="size"><option>44</option><option>56</option><option>72</option></select></label>
+    <label>Backing density (emulated) <select id="density"><option>1</option><option>2</option><option>3</option></select></label>
+    <button id="sound-toggle" type="button" aria-pressed="false">Sound: Off</button>
+    <button id="reduced" type="button" aria-pressed="false">Reduce motion: Off</button>
+    <button id="harvest" type="button">Show combined harvest</button>
+    <button id="measure" type="button">Measure feedback</button>
+    <button id="audio-check" type="button">Measure synthesized audio</button>
+  </div>
+  <p id="measurement" role="status"></p><p id="audio-report" role="status"></p>
+  <p id="goal-label">Farm points: 784 / 784</p>
+  <div id="rack" class="rack"></div>
+  <p id="placement-feedback">Accepted synthetic harvest. Permanent board is already final.</p>
+  <div id="results">Harvest Complete!</div>
+  <div id="board-viewport" class="board-viewport"><div class="board-surface">
+    <canvas id="board" aria-label="Synthetic 30 by 30 completed farm"></canvas>
+    <div id="board-feedback" aria-hidden="true" inert></div>
+  </div></div>
+</main>
+<script type="module" src="./feedback-qa.js"></script>
+</html>

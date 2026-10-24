@@ -5,14 +5,24 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 5B board art & letter tiles
+## Current status: Milestone 5C interaction polish & audio
+
+Player actions now receive short tile-settle, word, harvest, feature, score and
+results feedback. A pointer-ignoring overlay animates exact accepted deltas without
+redrawing the board each frame. Sound defaults off; **Sound: On/Off** enables quiet,
+original procedural Web Audio cues with a separate optional preference. Reduced
+motion skips cosmetics, and interrupted effects cancel safely. Core rules, Daily
+v1, active saves, history and sharing formats remain unchanged. See
+[interaction feedback](docs/interaction-feedback.md) for events, timings, audio,
+performance measurements, tests, QA and limitations.
 
 The board now uses original Wordstead pixel motifs: quiet meadow grass, cultivated
 claimed plots, growing crops, a hen, a shed and enriched soil. Wooden letter tiles
 match the semantic rack buttons; short cardinal rails join committed letters.
 Drafts retain pale faces, dashed rims and **p**; previews use **?** outlines without
 painting permanent claims. Capture badges, blank **◇**, selection and explicit
-invalid **×** clues remain readable above the art. No animation or sound is added.
+invalid **×** clues remain readable above the art. Milestone 5C adds cosmetic feedback
+above this permanent presentation.
 
 [Board art](docs/board-art.md) records provenance, layering, substitution boundaries,
 browser QA, load-size and redraw measurements. All runtime artwork is newly
@@ -231,8 +241,9 @@ reassign it. Movement retains the assignment and physical ID. A specifically
 chosen blank is consumed even when the rack contains an ordinary matching letter.
 Its blank provenance is permanent after commitment.
 
-**Commit word** enables only for a complete legal draft with valid physical tile
-allocations. Commitment reconstructs and revalidates the current draft, consumes
+**Commit word** enables for a nonempty editable draft, including an invalid preview
+that the player explicitly wants to check. Commitment reconstructs and revalidates
+the current draft, consumes
 those exact IDs, places letters with provenance, claims land, refills and advances
 the word count once. Failure preserves both the entire session and draft. Previews,
 selection, edits and cancellation never draw, shuffle, claim or count.
@@ -441,7 +452,8 @@ Pan with native touch scrolling, scrollbars, or a trackpad; cells never shrink
 below 44 CSS pixels. **Cell display size** offers 44, 56, or 72 pixels. All primary
 controls are semantic DOM inputs/buttons; dragging is not required. Board keys
 never commit a legal word. Daily and Free Play save locally; labs remain transient.
-There is no animation or audio.
+Short interaction effects and optional original procedural sounds are documented
+in [interaction feedback](docs/interaction-feedback.md).
 
 ## Manual playtesting
 
@@ -739,7 +751,7 @@ Feature-layout randomness is explicit and separate from letter seeds.
 
 Tournament dictionary compatibility, complete no-legal-move detection,
 campaign mode, leaderboards, final
-Sprout Lands integration, decorative animation, and sound remain deferred. The
+Sprout Lands integration and continuous decorative animation remain deferred. The
 core expects valid in-memory boards/territory from its constructors; the persistence
 boundary reconstructs them through validated action replay. Practical board sizes depend
 on memory; UI dimensions are capped at 30. No complete game schema is claimed.

@@ -1,4 +1,12 @@
-# Player interface — Milestones 5A / 5B
+# Player interface — Milestones 5A / 5B / 5C
+
+Milestone 5C adds restrained, cancelable action feedback and an accessible
+**Sound: Off/On** toggle in play navigation. Original procedural sounds default
+off and activate only through trusted user input. Reduced motion skips cosmetic
+effects. The board overlay is inert and pointer-ignoring; scoring, targets, saves,
+history, results and drag geometry remain authoritative and unchanged. See
+[interaction feedback](interaction-feedback.md) for exact timings, event sources,
+audio behavior, measurements and validation limits.
 
 Milestone 5B retains the layout and control contracts below. It adds original
 pixel farm artwork, cultivated claimed land, oat wooden board/rack tiles and
@@ -80,8 +88,10 @@ keyboard placement remain complete alternatives to dragging.
 
 ## Control hierarchy and help
 
-Commit Word spans the rack panel and enables only through the existing legal-draft
-evaluation. Undo/Clear follow it, with selection/return/blank controls and exchanges
+Commit Word spans the rack panel and enables for a nonempty editable draft.
+Explicitly checking an invalid preview gives a brief correction rim and its existing
+text reason, preserving draft/selection/blanks. The existing core alone accepts
+legal words. Undo/Clear follow it, with selection/return/blank controls and exchanges
 below. A blank still opens the native A–Z dialog. Selected tiles use an outline and
 checkmark; drafted slots use a dashed inset and return arrow. The placement status
 uses words such as **Valid preview** and **Draft not ready**, alongside the existing
@@ -121,7 +131,7 @@ outside the closed History panel. A terminal Daily result needing an explicit sa
 or retry also exposes that notice, with links to History and the result/save action.
 Collapsing results cannot hide the need for recovery. Notices derive directly from
 the existing slot/archive/result view; there is no duplicate save status model,
-second archive, new key or new localStorage record.
+second archive or new gameplay record. The 5C sound preference has its own optional key.
 
 Internal Help, History, Results and New Puzzle links handle disclosure and explicit
 navigation themselves. They prevent default fragment navigation so a `base` URL in
@@ -150,7 +160,7 @@ The local stylesheet consolidates reusable presentation tokens:
 | `--radius`, `--space` | 0.75rem panel radius; 1rem spacing, 1.25rem at wider widths |
 
 System fonts render essential text and letter glyphs; Georgia supplies the native
-brand heading. No external font service, third-party art, audio, runtime dependency
+brand heading. No external font service, third-party art/audio, runtime dependency
 or elaborate animation is added. The 5B Canvas art refines ground and tile treatments
 within this palette; historical v0.1 proposals remain unchanged.
 

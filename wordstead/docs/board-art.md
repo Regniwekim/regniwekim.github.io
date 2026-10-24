@@ -1,5 +1,9 @@
 # Board art — Milestone 5B
 
+For the later 5C action overlay, original procedural sounds and performance results,
+see [interaction feedback](interaction-feedback.md). The static renderer and
+artwork contracts documented here remain intact; no vendor asset is added.
+
 Wordstead's first implemented farm vocabulary uses quiet pixel shapes and physical
 wooden letters. **Build a farm, one word at a time.** Letter glyphs and interaction
 feedback lead; scenery stays behind the puzzle. This is static presentation only.
