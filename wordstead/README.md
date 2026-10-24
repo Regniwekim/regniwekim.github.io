@@ -5,7 +5,16 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 5C interaction polish & audio
+## Current status: Milestone 5D release candidate
+
+Wordstead is listed on the main arcade with its own original W-tile favicon.
+The release pass improves keyboard focus after draft/exchange actions and avoids
+redundant board redraws during dragging. Daily v1, gameplay, vocabulary, targets,
+save/history formats and sound preferences retain their existing contracts.
+See [release readiness](docs/release-readiness.md) for prioritized findings,
+reproducible QA, measured performance, browser/device gaps and release sign-off.
+
+### Interaction feedback (5C)
 
 Player actions now receive short tile-settle, word, harvest, feature, score and
 results feedback. A pointer-ignoring overlay animates exact accepted deltas without
@@ -89,13 +98,13 @@ single save; meaningful progress requires confirmation before replacement/restar
 Incorrect device clocks can select the wrong date. Experimental targets are not
 guaranteed reachable, and different days may vary in actual difficulty.
 
-The browser prototype accepts connected horizontal/vertical words, reuses matching
+The game accepts connected horizontal/vertical words, reuses matching
 committed letters, validates every affected complete word, and automatically claims
 newly enclosed empty land. Each accepted placement counts once, even if it forms
 several words. Letters are permanent during legal play. Territory earns one point
 per newly claimed cell. Total puzzle score adds captured crop and fertile bonuses,
 derived from that same claim mask. Farm cells remain passable land for flood fill
-but are reserved against letter placement in this prototype.
+but are reserved against letter placement.
 
 **Daily Puzzle** and **Free Play** draw seven physical tiles from a seeded
 100-tile bag, replenishes after accepted words, permits exchanges, and finishes
@@ -114,11 +123,13 @@ Milestone 3B deliberately supersedes the planned efficiency grading in the
 design skeleton and grade/share-art references in the exploratory visual guide
 for the current implementation; neither source document is rewritten.
 
-This is **not the full game**. Normal play uses **78,626 words** from the licensed
+Normal play uses **78,626 words** from the licensed
 **ESDB American English size-60** list, version `esdb-en-us-60-1e5b7d3-ws1`,
 **not an official Scrabble dictionary**. A local 750,727-byte static file loads
 once before gameplay; failure keeps play disabled and offers retry. Words validate
-synchronously and work offline after loading. No external word service or per-word
+synchronously without network requests after loading. Refresh/reopen requires the
+static game resources and dictionary to be available; offline reload is not
+supported or guaranteed by ordinary browser caching. No external word service or per-word
 requests are used. See [source, policy and regeneration](docs/vocabulary.md),
 [browser credits](vocabulary/index.html), [upstream notice](licenses/esdb/Copyright)
 and [measured validation](docs/vocabulary-validation.md).
@@ -165,8 +176,8 @@ python -m http.server 8000 --bind 127.0.0.1
 Visit <http://localhost:8000/wordstead/> directly or refresh it. Native ES modules
 require HTTP; `file://` is not supported. No installation, build command, backend,
 or Node browser runtime is needed. Stop the server with Ctrl+C.
-**Back to Main Arcade** points to `../index.html`. The homepage does not list
-Wordstead yet; adding its card is outside this milestone.
+**Back to Main Arcade** points to `../index.html`. The homepage lists Wordstead
+at `./wordstead/` alongside Target Tap. Direct loading needs no homepage session.
 
 ## Rack-limited puzzle controls
 
@@ -771,5 +782,8 @@ engine and vocabulary. See the [released-definition policy](docs/daily-puzzles.m
 Runtime paths stay relative under `wordstead/`, directly loadable/refreshable on
 GitHub Pages without rewrites. The existing publishing source remains `main`, `/`,
 with custom domain `games.regniwekim.com`. Entry metadata remains `noindex, nofollow`;
-root `robots.txt` disallows crawling. Root arcade, other games, shared assets,
-hosting settings, asset records, design skeleton, and visual guide are unchanged.
+root `robots.txt` disallows crawling. Milestone 5D adds only Wordstead's card and
+game count to the root arcade. Other games, shared CSS, hosting settings, asset
+records, design skeleton and visual guide are unchanged. No service worker or
+PWA cache is installed. Use a hard reload after deployment if native modules are
+stale; automatic offline updates require a separately designed compatibility policy.

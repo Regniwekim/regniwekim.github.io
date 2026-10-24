@@ -61,12 +61,13 @@ function harness(t, blank = false) {
     button.rect = { left: slot * 50, right: slot * 50 + 44, top: 400, bottom: 456, width: 44, height: 56 };
     return button;
   });
-  let lastMessage = '';
+  let lastMessage = '', redraws = 0;
   const feedback = [];
   const input = initializeTileInput({ canvas: find('board'), viewport: find('viewport'), rackButtons: buttons,
     enabled: () => enabled, getState: () => state, getDraft: () => draft,
     setDraft: (value) => { draft = value; }, getCellSize: () => 44, selectCell() {},
     feedback: (event) => feedback.push(event),
+    redraw: () => { redraws += 1; },
     refresh(message) { lastMessage = message ?? lastMessage; input.render(); } });
   input.render();
   const point = (row, column) => ({ clientX: 28 + (column + 0.5) * 44, clientY: 28 + (row + 0.5) * 44 });
@@ -75,8 +76,33 @@ function harness(t, blank = false) {
   }
   return { input, buttons, state, find, events, point, dragStart, feedback,
     get draft() { return draft; }, get message() { return lastMessage; },
+    get redraws() { return redraws; },
     disable() { enabled = false; input.reset(); input.render(); } };
 }
+
+test('drag samples within one logical cell update the ghost without redundant board redraws', (t) => {
+  const h = harness(t);
+  h.dragStart(0);
+  const destination = h.point(3, 3);
+  h.events.emit('pointermove', destination);
+  assert.equal(h.redraws, 1);
+  for (let i = 0; i < 100; i += 1) {
+    h.events.emit('pointermove', { ...destination, clientX: destination.clientX + i % 10 });
+  }
+  assert.equal(h.redraws, 1);
+  assert.equal(h.find('tile-ghost').style.left, `${destination.clientX + 9 + 12}px`);
+  assert.equal(h.draft.tiles.length, 0);
+  h.events.emit('pointermove', h.point(3, 4));
+  assert.equal(h.redraws, 2);
+  h.events.emit('pointermove', { clientX: -10, clientY: -10 });
+  assert.equal(h.redraws, 3);
+  h.events.emit('pointermove', { clientX: -20, clientY: -20 });
+  assert.equal(h.redraws, 3);
+  // Release uses its own coordinates, not the cached hover destination.
+  h.events.emit('pointerup', destination);
+  assert.equal(h.draft.tiles.length, 1);
+  assert.equal(h.draft.tiles[0].column, 3);
+});
 
 test('selection, switching and repeated cancellation never mutate physical resources or draft', (t) => {
   const h = harness(t);

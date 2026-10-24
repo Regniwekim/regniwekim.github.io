@@ -178,6 +178,10 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
     ghost.style.left = `${event.clientX + 12}px`;
     ghost.style.top = `${event.clientY - 48}px`;
     const cell = cellAt(event);
+    // The ghost follows every pointer sample, but legality and board pixels only
+    // change when the logical destination changes. Release still revalidates.
+    if (gesture.hovered && (cell ? cell.row === drop?.row && cell.column === drop?.column : drop === null)) return;
+    gesture.hovered = true;
     const result = cell ? placeDraftTile(getState(), getDraft(), { ...gesture.tile, ...cell }) : null;
     drop = cell ? { ...cell, legal: result.accepted } : null;
     ghost.dataset.legal = String(Boolean(result?.accepted));

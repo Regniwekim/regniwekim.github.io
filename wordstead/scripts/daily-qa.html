@@ -17,6 +17,9 @@
   <label>UTC date <input id="qa-date" type="text" value="2024-02-29" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"></label>
   <label>Viewport <select id="qa-width"><option>320</option><option>360</option><option selected>390</option><option>768</option><option>1024</option><option>1440</option></select></label>
   <label>Storage <select id="qa-storage"><option value="normal">Normal</option><option value="denied">Access denied</option><option value="quota">Quota exceeded</option><option value="history-denied">History access denied</option><option value="history-quota">History quota exceeded</option></select></label>
+  <label>Vocabulary <select id="qa-vocabulary"><option value="normal">Normal</option><option value="slow">Slow (3 seconds)</option><option value="missing">First request 404</option><option value="interrupted">First request interrupted</option></select></label>
+  <label><input id="qa-optional" type="checkbox"> Disable optional animation, audio and clipboard APIs</label>
+  <label><input id="qa-large-text" type="checkbox"> 200% text size</label>
   <button>Load dated challenge</button>
 </form>
 <button id="qa-corrupt" type="button">Corrupt QA Daily save and reload</button>
@@ -68,15 +71,40 @@
       const base = documentCopy.createElement('base');
       base.href = new URL('../', location.href).href;
       documentCopy.head.prepend(base);
+      // Repeated layout audits must see saved CSS edits rather than memory cache.
+      const stylesheet = documentCopy.querySelector('link[rel="stylesheet"]');
+      stylesheet.href = new URL(stylesheet.getAttribute('href'), base.href).href + '?qa=' + Date.now();
       const script = documentCopy.createElement('script');
       script.type = 'module';
       script.textContent = `
         import { initializeSandbox } from './src/ui/sandbox.js';
         import { createGameStartup } from './src/ui/startup.js';
-        import { loadGameplayVocabulary } from './src/vocabulary/loader.js';
+        import { createVocabularyLoader } from './src/vocabulary/loader.js';
         import { utcDailyDate } from './src/daily/date.js';
         import { HISTORY_KEY } from './src/persistence/history-storage.js';
         let clock = ${instant.getTime()};
+        if (${find('qa-large-text').checked}) document.documentElement.style.fontSize = '200%';
+        // Isolated browser failure injection; never imported by ordinary play.
+        if (${find('qa-optional').checked}) {
+          Element.prototype.animate = undefined;
+          window.AudioContext = undefined;
+          window.webkitAudioContext = undefined;
+          Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+        }
+        let firstRequest = true;
+        const loadVocabulary = createVocabularyLoader({ fetchResource: async (url, options) => {
+          const scenario = ${JSON.stringify(find('qa-vocabulary').value)};
+          const first = firstRequest;
+          firstRequest = false;
+          if (scenario === 'slow') await new Promise((resolve) => setTimeout(resolve, 3000));
+          if (first && scenario === 'missing') return fetch('./vocabulary/qa-missing.txt');
+          if (first && scenario === 'interrupted') {
+            const controller = new AbortController();
+            controller.abort();
+            return fetch(url, { ...options, signal: controller.signal });
+          }
+          return fetch(url, options);
+        } });
         const button = document.createElement('button');
         button.textContent = 'QA: advance UTC clock by one day';
         document.querySelector('main').prepend(button);
@@ -85,9 +113,13 @@
           button.textContent = 'QA clock: ' + utcDailyDate(clock) + ' (advance again)';
           window.dispatchEvent(new Event('resize'));
         });
-        createGameStartup({ container: document.getElementById('game'),
+        const loadingReport = document.createElement('p');
+        loadingReport.id = 'qa-loading-report';
+        document.querySelector('main').prepend(loadingReport);
+        const loadingStarted = performance.now();
+        const startup = createGameStartup({ container: document.getElementById('game'),
           status: document.getElementById('vocabulary-status'), retry: document.getElementById('retry-vocabulary'),
-          load: loadGameplayVocabulary, start: (context) => initializeSandbox({ ...context, now: () => clock,
+          load: loadVocabulary, start: (context) => initializeSandbox({ ...context, now: () => clock,
             saveKeyPrefix: 'wordstead.qa.',
             getStorage: () => {
               const storageMode = ${JSON.stringify(find('qa-storage').value)};
@@ -103,7 +135,17 @@
                 },
                 removeItem: (key) => localStorage.removeItem(key),
               };
-            } }) }).start();
+            } }) });
+        const ready = startup.start();
+        const gate = { inert: document.getElementById('game').inert,
+          busy: document.getElementById('game').getAttribute('aria-busy'),
+          rackButtons: document.querySelectorAll('#rack button').length };
+        ready.then((context) => {
+          loadingReport.textContent = 'QA startup: ' + JSON.stringify({ gate, ready: Boolean(context),
+            totalMs: +(performance.now() - loadingStarted).toFixed(1),
+            vocabularyMs: context?.loadMs, preparationMs: context?.initializationMs,
+            finalInert: document.getElementById('game').inert });
+        });
       `;
       documentCopy.body.append(script);
       find('qa-game').style.width = find('qa-width').value + 'px';
