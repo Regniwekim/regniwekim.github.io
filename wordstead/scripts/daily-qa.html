@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Wordstead · Daily development QA</title>
+<style>
+  body { font: 16px system-ui; margin: 1rem; color: #354c43; background: #f8f6ee; }
+  input, select, button { font: inherit; min-height: 44px; margin: .3rem; }
+  iframe { display: block; height: 1100px; border: 1px solid #354c43; }
+</style>
+<h1>Daily development QA</h1>
+<p>This separate test page supplies an explicit UTC clock to the real gameplay controller.
+  It is not an archive or an ordinary player control. Reloading loses progress.</p>
+<form id="qa-form">
+  <label>UTC date <input id="qa-date" type="text" value="2024-02-29" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"></label>
+  <label>Viewport <select id="qa-width"><option>390</option><option>1440</option></select></label>
+  <button>Load dated challenge</button>
+</form>
+<p id="qa-status" role="status"></p>
+<iframe id="qa-game" title="Wordstead controlled-clock preview"></iframe>
+<script type="module">
+  import { validateDailyDate } from '../src/daily/date.js';
+  const find = (id) => document.getElementById(id);
+  async function load(event) {
+    event?.preventDefault();
+    try {
+      const date = validateDailyDate(find('qa-date').value);
+      const [year, month, day] = date.split('-').map(Number);
+      // setUTCFullYear avoids Date.UTC's special interpretation of years 00–99.
+      const instant = new Date(0);
+      instant.setUTCFullYear(year, month - 1, day);
+      instant.setUTCHours(23, 59, 59, 999);
+      const response = await fetch('../index.html');
+      if (!response.ok) throw new Error('Could not load the gameplay entry page.');
+      const documentCopy = new DOMParser().parseFromString(await response.text(), 'text/html');
+      documentCopy.querySelector('script[src="./src/main.js"]').remove();
+      const base = documentCopy.createElement('base');
+      base.href = new URL('../', location.href).href;
+      documentCopy.head.prepend(base);
+      const script = documentCopy.createElement('script');
+      script.type = 'module';
+      script.textContent = `
+        import { initializeSandbox } from './src/ui/sandbox.js';
+        import { createGameStartup } from './src/ui/startup.js';
+        import { loadGameplayVocabulary } from './src/vocabulary/loader.js';
+        import { utcDailyDate } from './src/daily/date.js';
+        let clock = ${instant.getTime()};
+        const button = document.createElement('button');
+        button.textContent = 'QA: advance UTC clock by one day';
+        document.querySelector('main').prepend(button);
+        button.addEventListener('click', () => {
+          clock += 86400000;
+          button.textContent = 'QA clock: ' + utcDailyDate(clock) + ' (advance again)';
+          window.dispatchEvent(new Event('resize'));
+        });
+        createGameStartup({ container: document.getElementById('game'),
+          status: document.getElementById('vocabulary-status'), retry: document.getElementById('retry-vocabulary'),
+          load: loadGameplayVocabulary, start: (context) => initializeSandbox({ ...context, now: () => clock }) }).start();
+      `;
+      documentCopy.body.append(script);
+      find('qa-game').style.width = find('qa-width').value + 'px';
+      find('qa-game').srcdoc = '<!doctype html>' + documentCopy.documentElement.outerHTML;
+      find('qa-status').textContent = `Loaded ${date}, just before midnight UTC, at ${find('qa-width').value}px. Use the QA clock button to cross midnight without replacing the run.`;
+    } catch (error) { find('qa-status').textContent = error.message; }
+  }
+  find('qa-form').addEventListener('submit', load);
+  load();
+</script>
+</html>

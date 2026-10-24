@@ -15,6 +15,7 @@ export function getSessionResults(session) {
   const { rows, columns } = session.puzzle.board;
   return Object.freeze({
     status: session.status,
+    ...(session.daily ? { daily: Object.freeze({ date: session.daily.date, formatVersion: session.daily.formatVersion }) } : {}),
     ...getPuzzleScore(session.puzzle),
     target: session.target,
     wordCount: session.puzzle.wordCount,
@@ -36,6 +37,7 @@ export function formatResultsShare(results) {
   }
   return [
     'WORDSTEAD',
+    ...(results.daily ? [`Daily Puzzle · ${results.daily.date} · ${results.daily.formatVersion.replace('wordstead-daily-', '')}`] : []),
     RESULT_HEADINGS[results.status],
     '',
     `${results.totalPoints}/${results.target} farm points`,
