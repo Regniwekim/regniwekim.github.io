@@ -231,6 +231,7 @@ progress { width: 100%; height: 1.2rem; accent-color: var(--fern); }
   box-shadow: 0 2px 0 #6b765940, inset 2px 0 0 #fae9cb, inset -2px 0 0 #d6b58b;
   font-size: 1.6rem;
   font-weight: 750;
+  transition: transform 90ms ease-out, box-shadow 90ms ease-out;
 }
 .rack-tile[aria-pressed="true"] { border: 3px solid var(--ink); background: var(--oat); outline: 2px solid var(--ink); outline-offset: 1px; box-shadow: 0 3px 0 var(--wood); transform: translateY(-2px); }
 .rack-tile[data-used="true"] { background: #fff7e7; border-style: dashed; outline: 2px dashed var(--ink); outline-offset: -6px; }
@@ -555,8 +556,27 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;
+    transition: none !important;
   }
+  .rack-tile[aria-pressed="true"] { transform: none; }
+}
 
+/* Presentation-only, same coordinate surface as the board and drag handles.
+   No per-frame board repaint; WAAPI animates these short-lived local layers. */
+#board-feedback { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+#board-feedback * { pointer-events: none; }
+.feedback-path { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: none; stroke-width: 2; }
+.feedback-settle { stroke: #a67c61; stroke-dasharray: 4 3; }
+.feedback-word { stroke: #846047; stroke-width: 3; }
+.feedback-harvest { fill: #dce9b6; fill-opacity: 0.4; stroke: #e9c06d; }
+.feedback-crop { stroke: #e9c06d; stroke-width: 3; stroke-dasharray: 3 4; }
+.feedback-fertile { stroke: #91aa85; fill: #e9c06d; fill-opacity: 0.12; }
+.feedback-livestock { stroke: #fffdf6; stroke-dasharray: 5 4; }
+.feedback-building { stroke: #e9c06d; stroke-width: 4; }
+.feedback-animal { position: absolute; }
+#sound-toggle { font-size: 0.85rem; padding: 0.4rem 0.65rem; }
+@media (prefers-reduced-motion: no-preference) {
+  button:enabled:active:not(.draft-handle):not(.rack-tile) { translate: 0 1px; }
 }
 
 /* Player layout: DOM order is board, rack, actions, then supporting information. */

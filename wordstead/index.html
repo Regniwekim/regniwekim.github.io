@@ -46,6 +46,7 @@
             </div>
             <a id="open-history" href="#history">Daily History</a>
             <a id="open-help" href="#how-to-play">How to Play</a>
+            <button id="sound-toggle" class="secondary" type="button" aria-pressed="false">Sound: Off</button>
           </nav>
           <div class="challenge-header">
             <div class="board-heading">
@@ -141,6 +142,7 @@
                     <div class="board-surface">
                       <canvas id="board" tabindex="0" role="group" aria-label="Interactive letter fence board" aria-describedby="board-help selection-status">Use arrow keys to select a cell, then Enter or Space to place a selected rack tile.</canvas>
                       <div id="draft-handles"></div>
+                      <div id="board-feedback" aria-hidden="true" inert></div>
                     </div>
                   </div>
                 </div>

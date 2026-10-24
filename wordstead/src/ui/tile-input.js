@@ -7,7 +7,7 @@ const DRAG_THRESHOLD = 8;
  * The board's ordinary surface keeps native scrolling; drafted tile handles and
  * rack buttons alone reserve touch gestures for dragging. */
 export function initializeTileInput({ canvas, viewport, rackButtons, enabled, getState,
-  getDraft, setDraft, getCellSize, selectCell, refresh, redraw = () => {} }) {
+  getDraft, setDraft, getCellSize, selectCell, refresh, redraw = () => {}, feedback = () => {} }) {
   const find = (id) => document.getElementById(id);
   const handles = new Map();
   const suppressed = new WeakSet();
@@ -65,6 +65,7 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
       selected = { tileId: tile.id, letter: tile.letter ?? assignedLetter,
         assignedLetter: tile.letter === null ? assignedLetter : null };
       refresh(`Selected ${describe(selected)}. Choose a board cell to ${drafted ? 'move' : 'place'} it.`);
+      feedback({ type: 'tile-selected' });
       canvas.focus({ preventScroll: true });
     };
     if (tile.letter === null && !drafted) chooseBlank(tile, choose);
@@ -74,9 +75,11 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
   function returnSelected() {
     if (!enabled() || !selected) return;
     const slot = getState().rack.findIndex((tile) => tile.id === selected.tileId);
+    const returning = draftById(selected.tileId);
     setDraft(returnDraftTile(getDraft(), selected.tileId));
     selected = null;
     refresh(`Tile returned to its original rack slot ${slot + 1}. No resources spent.`);
+    if (returning) feedback({ type: 'tile-returned', slots: [slot] });
     rackButtons[slot]?.focus({ preventScroll: true });
   }
 
@@ -84,13 +87,20 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
     if (!enabled()) return;
     const cell = { row, column };
     if (selected) {
+      const previous = draftById(selected.tileId);
       const result = placeDraftTile(getState(), getDraft(), { ...selected, ...cell });
       if (result.accepted) {
         const placed = selected;
         setDraft(result.draft);
         selected = null;
         refresh(`Placed ${describe(placed)} at row ${cell.row + 1}, column ${cell.column + 1}. Select the next rack tile.`);
-      } else refresh(`Placement rejected: ${result.reason.message} Tile and draft unchanged.`);
+        if (!previous || previous.row !== row || previous.column !== column) {
+          feedback({ type: previous ? 'tile-moved' : 'tile-placed', cells: [cell] });
+        }
+      } else {
+        refresh(`Placement rejected: ${result.reason.message} Tile and draft unchanged.`);
+        feedback({ type: 'placement-rejected' });
+      }
     } else {
       const tile = getDraft().tiles.find((item) => item.row === cell.row && item.column === cell.column);
       if (tile) selectTile(tileById(tile.tileId));
@@ -139,14 +149,22 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
       setDraft(returnDraftTile(getDraft(), current.tile.tileId));
       selected = null;
       refresh('Draft tile returned to its original rack slot. No resources spent.');
+      feedback({ type: 'tile-returned', slots: [rackButtons.indexOf(ownSlot)] });
     } else if (cell) {
+      const previous = draftById(current.tile.tileId);
       const result = placeDraftTile(getState(), getDraft(), { ...current.tile, ...cell });
       if (result.accepted) {
         setDraft(result.draft);
         selected = null;
         selectCell(cell);
         refresh(`Dropped ${describe(current.tile)} at row ${cell.row + 1}, column ${cell.column + 1}.`);
-      } else refresh(`Drop rejected: ${result.reason.message} Tile and draft unchanged.`);
+        if (!previous || previous.row !== cell.row || previous.column !== cell.column) {
+          feedback({ type: previous ? 'tile-moved' : 'tile-placed', cells: [cell] });
+        }
+      } else {
+        refresh(`Drop rejected: ${result.reason.message} Tile and draft unchanged.`);
+        feedback({ type: 'placement-rejected' });
+      }
     } else refresh('Drop cancelled outside the board. Tile and draft unchanged.');
   }
   window.addEventListener('pointermove', (event) => {

@@ -62,16 +62,18 @@ function harness(t, blank = false) {
     return button;
   });
   let lastMessage = '';
+  const feedback = [];
   const input = initializeTileInput({ canvas: find('board'), viewport: find('viewport'), rackButtons: buttons,
     enabled: () => enabled, getState: () => state, getDraft: () => draft,
     setDraft: (value) => { draft = value; }, getCellSize: () => 44, selectCell() {},
+    feedback: (event) => feedback.push(event),
     refresh(message) { lastMessage = message ?? lastMessage; input.render(); } });
   input.render();
   const point = (row, column) => ({ clientX: 28 + (column + 0.5) * 44, clientY: 28 + (row + 0.5) * 44 });
   function dragStart(slot, type = 'touch') {
     buttons[slot].emit('pointerdown', { pointerType: type, clientX: slot * 50 + 20 });
   }
-  return { input, buttons, state, find, events, point, dragStart,
+  return { input, buttons, state, find, events, point, dragStart, feedback,
     get draft() { return draft; }, get message() { return lastMessage; },
     disable() { enabled = false; input.reset(); input.render(); } };
 }
@@ -93,6 +95,35 @@ test('selection, switching and repeated cancellation never mutate physical resou
   assert.equal(h.input.selected, null);
   assert.equal(h.draft, original);
   assert.equal(JSON.stringify(h.state), before);
+});
+
+test('tile feedback occurs once at accepted placement/movement/return, never in drag previews or renders', (t) => {
+  const h = harness(t);
+  h.buttons[0].emit('click');
+  h.input.activateCell({ row: 3, column: 3 });
+  assert.deepEqual(h.feedback.map((event) => event.type), ['tile-selected', 'tile-placed']);
+  for (let i = 0; i < 20; i += 1) h.input.render();
+  assert.equal(h.feedback.length, 2);
+  const handle = h.find('draft-handles').children[0];
+  handle.emit('pointerdown', h.point(3, 3));
+  for (let i = 0; i < 20; i += 1) h.events.emit('pointermove', h.point(2, 2));
+  assert.equal(h.feedback.length, 2);
+  h.events.emit('pointerup', h.point(2, 2));
+  assert.deepEqual(h.feedback.at(-1), { type: 'tile-moved', cells: [{ row: 2, column: 2 }] });
+  handle.emit('click'); // Suppressed compatibility click.
+  handle.emit('click'); // Explicit pickup.
+  h.find('return-tile').emit('click');
+  assert.deepEqual(h.feedback.at(-1), { type: 'tile-returned', slots: [0] });
+  h.buttons[0].emit('click'); h.input.activateCell({ row: 3, column: 3 });
+  h.buttons[1].emit('click');
+  const before = h.draft, count = h.feedback.length;
+  h.input.activateCell({ row: 4, column: 4 });
+  assert.equal(h.draft, before);
+  assert.deepEqual(h.feedback.slice(count), [{ type: 'placement-rejected' }]);
+  h.dragStart(1); h.events.emit('pointermove', h.point(4, 4));
+  assert.equal(h.feedback.length, count + 1);
+  h.events.emit('pointercancel');
+  assert.equal(h.feedback.length, count + 1);
 });
 
 test('subthreshold touch movement remains a tap; drag preview is reversible until release and suppresses click', (t) => {

@@ -69,7 +69,7 @@ function harness(t, options = {}) {
     'target-mode', 'target', 'calculate-target', 'create-board'].map(find);
   find('word-controls').controls = ['commit-word', 'word', 'orientation'].map(find);
     initializeSandbox({ dictionary: options.dictionary ?? demoDictionary, vocabulary: { name: 'Controller test vocabulary' }, now: () => clock,
-      getStorage: () => storage, saveToken: () => `test:${++sequence}` });
+      getStorage: () => storage, saveToken: () => `test:${++sequence}`, feedbackFactory: options.feedbackFactory });
   }
   boot();
   const click = (id) => find(id).emit('click');
@@ -84,6 +84,63 @@ function harness(t, options = {}) {
   return { find, click, change, rack, tile, storage, reload: boot, get copied() { return copied; },
     advance() { clock += 1; }, resize: () => window.emit('resize') };
 }
+
+test('feedback follows authoritative controller transitions once; preview/render/restore/restart never replay actions', async (t) => {
+  const events = []; let cancellations = 0;
+  const h = harness(t, { feedbackFactory: () => ({ emit(input) { events.push(...(Array.isArray(input) ? input : [input])); },
+    cancel() { cancellations += 1; } }) });
+  const { click, find } = h;
+  assert.deepEqual(events, []);
+  await h.tile(0);
+  assert.deepEqual(events.map((event) => event.type), ['tile-selected', 'tile-placed']);
+  const draft = h.storage.getItem(STORAGE_KEYS.daily);
+  assert.equal(find('commit-word').disabled, false); // Explicitly check an invalid nonempty draft.
+  await click('commit-word');
+  assert.equal(events.at(-1).type, 'word-rejected');
+  assert.equal(h.storage.getItem(STORAGE_KEYS.daily), draft);
+  const count = events.length;
+  await h.resize(); await click('play-free'); await click('play-daily'); h.reload();
+  assert.equal(events.length, count);
+  assert.ok(cancellations >= 4);
+  await click('clear-draft'); assert.equal(events.at(-1).type, 'tile-returned');
+  await click('start-exchange'); await click('confirm-exchange');
+  assert.equal(events.at(-1).type, 'tile-returned'); // Rejected empty exchange emits no success.
+  await find('rack').children[0].emit('click'); await click('confirm-exchange');
+  assert.equal(events.at(-1).type, 'tiles-exchanged');
+  assert.deepEqual(events.at(-1).slots, [0]);
+  const beforeRestart = events.length;
+  await click('reset'); await click('save-confirm-yes');
+  assert.equal(events.length, beforeRestart);
+  await click('rack-example');
+  const place = async (letter, row, column) => {
+    const slot = find('rack').children.findIndex((node) => node.attributes['aria-label'].includes(`: ${letter}, physical`)
+      && !node.attributes['aria-label'].includes('provisionally'));
+    await h.tile(slot, row, column);
+  };
+  for (const tiles of [[['C',4,4],['A',4,5],['R',4,6]], [['A',5,4],['B',6,4]],
+    [['A',5,6],['T',6,6]], [['A',6,5]]]) {
+    for (const tile of tiles) await place(...tile);
+    await click('commit-word');
+  }
+  assert.equal(events.filter((event) => event.type === 'word-accepted').length, 4);
+  assert.deepEqual(events.find((event) => event.type === 'territory-captured').indices, [32]);
+  assert.equal(events.filter((event) => event.type === 'run-completed').length, 1);
+  const completedCount = events.length;
+  await h.resize(); await click('play-daily'); await click('play-free');
+  assert.equal(events.length, completedCount);
+});
+
+test('restored terminal completion presents results with no new feedback', async (t) => {
+  const events = [];
+  const { storage } = completionStorage();
+  const h = harness(t, { storage, dictionary: historyDictionary,
+    feedbackFactory: () => ({ emit(input) { events.push(...input); }, cancel() {} }) });
+  await h.click('commit-word');
+  assert.equal(events.filter((event) => event.type === 'run-completed').length, 1);
+  events.length = 0; h.reload();
+  assert.equal(h.find('results-title').textContent, 'Harvest Complete!');
+  assert.deepEqual(events, []);
+});
 
 test('real mode controller isolates drafts, custom Free Play, exchanges, both labs and daily rollover', async (t) => {
   const h = harness(t), { find, click, change } = h;
