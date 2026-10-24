@@ -333,3 +333,42 @@ high-DPI memory/long-session retention checks. These gaps remain visible even wh
 the automated suite passes. There are no known unresolved reproduced release
 blockers at the time of this assessment. Future offline/PWA support, social raster
 art, broad renderer optimization and additional cosmetic polish are deferred.
+
+## Final PR revalidation — October 24, 2026
+
+The workspace already contained the clean, committed candidate `c2d6ed5` when
+this final pass began. Fetching `origin/main` confirmed its parent `756e00d` is
+still the latest main; the existing feature branch was retained. The detailed
+browser observations above were already recorded in that candidate. This pass
+independently repeated the checks listed here, rather than claiming a second run
+of every scenario in the matrix.
+
+- `npm.cmd test`: **336/336 passed**, none failed, skipped or canceled.
+- Explicit Daily/persistence/history run: **36/36 passed**. All seven released
+  Daily fixture bytes match main (`e11660cf0203bcf7038d656713990dc48055a6cb`).
+- Target lexicon and letter-profile byte checks passed. All six changed JS files
+  and the Daily QA inline module passed syntax checks; the candidate diff passed
+  `git diff --check`.
+- Source comparisons confirmed core, Daily, persistence, analysis and vocabulary
+  code/data have no changes from main. Static tests passed for exact-case local
+  resources/imports, branding metadata, accessible arcade card IDs, destinations
+  and the two-game count. Runtime inspection found only the existing vocabulary
+  fetch, with no backend, service worker, tracking or private asset reference.
+- Node vocabulary preparation measured **33.9ms**; 100,000 lookups took **10.9ms**.
+  These are host timings, not mobile or browser frame measurements.
+- Desktop in-app Chromium at `http://127.0.0.1:8025/wordstead/` loaded the pinned
+  vocabulary and accepted NEW using rack/board/Commit keyboard activation. Focus
+  returned to the board; refresh restored the accepted word and saved progress.
+  At viewport widths 320/360/390/768/1024/1440, client and scroll widths matched
+  (305/345/375/753/1009/1425 with desktop scrollbars). The smallest rack target
+  was 49.95px and Sound stayed 44px tall. A 390×520 screenshot was inspected.
+- A fresh Firefox automation attempt was stopped by the Windows browser tool
+  because URL-policy enforcement is unsupported there. UI automation ended at
+  that point. No Firefox validation, additional navigation/performance pass,
+  physical touch or assistive-technology pass is claimed for this final check.
+
+Recommendation remains **GO for owner review of this release candidate; final
+public-release sign-off is incomplete** pending the manual environments above.
+The PR must remain unmerged. No newly reproduced software blocker was found in
+this pass; the existing device-memory and browser/accessibility verification gaps
+remain open.
