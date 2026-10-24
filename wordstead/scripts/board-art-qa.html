@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Wordstead · Board art QA</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../styles/main.css">
+<main class="page-shell">
+  <h1>Board art QA</h1>
+  <p>Production renderer, original artwork and existing farm/enclosure fixtures. No saves are written.
+    Samples include presentation-only state combinations; they do not establish legal moves.</p>
+  <p><a href="../">Return to Wordstead</a> · <a href="daily-qa.html">Six-width interactive game QA</a> ·
+    <a href="rack-layout-qa.html">Seven/eight/nine-slot rack QA</a></p>
+  <label>Tile size <select id="size"><option>44</option><option>56</option><option>72</option></select></label>
+  <label>Backing density (QA emulation) <select id="density"><option value="native">Native</option><option>2</option><option>3</option></select></label>
+  <div id="samples"></div>
+  <h2>Repeated redraw measurement</h2>
+  <p>Warm up 10 draws, then measure 60 synchronous redraws of a fixed mixed 30×30 board.
+    Includes backing-store setup and Canvas command submission; excludes asynchronous GPU completion.</p>
+  <button id="benchmark" type="button">Measure 30×30 redraws</button>
+  <p id="timing" role="status"></p>
+  <div class="board-viewport"><canvas id="large" aria-label="30 by 30 benchmark farm"></canvas></div>
+</main>
+<script type="module" src="./board-art-qa.js"></script>
+</html>

@@ -1,4 +1,19 @@
-# Player interface — Milestone 5A
+# Player interface — Milestones 5A / 5B
+
+Milestone 5B retains the layout and control contracts below. It adds original
+pixel farm artwork, cultivated claimed land, oat wooden board/rack tiles and
+committed-letter fence rails. Drafts have pale faces, dashed rims and **p**;
+invalid previews also have **×**, reuse has **=**, and assigned blanks retain **◇**.
+Prospective territory uses a dotted outline and **?**, with no permanent claim
+fill. Farm type labels and all selected-cell/action descriptions remain available.
+Claimed features keep their artwork with **+** (recent) or **✓** (earlier).
+
+The rack tray, board frame, Commit control, progress track, results rim and small
+wooden accent beside Wordstead share this visual vocabulary. Target sizes, physical
+IDs, semantic buttons, drag handles, focus order and responsive breakpoints are
+unchanged. See [board art](board-art.md) for artwork provenance, performance and
+the new QA observations. Private third-party art remains excluded and requires
+separate authorization; historical audit/license records are unchanged.
 
 Wordstead uses a mobile-first, dependency-free presentation of the existing game.
 This milestone changes HTML, CSS and browser presentation/controller bindings.
@@ -135,8 +150,9 @@ The local stylesheet consolidates reusable presentation tokens:
 | `--radius`, `--space` | 0.75rem panel radius; 1rem spacing, 1.25rem at wider widths |
 
 System fonts render essential text and letter glyphs; Georgia supplies the native
-brand heading. No external font service, art, audio, runtime dependency or elaborate
-animation is added. Existing Canvas primitives and palette remain unchanged.
+brand heading. No external font service, third-party art, audio, runtime dependency
+or elaborate animation is added. The 5B Canvas art refines ground and tile treatments
+within this palette; historical v0.1 proposals remain unchanged.
 
 ## Reproducible QA
 

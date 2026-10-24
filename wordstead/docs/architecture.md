@@ -1,5 +1,18 @@
 # Wordstead architecture
 
+Milestone 5B adds `rendering/artwork.js`, a small original presentation library:
+deterministic ground, four pixel motifs, wooden letter faces, badges and cardinal
+fence half-joins. `board.js` composes ground → committed fences → features/letters
+→ interaction overlays. Pure `connectionMask()` reads only the supplied committed
+board; `decorationVariant()` hashes coordinates without gameplay RNG. Logical
+coordinates, pointer inversion, controllers, rules, released Daily fixtures and
+save/history formats remain unchanged. Optional four 16×16 OffscreenCanvas motif
+caches fall back to primitive rectangles; ordinary redraws reuse the board backing
+store. The rack/frame/progress/results styling remains local CSS with system text.
+See [board art](board-art.md) for the artwork API, performance and validation.
+No third-party art is loaded; the private starter and historical asset/license
+records remain reserved for a separately authorized integration.
+
 Milestone 5A rearranges the static entry page around player intent. Two semantic
 mode buttons delegate to the existing `changeMode`; the diagnostic selector moves
 under Development Tools. The four sessions, their transitions and save adapters
@@ -656,13 +669,15 @@ completed board and present word/exchange results. Restart reconstructs
 the original seed/configuration or scripted fixture, with an empty draft.
 
 `rendering/board.js` draws an orthographic Canvas 2D grid using system text and
-primitives. The render inputs include the precomputed core evaluation and claim
-mask. Exterior is meadow, unclaimed enclosure has a dashed inset, new claims
-show + on pale harvest, previous claims show ✓ on sage, and letters have oat
-faces/wood rims. Selection has a dark outline. No animation or third-party
+original art helpers. The render inputs include the precomputed core evaluation and
+claim mask. Exterior is textured meadow, unclaimed enclosure has a dashed inset,
+new claims show + on pale harvest furrows, previous claims show ✓ on warm cultivated
+soil, and letters have oat faces/wood rims. Selection has a dark outline and cream
+halo. Committed cardinal neighbors share short wooden rails beneath their faces.
+No animation or third-party
 assets are loaded; symbols and textual statuses supplement color.
 
-Features use original Canvas sprout/animal/roof/furrow silhouettes plus C/L/B/F
+Features use original pixel growing-plot/hen/shed/enriched-soil motifs plus C/L/B/F
 labels, drawn over their land state. A corner badge shows prospective ?, new +
 or historical ✓ without obscuring type. Selected-cell and Canvas accessible text
 report the type, capture/activation status, effect and reservation. Capture action

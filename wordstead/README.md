@@ -5,7 +5,21 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 5A player-first interface
+## Current status: Milestone 5B board art & letter tiles
+
+The board now uses original Wordstead pixel motifs: quiet meadow grass, cultivated
+claimed plots, growing crops, a hen, a shed and enriched soil. Wooden letter tiles
+match the semantic rack buttons; short cardinal rails join committed letters.
+Drafts retain pale faces, dashed rims and **p**; previews use **?** outlines without
+painting permanent claims. Capture badges, blank **◇**, selection and explicit
+invalid **×** clues remain readable above the art. No animation or sound is added.
+
+[Board art](docs/board-art.md) records provenance, layering, substitution boundaries,
+browser QA, load-size and redraw measurements. All runtime artwork is newly
+authored code/CSS. The private Sprout Lands starter remains private and requires
+separate authorization and license review before any future integration.
+
+The Milestone 5A player-first layout remains in place:
 
 **Daily Puzzle** and **Free Play** are the primary navigation. Challenge identity,
 farm points/target and accepted words lead directly into the board and physical
@@ -20,8 +34,8 @@ are under **Development Tools**. Normal saves are quiet; actionable save/history
 notices remain outside closed panels, including unsaved terminal Daily results.
 Results retain their collapsible window, copying and completed-farm inspection.
 Gameplay, generation, scoring, released Daily fixtures and persistence formats are
-unchanged. The interface uses local CSS, system fonts and the existing Canvas
-primitives. See [player interface](docs/player-interface.md) for layout, tokens,
+unchanged. The interface uses local CSS, system fonts and original Canvas artwork.
+See [player interface](docs/player-interface.md) for layout, tokens,
 accessibility, reproducible QA and testing limitations.
 
 ### Personal Daily history (4B.2)
@@ -125,7 +139,7 @@ automatic claims. **Freeform enclosure lab** retains arbitrary A-tile
 editing/removal and manual claims. Each mode has its own state; lab edits cannot
 enter legal play. Switching modes preserves their separate sessions; refresh clears
 only the labs and diagnostic fixtures. Scripted fixtures never overwrite the Free
-Play save. Canvas primitives and system fonts require no third-party assets. Existing
+Play save. Original Canvas art and system fonts require no third-party assets. Existing
 [asset audit](ASSET-AUDIT.md), [organization records](asset-organization/README.md),
 [license scope](docs/license.md), and exploratory [visual guide](docs/visual-guide-v0.1.md)
 continue to govern future art.
@@ -320,8 +334,8 @@ Credits are captured buildings minus successfully used free exchanges. Credits
 accumulate, and the next successful exchange consumes one automatically. Total
 exchange count stays visible independently of charged exchanges and strokes.
 
-Canvas uses original sprout, animal, roof and furrow primitives with **C/L/B/F**
-labels. Farm glyphs retain their land background and show **?** in preview, **+**
+Canvas uses original growing-plot, hen, shed and enriched-soil pixel motifs with
+**C/L/B/F** labels. Farm motifs retain their land background and show **?** in preview, **+**
 on a new capture and **✓** on older captures. Select a feature with a tap, board
 arrows, or coordinates to read its type, capture status and effect. Capture status
 and each earned point/utility reward are also announced in action text.
