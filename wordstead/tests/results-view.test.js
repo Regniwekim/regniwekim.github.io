@@ -12,12 +12,26 @@ function setup(writeClipboard) {
   const find = (id) => {
     if (!nodes.has(id)) nodes.set(id, { hidden: false, textContent: '', value: '', open: false, disabled: false,
       listeners: {}, addEventListener(type, handler) { this.listeners[type] = handler; },
-      focus() { this.focused = true; }, select() { this.selected = true; } });
+      focus() { this.focused = true; }, select() { this.selected = true; },
+      scrollIntoView() { this.scrolled = true; } });
     return nodes.get(id);
   };
   const view = initializeResults({ find, writeClipboard });
-  return { view, find, click: (id) => find(id).listeners.click() };
+  return { view, find, click: (id) => find(id).listeners.click({ preventDefault() { find(id).prevented = true; } }) };
 }
+
+test('explicit result links reveal and focus the existing window without following a base URL', () => {
+  const { view, find, click } = setup();
+  view.render(won());
+  for (const id of ['results-link', 'history-result-link']) {
+    find('results').open = false;
+    click(id);
+    assert.equal(find(id).prevented, true);
+    assert.equal(find('results').open, true);
+    assert.equal(find('results').focused, true);
+    assert.equal(find('results').scrolled, true);
+  }
+});
 function won() {
   return ENCLOSURE_MOVES.reduce((state, move) => commitSessionWord(state, move, demoDictionary).state, createFarmSession('crop'));
 }

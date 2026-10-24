@@ -125,7 +125,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     const score = getPuzzleScore(state.puzzle).totalPoints;
     const capacity = getRackCapacity(state);
     const credits = getExchangeCredits(state);
-    find('goal-label').textContent = `Puzzle score: ${score} / ${state.target} points`;
+    find('goal-label').textContent = `Farm points: ${score} / ${state.target}`;
     find('goal-progress').max = state.target;
     find('goal-progress').value = score;
     find('rack-count').textContent = `${state.rack.length} / ${capacity}`;
@@ -143,7 +143,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     find('run-status').textContent = state.status === 'won' ? `Harvest Complete! ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
       : state.status === 'ended' ? `Farm Unfinished. ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
         : state.status === 'exhausted' ? `Out of Tiles: rack and bag empty. ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
-          : `Run in progress. ${credits} free exchange credits; otherwise an exchange costs one provisional stroke.`;
+          : '';
     const used = new Set(active().draft.tiles.map((tile) => tile.tileId));
     renderRackSlots(find('rack'), rackButtons, { state, draft: active().draft,
       selectedTileId: tileInput.selected?.tileId, exchanging, exchangeIds });
@@ -164,6 +164,15 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   }
 
   function render(message) {
+    find('play-daily').setAttribute('aria-pressed', String(mode === 'daily'));
+    find('play-free').setAttribute('aria-pressed', String(mode === 'rack'));
+    find('board-title').textContent = mode === 'daily' ? 'Daily Puzzle' : mode === 'rack'
+      ? active()?.state.source === 'scripted' ? 'Free Play · QA fixture' : 'Free Play'
+      : mode === 'words' ? 'Legal word placement lab' : 'Freeform enclosure lab';
+    find('setup-panel').hidden = mode === 'daily';
+    find('view-title').textContent = mode === 'rack' ? 'Free Play settings' : 'Lab board settings';
+    find('economy-metrics').hidden = !isRackMode();
+    find('end-run').hidden = !isRackMode();
     historyView.render(mode === 'daily' ? active()?.state : null);
     saveView.render(activeSlot(), isRackMode() && Boolean(active()) && !active().save);
     find('daily-context').hidden = mode !== 'daily';
@@ -172,13 +181,14 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
       const today = dailyMode.today();
       const date = active()?.state.daily.date;
       find('daily-info').textContent = date
-        ? `Active challenge: ${date} · UTC · ${active().state.daily.formatVersion}. ${date !== today ? `Resuming your previous challenge. Today's challenge (${today}) is available. Start today's challenge replaces this Daily save and discards its progress.` : 'You are playing today’s challenge.'}`
+        ? `Active challenge: ${date} · UTC. ${date !== today ? `Resuming your previous challenge. Today's challenge (${today}) is available. Start today's challenge replaces this Daily save and discards its progress.` : 'Today’s farm.'}`
         : `Daily Puzzle unavailable for ${today}. ${dailyResult.message} Free Play and the labs are still available.`;
       find('start-today').disabled = date === today;
+      find('start-today').hidden = date === today;
       if (date && !dailyResult.available) find('daily-info').textContent += ` New challenge unavailable: ${dailyResult.message}`;
     }
     if (!active()) { resultsView.render(null); return; }
-    find('vocabulary-note').textContent = `${active().vocabularyName}. English word list; not an official Scrabble dictionary. Credits and acceptance policy are linked above.`;
+    find('vocabulary-note').textContent = `${active().vocabularyName}. English word list; not an official Scrabble dictionary. Credits and acceptance policy are linked in the footer.`;
     const { selected, recentClaims, latestAward, exchanging } = active();
     const { board, territory, wordCount } = puzzle();
     const evaluation = evaluateTerritory(board, territory);
@@ -199,7 +209,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     find('claimable-count').textContent = evaluation.newlyClaimed.length;
     find('board-summary').textContent = `${board.rows} rows × ${board.columns} columns · ${cellSize}px cells`;
     find('starting-square').textContent = startingSquare
-      ? `First word: cross ☆ at row ${startingSquare.row + 1}, column ${startingSquare.column + 1}.`
+      ? wordCount ? 'Connect your next word to the fence.' : `First word: cross ☆ at row ${startingSquare.row + 1}, column ${startingSquare.column + 1}.`
       : 'Freeform diagnostic edits do not follow word rules.';
     rowInput.max = board.rows;
     columnInput.max = board.columns;
@@ -221,13 +231,13 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     find('commit-word').disabled = mode === 'freeform' || exchanging || !preview?.legal;
     find('placement-feedback').textContent = preview
       ? preview.legal
-        ? `Valid preview: ${preview.newPositions.length} new, ${preview.reusedPositions.length} reused letters. Would claim ${previewTerritory.points} cells (+${previewTerritory.points + summarizeFeatures(board, previewTerritory.newlyClaimed).bonusPoints} total points). Benefits activate only on commitment.`
-        : `${isRackMode() ? 'Draft not ready' : 'Invalid preview'} [${preview.reason.code}]: ${preview.reason.message}`
+        ? `Valid preview · ${preview.words.map((run) => run.text).join(', ')}. Ready to commit: +${previewTerritory.points + summarizeFeatures(board, previewTerritory.newlyClaimed).bonusPoints} farm points from ${previewTerritory.points} enclosed cells.`
+        : `${isRackMode() ? 'Draft not ready' : 'Invalid preview'}: ${preview.reason.message}`
       : isRackMode() ? active().state.status !== 'playing' ? 'Run finished. Restart or create a new puzzle.'
-        : 'Select a rack tile and place it on the board. Draft edits spend nothing.'
+        : 'Select a tile, then choose a board cell.'
         : 'No preview. Enter a word and choose a starting cell, then preview.';
     find('draft-direction').textContent = isRackMode() && preview
-      ? `Draft direction: ${preview.structural.orientation ?? 'undecided (one tile)'}. ${preview.structural.coherent ? 'Straight and contiguous.' : preview.structural.reason.message}` : '';
+      ? `Draft direction: ${preview.structural.orientation ?? 'undecided (one tile)'}. ${preview.structural.coherent ? 'Straight and contiguous.' : preview.structural.reason.message}${preview.reason ? ` Diagnostic: ${preview.reason.code}.` : ''}` : '';
     find('placement-feedback').dataset.legality = preview ? (preview.legal ? 'valid' : 'invalid') : '';
     find('formed-words').replaceChildren(...(preview?.words ?? []).map((run) => {
       const item = document.createElement('li');
@@ -289,6 +299,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     viewport.scrollLeft = 0;
     render(isRackMode() ? 'Puzzle ready. Fresh rack drawn; counts and progress reset. Restart repeats its letter order.'
       : 'Empty board ready. Letters, claims, awards and word count reset for this mode.');
+    revealSelection(viewport, active().selected, cellSize);
   }
 
   function syncSetup() {
@@ -329,6 +340,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     }
     mode = nextMode;
     find('mode').value = mode;
+    if (!isRackMode()) find('development-tools').open = true;
     if (!active()) { preview = null; render(); return; }
     wordInput.value = active().word;
     find('orientation').value = active().orientation;
@@ -358,6 +370,20 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     render(`${find('mode').selectedOptions[0].textContent} resumed. Each mode keeps its own board and progress.`);
   }
   find('daily-free-play').addEventListener('click', () => changeMode('rack'));
+  find('play-daily').addEventListener('click', () => changeMode('daily'));
+  find('play-free').addEventListener('click', () => changeMode('rack'));
+  find('open-help').addEventListener('click', (event) => {
+    event.preventDefault();
+    find('how-to-play').open = true;
+    find('help-summary').focus();
+    find('how-to-play').scrollIntoView({ block: 'start' });
+  });
+  find('new-puzzle-link').addEventListener('click', (event) => {
+    event.preventDefault();
+    find('setup-panel').open = true;
+    find('view-title').focus();
+    find('setup-panel').scrollIntoView({ block: 'start' });
+  });
   find('start-today').addEventListener('click', () => {
     if (mode !== 'daily' || active()?.state.daily.date === dailyMode.today()) return;
     replaceRun('Start today’s challenge? This replaces the single Daily save and discards the active challenge’s progress.', 'Start today’s challenge', () => {
@@ -572,7 +598,10 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
       }
     }
   });
-  window.addEventListener('resize', () => render());
+  window.addEventListener('resize', () => {
+    render();
+    if (active()) revealSelection(viewport, active().selected, cellSize);
+  });
   window.addEventListener('storage', (event) => {
     historyView.changed(event);
     for (const slot of Object.values(slots)) {
@@ -620,4 +649,5 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   });
   changeMode('daily');
   render('Daily Puzzle ready. Select a physical rack tile, then place it on the board.');
+  if (active()) revealSelection(viewport, active().selected, cellSize);
 }

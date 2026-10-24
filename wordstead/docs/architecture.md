@@ -1,5 +1,26 @@
 # Wordstead architecture
 
+Milestone 5A rearranges the static entry page around player intent. Two semantic
+mode buttons delegate to the existing `changeMode`; the diagnostic selector moves
+under Development Tools. The four sessions, their transitions and save adapters
+are unchanged. Native `details` own utility disclosure state, with no UI state in
+storage. Existing controller IDs, Canvas coordinate transforms and physical rack
+buttons are retained. The DOM sequence is challenge/progress, board, rack/actions,
+then utilities; CSS puts the rack in a second column from 1024px. Display-size and
+resize handling reveal only the selected cell inside the board viewport, without
+moving page focus.
+
+`ui/save-controls.js` derives warning styling from the existing slot information.
+`ui/history.js` renders actionable archive/unsaved-result notices outside its closed
+panel using the same current storage and result information; it owns no extra save
+state. Internal Help, History, Results and New Puzzle links explicitly reveal their
+target and focus it on activation, preventing a base URL in the QA iframe from
+navigating away from its isolated session. Ordinary rendering/completion never
+focuses or scrolls the page. The results formatter, released Daily definitions,
+all persistence schemas and keys, core, vocabulary and analysis are unchanged.
+See [player interface](player-interface.md) for the current presentation contract,
+tokens, test coverage and manual QA; the v0.1 visual guide is a historical exploration.
+
 Milestone 4B.2 adds independent summary persistence: `persistence/daily-history.js`
 derives/validates terminal Daily records and calculates statistics, while
 `persistence/history-storage.js` owns a separate bounded localStorage archive,
@@ -588,7 +609,8 @@ ambient gameplay randomness, or animation loop.
 
 The rack has nine persistent semantic DOM buttons with 44px minimum targets,
 visible focus and physical ID/slot labels. Only derived capacity (7–9) is visible;
-the grid and accessible name track capacity. Narrow screens wrap at four slots;
+the grid and accessible name track capacity. Phones and the desktop side column
+wrap at four slots; tablets can use one row for the full capacity;
 empty slots and finished-run tiles are disabled. Dashed insets and ↗ mark draft
 use, outlines/checkmarks mark selection, and ◇ identifies blanks. Buttons retain
 focus across rerenders. A native modal dialog offers 26 A–Z buttons with keyboard
@@ -675,9 +697,10 @@ the player's collapsed/expanded choice. Existing run-status live text announces
 the finish; View Results explicitly reopens and navigates to the window. Reveal
 does not automatically move focus or scroll. The board retains its letters/claim mask,
 panning, size controls and pointer/keyboard/coordinate inspection. Finished-run
-mutation controls remain disabled. The one existing Restart Puzzle button now
-sits below the rack and still reconstructs original settings; New Puzzle navigates
-to the existing setup form rather than creating another setup workflow.
+mutation controls remain disabled. The existing Restart Puzzle button lives
+in Run options below play and still reconstructs original settings; New Puzzle in
+Free Play results opens the existing settings disclosure rather than creating
+another setup workflow.
 
 Copy Results invokes `navigator.clipboard.writeText` only from its click handler.
 It disables repeated activation while pending, confirms only after success, and

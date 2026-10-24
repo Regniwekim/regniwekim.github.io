@@ -15,7 +15,7 @@
   Loading another date or refreshing preserves the previous QA run until explicitly replaced.</p>
 <form id="qa-form">
   <label>UTC date <input id="qa-date" type="text" value="2024-02-29" required pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}"></label>
-  <label>Viewport <select id="qa-width"><option>390</option><option>1440</option></select></label>
+  <label>Viewport <select id="qa-width"><option>320</option><option>360</option><option selected>390</option><option>768</option><option>1024</option><option>1440</option></select></label>
   <label>Storage <select id="qa-storage"><option value="normal">Normal</option><option value="denied">Access denied</option><option value="quota">Quota exceeded</option><option value="history-denied">History access denied</option><option value="history-quota">History quota exceeded</option></select></label>
   <button>Load dated challenge</button>
 </form>

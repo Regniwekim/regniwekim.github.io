@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Wordstead · Rack layout QA</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="../styles/main.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <h1>Rack layout QA</h1>
+      <p>Presentation samples using the production rack renderer and stylesheet.
+        These controlled states do not run gameplay, write saves or change puzzle rules.</p>
+      <a href="../">Return to Wordstead</a>
+      <div class="board-layout">
+        <p>Resize the viewport to inspect each tray. Tiles must remain at least 44px wide;
+          selected, drafted and blank slots must remain legible.</p>
+        <div id="samples" class="play-column"></div>
+      </div>
+    </main>
+    <script type="module">
+      import { createSession } from '../src/core/session.js';
+      import { placeFeature } from '../src/core/features.js';
+      import { replenishRack } from '../src/core/bag.js';
+      import { renderRackSlots } from '../src/ui/rack.js';
+      for (const capacity of [7, 8, 9]) {
+        let state = createSession({ seed: 'blank-qa-636' });
+        for (let n = 0; n < capacity - 7; n += 1) {
+          state.puzzle.board = placeFeature(state.puzzle.board, 1, n + 1, 'livestock');
+          state.puzzle.territory.claimed[16 + n] = true;
+        }
+        state = { ...state, ...replenishRack(state.rack, state.bag, capacity) };
+        const section = document.createElement('section');
+        section.className = 'utility-panel';
+        const title = document.createElement('h2');
+        title.textContent = `${capacity}-tile rack`;
+        const group = document.createElement('div');
+        group.className = 'rack';
+        group.setAttribute('role', 'group');
+        const buttons = Array.from({ length: 9 }, () => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'rack-tile';
+          group.append(button);
+          return button;
+        });
+        const tile = state.rack.at(-1);
+        renderRackSlots(group, buttons, { state, draft: { tiles: [{ tileId: tile.id, row: 3, column: 4 }] },
+          selectedTileId: tile.id, exchanging: false, exchangeIds: [] });
+        section.append(title, group);
+        document.getElementById('samples').append(section);
+      }
+    </script>
+  </body>
+</html>

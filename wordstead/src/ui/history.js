@@ -85,7 +85,7 @@ export function initializeHistory({ find, getStorage, keyPrefix, today, confirm 
     try { record = current ? createHistoryRecord(current) : null; } catch { /* Capture reports validation errors; rendering must remain available. */ }
     find('history-result-status').hidden = !record;
     find('save-history-result').hidden = !record;
-    if (!record) return;
+    if (!record) return false;
     const previous = storage.archive.records.find((r) => historyIdentity(r) === historyIdentity(record));
     const stored = previous?.status === 'won' || (previous && JSON.stringify(previous) === JSON.stringify(record));
     const failed = lastAttempt?.session === current && !lastAttempt.ok;
@@ -98,6 +98,7 @@ export function initializeHistory({ find, getStorage, keyPrefix, today, confirm 
       : 'This terminal result can be saved to Daily History. Open History to check storage, then use Save to Daily History.';
     find('save-history-result').textContent = failed ? 'Retry Save to Daily History' : 'Save to Daily History';
     find('save-history-result').hidden = Boolean(stored && !failed && !blocked);
+    return !find('save-history-result').hidden;
   }
   function render(session = current) {
     current = session;
@@ -112,7 +113,14 @@ export function initializeHistory({ find, getStorage, keyPrefix, today, confirm 
     if (storage.info !== shownInfo || storage.archive !== shownArchive) {
       shownInfo = storage.info; shownArchive = storage.archive;
     }
-    resultNotice();
+    const unsaved = resultNotice();
+    // Reuse the storage/result view's current messages outside the closed disclosure.
+    // This is presentation only; there is no second save state or archive.
+    find('history-attention').hidden = !warning && !unsaved;
+    find('history-alert').textContent = warning ? message : unsaved ? find('history-result-status').textContent : '';
+    find('history-alert').setAttribute('role', warning ? 'alert' : 'status');
+    find('history-summary').textContent = warning || unsaved ? 'Daily History · action needed' : 'Daily History';
+    find('history-result-link').hidden = !unsaved;
   }
   function capture(session) {
     try {
@@ -132,12 +140,13 @@ export function initializeHistory({ find, getStorage, keyPrefix, today, confirm 
     });
   }
   find('history-reload').addEventListener('click', () => { storage.load(); shownArchive = null; render(); });
-  find('history-link').addEventListener('click', (event) => {
+  const openHistory = (event) => {
     event.preventDefault();
     find('history').open = true;
     find('history-summary').focus();
     find('history').scrollIntoView({ block: 'start' });
-  });
+  };
+  for (const id of ['history-link', 'open-history', 'history-alert-link']) find(id).addEventListener('click', openHistory);
   find('save-history-result').addEventListener('click', () => { if (current) capture(current); });
   find('history-clear').addEventListener('click', () => {
     const approval = storage.deletionToken();
