@@ -13,6 +13,14 @@
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <div id="tile-ghost" aria-hidden="true" hidden></div>
+    <dialog id="save-confirm" aria-labelledby="save-confirm-title" aria-describedby="save-confirm-message">
+      <h2 id="save-confirm-title">Replace progress?</h2>
+      <p id="save-confirm-message"></p>
+      <div class="actions">
+        <button id="save-confirm-no" class="secondary" type="button" autofocus>Keep current progress</button>
+        <button id="save-confirm-yes" type="button">Confirm replacement</button>
+      </div>
+    </dialog>
     <dialog id="blank-dialog" aria-labelledby="blank-title" aria-describedby="blank-help">
       <h2 id="blank-title">Assign blank</h2>
       <p id="blank-help">Choose the letter this physical blank represents. You can change it before commitment.</p>
@@ -22,7 +30,7 @@
     <div class="page-shell">
       <header class="site-header">
         <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <span class="development-label">Milestone 4A · Development prototype</span>
+        <span class="development-label">Milestone 4B.1 · Development prototype</span>
       </header>
       <main id="main" tabindex="-1">
         <div class="introduction">
@@ -43,7 +51,15 @@
             <p id="board-summary">Board initialization pending.</p>
           </div>
           <label class="mode-control">Play / development mode<select id="mode"><option value="daily">Daily Puzzle</option><option value="rack">Free Play</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
-          <p class="hint">Runs stay in memory only. Refreshing loses unfinished progress. Daily puzzles regenerate with the same starting conditions; retries are allowed.</p>
+          <section id="save-context" aria-label="Local progress" hidden>
+            <p id="save-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <p class="hint">Daily and Free Play save separately on this browser and device. Clearing browser data removes saves. Development fixtures and labs are not saved.</p>
+            <div class="actions">
+              <button id="reload-save" class="secondary" type="button" hidden>Resume saved version</button>
+              <button id="replace-save" class="secondary" type="button" hidden>Replace saved version with this run</button>
+              <button id="discard-save" class="secondary" type="button" hidden>Discard unusable save</button>
+            </div>
+          </section>
           <section id="daily-context" aria-labelledby="daily-title" hidden>
             <h3 id="daily-title">Daily Puzzle</h3>
             <p id="daily-info" role="status" aria-live="polite" aria-atomic="true"></p>
@@ -255,7 +271,7 @@
           </div>
           <details class="rules"><summary>Development diagnostics: four words, one enclosure</summary>
             <button id="rack-example" class="secondary" type="button">Load scripted rack QA example</button>
-            <p>The scripted QA example switches to Free Play, resets its board to 7×7, sets target 1, and arranges a full standard bag for this sequence. Daily Puzzle stays separate. It uses the preserved hand-selected demo vocabulary for QA. New puzzle returns to ESDB. The unrestricted example remains in Legal word placement lab.</p>
+            <p>The scripted QA example uses Free Play's view with a 7×7 board, target 1, and a full standard bag arranged for this sequence. Your production Free Play save is kept; Resume Free Play returns to it. Daily Puzzle stays separate. The fixture uses the preserved hand-selected demo vocabulary for QA. New puzzle returns to ESDB. The unrestricted example remains in Legal word placement lab.</p>
             <p>In rack mode, place C, A, R at (4, 4–6), then commit CAR. Place A and B at (5–6, 4), then commit CAB. Place A and T at (5–6, 6), then commit RAT. Place A at (6, 5), then commit BAT. Coordinates are 1-based. Shared letters are reused automatically; no typing is needed. In the word lab, enter the full words instead.</p>
             <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
           </details>
@@ -274,7 +290,7 @@
           </details>
         </section>
       </main>
-      <footer><p>Milestone 4A · Shared daily puzzles · Temporary Canvas primitives, no third-party art</p></footer>
+      <footer><p>Milestone 4B.1 · Local save &amp; resume · Temporary Canvas primitives, no third-party art</p></footer>
     </div>
   </body>
 </html>

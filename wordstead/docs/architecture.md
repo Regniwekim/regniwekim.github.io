@@ -1,5 +1,15 @@
 # Wordstead architecture
 
+Milestone 4B.1 adds `src/persistence/`: pure versioned configuration/action/draft
+serialization and all-or-nothing authoritative replay, plus an injected localStorage
+adapter. The browser restores both production modes after vocabulary preparation
+and before first render. Each mode autosaves accepted actions and draft edits,
+including terminal histories. `ui/save-controls.js` supplies accessible status,
+explicit recovery/conflict controls and native replacement confirmation. Labs and
+scripted fixtures are excluded. See [local persistence](local-persistence.md) for
+identities, limits, migration policy, UTC rollover, storage failures and multi-tab
+race limitations. Core rules and released Daily v1 fixtures remain unchanged.
+
 Milestone 4A adds the pure `src/daily/` boundary for strict UTC dates and versioned
 daily definitions, reusing the existing target/session engines. The default Daily
 Puzzle and customizable Free Play have separate in-memory sessions alongside both
@@ -509,7 +519,8 @@ Evaluation and claiming reject mismatched dimensions or mask length with
 `RangeError`, including equal-area boards with different shapes. As in the
 original board model, APIs expect valid state produced by these functions, not
 arbitrary saved data. Boolean masks must remain dense and booleans. No storage
-schema or deserializer is part of this milestone.
+schema or deserializer belongs in this core module; the persistence boundary uses
+constructors and legal transitions instead of importing a board/mask snapshot.
 
 The evaluator and mask together distinguish exterior, enclosed unclaimed,
 newly claimed, previously claimed, and letter-occupied cells. Previously claimed
@@ -546,7 +557,9 @@ Free Play each own a core session and physical draft; labs own the original puzz
 selection, latest award and recent claim indices. The word lab retains typed
 word/orientation input. Mode switching preserves each session, clears transient
 input, and reconstructs the rack preview on return. Resets/dimension changes affect only the
-active session; refresh clears all four and regenerates the current UTC daily.
+active session. Refresh restores compatible Daily/Free Play histories and drafts;
+labs start fresh. A previous-date Daily retains its date and fixed target until
+explicit Start today's challenge; meaningful replacement/restart requires confirmation.
 Daily creation accepts no custom setup, and restart keeps the active daily date
 and resolved target even after midnight. There is no path to import lab edits into play.
 Each session also owns a dictionary reference and display name, shared by preview
@@ -557,8 +570,8 @@ the active run to ESDB. There is no dictionary selector or mid-run replacement.
 The page displays a concise version and links to local credits, license and policy;
 it no longer renders a full word list or offers suggestions.
 It translates intent, calls pure transitions, then refreshes DOM and Canvas.
-There is no duplicate flood fill, framework, game loop, event bus, storage,
-browser random generator, or animation loop.
+There is no duplicate flood fill, framework, game loop, event bus,
+ambient gameplay randomness, or animation loop.
 
 The rack has nine persistent semantic DOM buttons with 44px minimum targets,
 visible focus and physical ID/slot labels. Only derived capacity (7–9) is visible;
@@ -660,7 +673,8 @@ instructions. The textarea disclosure is always available for finished runs.
 Select share text focuses/selects only on explicit activation. More Games is a
 normal anchor to `https://games.regniwekim.com/` with `target="_blank"` and
 `rel="noopener noreferrer"`; it opens only on activation and preserves the game tab.
-There is no legacy copy command, persistent storage or server request for results.
+There is no legacy copy command, separately stored result or server request for results;
+terminal results derive from the session reconstructed by action replay.
 Existing focus styles, 44px controls, wrapping layout and absence of animation
 also apply to results.
 
@@ -694,7 +708,8 @@ are 1-based labels; core coordinates remain zero-based.
 The default board is 15×15. Creating dimensions from 1–30 on either axis or
 resetting clears that mode's letters/claims/points/count. Detection updates on edits; inspect
 reports without claiming. Latest new claims remain highlighted until the next
-claim or letter edit. Neither refresh nor navigation preserves state.
+claim or letter edit. Lab state is not preserved on refresh or navigation;
+production rack sessions resume through local persistence.
 
 ## Development and validation
 
@@ -885,7 +900,7 @@ of controlled full-bag drain with a test dictionary, not a no-moves solver.
 Only English A–Z assignments and standard blanks are modeled. The unrestricted
 word lab normally uses ESDB; explicit QA examples retain the demo dictionary.
 Freeform toggles A and allows removal.
-Full saved-state validation/persistence, tournament dictionary compatibility, exhaustive move
+Tournament dictionary compatibility, exhaustive move
 solver, historical daily archive/engine dispatch, campaign,
 leaderboards, final sprites, decorative animation, and sound are deferred.
 
