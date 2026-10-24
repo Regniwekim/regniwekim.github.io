@@ -1,0 +1,36 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="robots" content="noindex,nofollow">
+<title>Wordstead production target benchmark</title><h1>Production target benchmark</h1>
+<p>Local development measurements only; no gameplay or dictionary requests.</p>
+<button id="run" type="button">Run production benchmark</button><pre id="output" role="status">Ready</pre>
+<script type="module">
+import { estimateAutomaticTarget } from '../src/analysis/automatic-target.js';
+import { createTargetSession } from '../src/analysis/target-session.js';
+const button = document.querySelector('#run'), output = document.querySelector('#output');
+button.onclick = () => {
+  const memoryBefore = performance.memory?.usedJSHeapSize ?? null;
+  const samples = [], configurations = [
+    { label: 'Initial 15x15', rows: 15, columns: 15, farmDensity: .08 },
+    { label: 'Small 7x7', rows: 7, columns: 7, farmDensity: .08 },
+    { label: 'Dense 15x15', rows: 15, columns: 15, farmDensity: .25 },
+    { label: 'Large 30x30', rows: 30, columns: 30, farmDensity: .08 },
+  ];
+  for (const configuration of configurations) {
+    const times = [];
+    for (let i = 0; i < 50; i++) {
+      const start = performance.now();
+      const report = estimateAutomaticTarget({ ...configuration, farmSeed: `benchmark:${i}`, seed: `benchmark-letters:${i}` });
+      times.push(performance.now() - start);
+      if (!report.available) throw new Error('Unexpected unavailable benchmark');
+    }
+    const first = times[0]; times.sort((a, b) => a - b);
+    samples.push({ label: configuration.label, firstMs: first, medianMs: times[25], p95Ms: times[47], maxMs: times[49] });
+  }
+  const start = performance.now();
+  for (let i = 0; i < 200; i++) createTargetSession({ seed: `repeat:${i}`, farmSeed: `repeat:${i}` });
+  const repeatedSessionMs = performance.now() - start;
+  const resources = performance.getEntriesByType('resource').map(({ name, encodedBodySize, decodedBodySize, transferSize }) => ({ name, encodedBodySize, decodedBodySize, transferSize }));
+  output.textContent = JSON.stringify({ environment: navigator.userAgent, width: innerWidth,
+    samples, repeatedSessions: 200, repeatedSessionMs,
+    memoryBefore, memoryAfter: performance.memory?.usedJSHeapSize ?? null, resources }, null, 2);
+};
+</script></html>

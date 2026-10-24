@@ -137,10 +137,12 @@ test('CLI JSON is stable, concise human output stays bounded, and errors go to s
   assert.match(invalid.stderr, /every farm feature type/);
 });
 
-test('browser entry points and production gameplay remain isolated from board analysis', () => {
-  for (const path of ['../src/main.js', '../src/ui/sandbox.js', '../src/core/session.js', '../src/vocabulary/loader.js']) {
+test('core gameplay remains isolated from board analysis; browser avoids full development reports', () => {
+  for (const path of ['../src/main.js', '../src/core/session.js', '../src/vocabulary/loader.js']) {
     assert.doesNotMatch(readFileSync(new URL(path, import.meta.url), 'utf8'), /analysis\/|board-analysis|board-opportunities/);
   }
+  // 3C.3 deliberately adds a lightweight target wrapper to the UI only.
+  assert.doesNotMatch(readFileSync(new URL('../src/ui/sandbox.js', import.meta.url), 'utf8'), /board-opportunities|board-seeds/);
   const session = createSession();
   assert.equal(session.target, 1);
   assert.equal(session.puzzle.wordCount, 0);

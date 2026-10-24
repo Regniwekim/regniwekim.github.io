@@ -3,7 +3,7 @@ import { isLetterCell, setLetter } from '../core/letters.js';
 import { evaluateTerritory, claimTerritory, getTerritoryScore } from '../core/territory.js';
 import { evaluatePlacement, getStartingSquare } from '../core/placement.js';
 import { createPuzzle, commitWord } from '../core/puzzle.js';
-import { createSession, evaluateExchange,
+import { evaluateExchange,
   exchangeTiles, endSession, getStrokes, getRackCapacity, getExchangeCredits, getChargedExchanges } from '../core/session.js';
 import { getPuzzleScore, isFeatureCell, FEATURE_TYPES, summarizeFeatures } from '../core/features.js';
 import { MAX_RACK_CAPACITY } from '../core/bag.js';
@@ -16,6 +16,8 @@ import { drawBoard, pointerToCell, revealSelection } from '../rendering/board.js
 import { initializeTileInput } from './tile-input.js';
 import { renderRackSlots } from './rack.js';
 import { initializeResults } from './results.js';
+import { createTargetSession, restartTargetSession } from '../analysis/target-session.js';
+import { initializeTargetSetup } from './target-setup.js';
 
 /** Three isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox({ dictionary, vocabulary }) {
@@ -34,8 +36,9 @@ export function initializeSandbox({ dictionary, vocabulary }) {
       word: '', orientation: 'horizontal', exchanging: false, exchangeIds: [], draft: createDraft(),
       dictionary: qa ? demoDictionary : dictionary, vocabularyName: qa ? 'Hand-selected demo · QA fixture only' : vocabulary.name };
   }
-  const sessions = { rack: session(null, createSession({ farmSeed: DEFAULT_FARM_SEED })), words: session(), freeform: session() };
+  const sessions = { rack: session(null, createTargetSession({ farmSeed: DEFAULT_FARM_SEED }).session), words: session(), freeform: session() };
   let mode = 'rack';
+  const targetSetup = initializeTargetSetup({ find, isRackMode: () => mode === 'rack' });
   let preview = null;
   let boardView = null;
   let cellSize = Number(find('cell-size').value);
@@ -87,7 +90,7 @@ export function initializeSandbox({ dictionary, vocabulary }) {
     find('strokes').textContent = getStrokes(state);
     find('run-info').textContent = state.source === 'scripted'
       ? `Scripted ${state.farmFixture ? FEATURE_TYPES[state.farmFixture].label + ' farm' : 'rack'} QA fixture · full standard bag in a controlled order · restart repeats this fixture.`
-      : `Letter seed: ${state.seed} · Farm seed: ${state.farm?.seed ?? 'none'} · density: ${state.farm?.density ?? 0}. Seeds are independent.`;
+      : `Letter seed: ${state.seed} · Farm seed: ${state.farm?.seed ?? 'none'} · density: ${state.farm?.density ?? 0}. Seeds are independent. ${state.targetSelection?.mode === 'automatic' ? 'Automatic target · Experimental.' : 'Manual target.'}`;
     const metrics = `${state.puzzle.wordCount} accepted words, ${state.exchangeCount} exchanges.`;
     find('run-status').textContent = state.status === 'won' ? `Harvest Complete! ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
       : state.status === 'ended' ? `Farm Unfinished. ${score} / ${state.target} farm points. ${metrics} Results are over the board; collapse the window to inspect your farm.`
@@ -211,9 +214,7 @@ export function initializeSandbox({ dictionary, vocabulary }) {
       const current = active().state;
       rackState = current.farmFixture ? createFarmSession(current.farmFixture)
         : current.source === 'scripted' ? createEnclosureSession()
-          : createSession({ rows: dimensions.rows, columns: dimensions.columns, seed: current.seed, target: current.target,
-            farmSeed: current.farm?.seed ?? null, farmDensity: current.farm?.density,
-            farmWeights: current.farm?.weights });
+          : restartTargetSession(current);
     }
     sessions[mode] = session({ rows: dimensions.rows, columns: dimensions.columns }, rackState, qa);
     preview = null;
@@ -230,9 +231,8 @@ export function initializeSandbox({ dictionary, vocabulary }) {
     find('rows').value = puzzle().board.rows;
     find('columns').value = puzzle().board.columns;
     find('seed').required = mode === 'rack';
-    find('target').required = mode === 'rack';
     find('seed').disabled = mode !== 'rack';
-    find('target').disabled = mode !== 'rack';
+    find('target-mode').disabled = mode !== 'rack';
     for (const id of ['farm-seed', 'farm-density']) {
       find(id).disabled = mode !== 'rack';
       find(id).required = mode === 'rack';
@@ -242,7 +242,9 @@ export function initializeSandbox({ dictionary, vocabulary }) {
       find('target').value = active().state.target;
       find('farm-seed').value = active().state.farm?.seed ?? DEFAULT_FARM_SEED;
       find('farm-density').value = active().state.farm?.density ?? DEFAULT_FARM_DENSITY;
+      find('target-mode').value = active().state.targetSelection?.mode ?? 'manual';
     }
+    targetSetup.invalidate();
   }
 
   function changeMode(nextMode) {
@@ -418,8 +420,14 @@ export function initializeSandbox({ dictionary, vocabulary }) {
     event.preventDefault();
     const dimensions = { rows: Number(find('rows').value), columns: Number(find('columns').value) };
     try {
-      const rackState = mode === 'rack' ? createSession({ ...dimensions, seed: find('seed').value, target: Number(find('target').value),
-        farmSeed: find('farm-seed').value, farmDensity: Number(find('farm-density').value) }) : null;
+      let rackState = null;
+      if (mode === 'rack') {
+        const configuration = targetSetup.resolve();
+        if (!configuration) return;
+        const result = createTargetSession(configuration);
+        if (!result.available) { targetSetup.calculate(); return; }
+        rackState = result.session;
+      }
       reset(dimensions, rackState, false);
     } catch (error) { render(error.message); }
   });
@@ -469,5 +477,6 @@ export function initializeSandbox({ dictionary, vocabulary }) {
   });
   window.addEventListener('resize', () => render());
   changeMode('rack');
+  targetSetup.calculate();
   render('Rack-limited puzzle ready. Select a physical rack tile, then place it on the board.');
 }

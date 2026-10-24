@@ -1,13 +1,20 @@
 # Wordstead architecture
 
+Milestone 3C.3 adds `auto-target-v1`: pure bounded board opportunity, compact
+seeded letter-flexibility approximation and conservative integer target selection.
+The browser resolves automatic/manual settings before invoking the unchanged
+integer `createSession()` API. [Automatic targets](automatic-targets.md) pins the
+formula, search policy, model identities, calibration and measured limitations.
+
 Milestone 3C.2 adds independent, pure board-opportunity analysis with rectangular
 geometric fences, scoring upper bounds, obstruction, effort, ranked/Pareto views
 and bounded greedy portfolios. It uses unchanged core generation and feature
-definitions. No browser, gameplay, target or letter-analysis integration is added.
+definitions. Its original development report remains separate from target selection.
 
 Milestone 3C.1 adds development-only lexical analysis in `src/analysis/`, using
 the existing vocabulary parser/manifest and unchanged core bag generator. No
-browser entry point imports it; Milestone 3B gameplay and target 1 remain intact.
+browser entry point imports the full trie, sampler or profile. 3C.3 uses a small
+derived coefficient table and the original geometry helpers instead.
 
 Milestone 3B adds derived terminal results, deterministic spoiler-free text and
 client-side clipboard/manual sharing. It adds no gameplay state or victory logic.
@@ -208,7 +215,9 @@ Model data comes from constructors/transitions and is treated as immutable.
 
 Target must be a positive safe integer (RangeError otherwise). Seed validation
 comes from `bag.js` (TypeError). Defaults are 15×15, string seed `wordstead-2c`,
-and a temporary **unbalanced target 1**, unchanged by vocabulary integration.
+and legacy target **1**. Browser Free Play uses the 3C.3 selection wrapper, with
+an automatic default of 12 for the initial settings. Explicit integer callers and
+QA fixtures bypass estimation and keep their exact behavior.
 `wordCount` stays in the existing puzzle only; `getPuzzleScore(puzzle)` derives
 total score from claims plus captured feature definitions. `getStrokes(state)`
 derives words + exchanges − freeExchangesUsed. `getChargedExchanges` returns
@@ -677,6 +686,59 @@ claim or letter edit. Neither refresh nor navigation preserves state.
 
 ## Development and validation
 
+### Automatic targets (3C.3)
+
+`analysis/target-board.js` reuses 3C.2 prefix sums, rectangle measurement and
+compatibility. It makes two complete passes over explicitly bounded geometry,
+without retained ranking pools. It discounts fence demand and starting distance,
+caps combined distinct fence demand, and gives the secondary enclosure only a
+quarter contribution. This policy belongs to `auto-target-v1`; neither the 3C.2
+report algorithm nor its model version changes.
+
+`analysis/lexical-features.js` defines 107 seven-tile composition features.
+`target-lexicon-v1.js` is a 6,671-byte table fitted in Node to the unchanged 3C.1
+normalized short/medium/long/diversity metrics. `target-letters.js` estimates an
+opening rack and nine explicitly hypothetical untouched-bag windows, compares
+them to the pinned baseline mean, and bounds the multiplier to 0.90–1.10.
+There is no browser dictionary reload, second trie, sampler, Node import or data
+fetch. Detailed approximation error is documented, including zero-word rack bias.
+
+`analysis/automatic-target.js` composes the three pure stages and returns schema 1,
+method `auto-target-v1`, inputs/versions, board/letter intermediates, coefficients,
+bounds and warnings. Invalid, unsupported, incompatible, no-collectible-territory
+and no-eligible-candidate cases have distinct unavailable reasons and null targets.
+Only absence of collectible territory proves the absence of score within this
+model; a bounded search failure is not a no-moves or solvability determination.
+
+`analysis/target-session.js` returns `{ available, session, estimate }`. Manual mode
+calls `createSession()` directly and never touches the estimator. Automatic mode
+first resolves the integer, then constructs the session. Optional `targetSelection`
+stores mode, resolved target and method identities, without retaining analytical
+reports. Existing state already stores dimensions, letter seed, farm seed/density/
+weights. All transitions spread the session, preserving this metadata and integer.
+`restartTargetSession()` reconstructs only from original session settings and the
+resolved target, without estimation. Scripted constructors remain separate.
+
+`ui/target-setup.js` owns accessible target-mode controls and setup-only preview.
+Any setup input invalidates the cached report. A full configuration key also
+detects edits without input events. Calculate is synchronous and measured in
+milliseconds; an uncalculated automatic submit displays a preview and returns
+without starting. A subsequent submit uses the reviewed current settings;
+unavailable reports keep the active run intact. Manual mode enables/requires the
+numeric input. Mode switching and resets synchronize these controls. No gameplay
+transition reads them. The HUD, results and share text use `state.target` unchanged.
+
+`scripts/fit-target-lexicon.js` reproducibly fits the table; `analyze-targets.js`
+provides single reports, full independent farm/letter factorials, held-out exact
+lexical comparisons and alternative-input/pool investigations. Large output goes
+in ignored `.analysis-output/`; optional timing/memory goes to stderr, outside
+stable JSON. `scripts/benchmark-targets.html` measures the production path in a
+browser on explicit activation. No tooling is mandatory for normal static play.
+
+The analytical matrices contain 9,216 calibration and 9,216 held-out combinations;
+they do not represent human completion outcomes. 3B deliberately abandoned golf
+grading; results and sharing continue to report actual outcomes without ranks/par.
+
 ### Letter analysis (3C.1)
 
 `src/analysis/vocabulary.js` profiles all accepted lengths 2–30, including ordered
@@ -738,10 +800,11 @@ Large raw diagnostics stay in ignored `.analysis-output/`. No aggregate statisti
 artifact or new dependency is required. See [board methods and measured results](board-analysis.md),
 including the full-boundary-fence limitation and pool-truncation outliers.
 
-3C.3 can consume board value/effort/coverage/portfolio fields alongside compatible
-3C.1 lexical metrics. It must retain both method versions, dictionary identity
-and search policy; combination, calibration, score targets and difficulty remain
-unimplemented. Browser entry points import neither analytical model.
+3C.3 reuses bounded board measurements alongside a compact approximation of 3C.1
+metrics, retaining both method versions, dictionary/baseline identity and explicit
+search policy. Full reports/trie/sampling remain development-only. Automatic
+targets are implemented; human difficulty prediction and guaranteed solvability
+remain unimplemented.
 
 ### Existing gameplay validation
 
