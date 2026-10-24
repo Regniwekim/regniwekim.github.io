@@ -200,18 +200,44 @@ button:disabled {
 .proposed { background: var(--surface); border: 2px dashed var(--ink); }
 
 progress { width: 100%; height: 1.2rem; accent-color: var(--fern); }
-.rack { display: grid; grid-template-columns: repeat(4, minmax(44px, 1fr)); gap: 0.4rem; margin-block: 0.5rem; }
-.rack-tile { position: relative; min-height: 56px; padding: 0.2rem; background: var(--oat); color: var(--ink); border: 2px solid var(--wood); font-size: 1.5rem; }
 .rack-tile:hover { background: var(--cream); }
-.rack-tile[aria-pressed="true"] { border: 3px solid var(--ink); background: var(--harvest); }
 .rack-tile[aria-pressed="true"]::after { content: '\2713'; position: absolute; top: -0.2rem; right: 0.1rem; font-size: 0.8rem; }
-.rack-tile[data-used="true"] { outline: 2px dashed var(--ink); outline-offset: -6px; }
 .rack-tile:disabled { opacity: 1; }
-.rack-tile[data-empty="true"] { background: transparent; border-style: dashed; }
 .rack-tile, .draft-handle { touch-action: none; user-select: none; -webkit-user-select: none; }
 .rack-tile[data-used="true"]::before { content: '\2197'; position: absolute; bottom: -0.1rem; right: 0.1rem; font-size: 0.85rem; }
 .rack-tile[data-dragging="true"] { opacity: 0.65; border-style: dashed; }
-.rack-tile[aria-pressed="true"] { box-shadow: 0 3px 0 var(--wood); transform: translateY(-2px); }
+/* Original wooden faces match rendering/artwork.js; state symbols stay in DOM/CSS. */
+.rack {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(44px, 1fr));
+  gap: 0.4rem;
+  margin-block: 0.5rem;
+  padding: 0.55rem;
+  border: 1px solid #aeb99c;
+  border-bottom: 4px solid #a67c61;
+  border-radius: 0.6rem;
+  background: #e9e5d2;
+  box-shadow: inset 0 2px 0 #fffdf6;
+}
+.rack-tile {
+  position: relative;
+  min-height: 56px;
+  padding: 0.2rem;
+  color: var(--ink);
+  border: 2px solid #846047;
+  border-bottom-width: 4px;
+  border-radius: 0.3rem;
+  background: linear-gradient(#fae9cb 3px, var(--oat) 3px, var(--oat) calc(100% - 3px), #d6b58b calc(100% - 3px));
+  box-shadow: 0 2px 0 #6b765940, inset 2px 0 0 #fae9cb, inset -2px 0 0 #d6b58b;
+  font-size: 1.6rem;
+  font-weight: 750;
+}
+.rack-tile[aria-pressed="true"] { border: 3px solid var(--ink); background: var(--oat); outline: 2px solid var(--ink); outline-offset: 1px; box-shadow: 0 3px 0 var(--wood); transform: translateY(-2px); }
+.rack-tile[data-used="true"] { background: #fff7e7; border-style: dashed; outline: 2px dashed var(--ink); outline-offset: -6px; }
+.rack-tile[data-empty="true"] { background: #d9ddcb; box-shadow: inset 0 2px 0 #354c4315; border: 1px dashed #71836a; }
+.rack-tile:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; z-index: 1; }
+.brand h1 { text-shadow: 0 2px 0 var(--cream); }
+.brand h1::before { content: ''; display: inline-block; width: 0.55em; height: 0.65em; margin-right: 0.22em; border: 2px solid #846047; border-bottom-width: 4px; border-radius: 3px; background: var(--oat); box-shadow: inset 0 2px 0 #fae9cb; }
 .board-surface { position: relative; width: max-content; margin-inline: auto; }
 #draft-handles { position: absolute; inset: 0; pointer-events: none; }
 .draft-handle { position: absolute; pointer-events: auto; padding: 0; border: 0; border-radius: 0; background: transparent; }
@@ -226,7 +252,7 @@ progress { width: 100%; height: 1.2rem; accent-color: var(--fern); }
 #main-metrics { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); margin-block: 0.65rem; }
 #rack-context { margin-top: 0.6rem; }
 #tile-selection, #draft-direction { font-size: 0.85rem; margin-block: 0.4rem; }
-#tile-ghost { position: fixed; z-index: 10; pointer-events: none; min-width: 44px; height: 44px; padding: 0 0.4rem; border: 3px solid var(--ink); border-radius: 0.4rem; background: var(--oat); color: var(--ink); font-size: 1.5rem; font-weight: 700; box-shadow: 0 4px 6px #354c4340; }
+#tile-ghost { position: fixed; z-index: 10; pointer-events: none; min-width: 44px; height: 44px; padding: 0 0.4rem; border: 3px solid var(--ink); border-bottom: 5px solid #846047; border-radius: 0.4rem; background: var(--oat); color: var(--ink); font-size: 1.5rem; font-weight: 700; box-shadow: inset 0 2px 0 #fae9cb, 0 3px 0 #354c4340; }
 #tile-ghost[data-legal="false"] { border-style: dashed; border-color: var(--warning); }
 dialog { width: min(30rem, calc(100% - 2rem)); max-height: 90svh; overflow: auto; border: 2px solid var(--fern); border-radius: 0.75rem; background: var(--surface); color: var(--ink); }
 dialog::backdrop { background: #354c4366; }
@@ -289,6 +315,7 @@ label {
   border-radius: 0.5rem;
   background: var(--cream);
   scrollbar-gutter: stable;
+  box-shadow: 0 3px 0 var(--wood), 0 0 0 1px #d6b58b;
 }
 
 canvas {
@@ -340,7 +367,7 @@ canvas:focus-visible {
 }
 
 .claimed {
-  background: var(--sage);
+  background: repeating-linear-gradient(0deg, #dfc59d 0 5px, #c7a77d 5px 6px);
 }
 
 .letter {
@@ -361,7 +388,7 @@ canvas:focus-visible {
   overflow: auto;
   overscroll-behavior: contain;
   border: 1px solid #91aa85;
-  border-top: 4px solid var(--fern);
+  border-top: 4px solid var(--wood);
   border-radius: 0.75rem;
   background: var(--cream);
   box-shadow: 0 4px 16px #354c4333;
@@ -546,7 +573,10 @@ p:empty { display: none; }
 .progress-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; }
 #rack-play { padding: 0; margin-top: 0.5rem; }
 #goal-label { font-size: 1rem; font-weight: 750; }
-#goal-progress { display: block; height: 0.6rem; margin-block: 0.4rem; }
+#goal-progress { display: block; height: 0.6rem; margin-block: 0.4rem; border: 1px solid #71836a; border-radius: 0.4rem; overflow: hidden; background: var(--cream); }
+#goal-progress::-webkit-progress-bar { background: var(--cream); }
+#goal-progress::-webkit-progress-value { background: var(--fern); }
+#goal-progress::-moz-progress-bar { background: var(--fern); }
 .word-progress { margin: 0.5rem 0 0; text-align: right; }
 .word-progress dt { font-size: 0.8rem; }
 .word-progress dd { margin: 0; font-size: 1.5rem; font-weight: 750; line-height: 1.2; font-variant-numeric: tabular-nums; }
@@ -567,7 +597,7 @@ p:empty { display: none; }
 #tile-selection { margin-block: 0.4rem; font-size: 0.85rem; }
 #placement-feedback { margin-block: 0.5rem; padding: 0.5rem; background: var(--surface); }
 #placement-feedback[data-legality="valid"] { border-left-width: 5px; font-weight: 600; }
-#commit-word { width: 100%; font-size: 1.05rem; box-shadow: 0 3px 0 var(--ink); }
+#commit-word { width: 100%; font-size: 1.05rem; border-top-color: #71836a; box-shadow: inset 0 1px 0 #91aa85, 0 3px 0 var(--ink); }
 #commit-word:disabled { box-shadow: none; }
 .tile-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .tile-actions button { padding: 0.5rem; font-size: 0.85rem; }
