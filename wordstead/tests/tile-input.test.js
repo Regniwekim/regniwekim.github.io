@@ -225,10 +225,12 @@ test('draft handle drag moves and returns the correct physical tile to its origi
   assert.equal(h.draft.tiles.length, 1);
   assert.equal(h.draft.tiles[0].tileId, h.state.rack[0].id);
   assert.equal(h.draft.tiles[0].row, 2);
+  handle.focus();
   handle.emit('pointerdown', h.point(2, 2));
   h.events.emit('pointermove', { clientX: 20, clientY: 420 });
   h.events.emit('pointerup', { clientX: 20, clientY: 420 });
   assert.deepEqual(h.draft, createDraft());
+  assert.equal(document.activeElement, h.buttons[0]);
   assert.equal(JSON.stringify(h.state), before);
 });
 

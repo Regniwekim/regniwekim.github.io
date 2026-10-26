@@ -12,6 +12,7 @@ import { createDictionary } from '../src/core/dictionary.js';
 import { parseVocabulary } from '../src/vocabulary/format.js';
 import { VOCABULARY } from '../src/vocabulary/manifest.js';
 import { readFileSync } from 'node:fs';
+import { SOUND_KEY } from '../src/audio/sounds.js';
 
 // Event surface for the real controller, renderer and input modules; no DOM dependency.
 class Element {
@@ -35,7 +36,10 @@ class Element {
   reportValidity() { return true; }
   getContext() { return new Proxy({}, { get: () => () => {} }); }
   getBoundingClientRect() { return { left: 0, top: 0, width: this.width, height: this.height }; }
-  showModal() { this.open = true; }
+  showModal() {
+    this.open = true;
+    document.activeElement = document.getElementById(this.id === 'save-confirm' ? 'save-confirm-no' : `close-${this.id}`);
+  }
   close() { this.open = false; this.emit('close'); }
 }
 
@@ -43,7 +47,7 @@ function harness(t, options = {}) {
   const previous = { document: globalThis.document, window: globalThis.window,
     navigator: Object.getOwnPropertyDescriptor(globalThis, 'navigator') };
   const nodes = new Map();
-  const find = (id) => { if (!nodes.has(id)) nodes.set(id, new Element()); return nodes.get(id); };
+  const find = (id) => { if (!nodes.has(id)) { const node = new Element(); node.id = id; nodes.set(id, node); } return nodes.get(id); };
   const data = new Map();
   const storage = options.storage ?? { getItem: (key) => data.get(key) ?? null,
     setItem: (key, value) => data.set(key, value), removeItem: (key) => data.delete(key) };
@@ -84,6 +88,194 @@ function harness(t, options = {}) {
   return { find, click, change, rack, tile, storage, reload: boot, get copied() { return copied; },
     advance() { clock += 1; }, resize: () => window.emit('resize') };
 }
+
+test('native destinations transition one layer at a time and return focus without changing either save', async (t) => {
+  const h = harness(t), { find, click } = h;
+  await h.tile(0);
+  const daily = h.storage.getItem(STORAGE_KEYS.daily), free = h.storage.getItem(STORAGE_KEYS.free);
+  find('open-menu').focus(); await click('open-menu');
+  assert.equal(find('game-menu').open, true);
+  assert.equal(document.activeElement, find('close-game-menu'));
+  await click('open-details');
+  assert.equal(find('game-menu').open, false);
+  assert.equal(find('game-details').open, true);
+  await find('game-details').emit('cancel');
+  assert.equal(find('game-details').open, false);
+  assert.equal(document.activeElement, find('open-menu'));
+  find('open-help').focus(); await click('open-help');
+  assert.equal(find('how-to-play').open, true);
+  await click('close-how-to-play');
+  assert.equal(document.activeElement, find('open-help'));
+  await click('open-history'); await click('history-next'); await click('history-previous');
+  await find('history').emit('cancel');
+  assert.equal(find('history').open, false);
+  assert.equal(document.activeElement, find('open-history'));
+  assert.equal(h.storage.getItem(STORAGE_KEYS.daily), daily);
+  assert.equal(h.storage.getItem(STORAGE_KEYS.free), free);
+});
+
+test('menu mode navigation resumes drafts and closes; inspecting Free Play settings never replaces a run', async (t) => {
+  const h = harness(t), { find, click } = h;
+  await h.tile(0); const daily = h.rack();
+  await click('open-menu'); await click('play-free');
+  assert.equal(find('game-menu').open, false);
+  assert.equal(find('play-free').attributes['aria-pressed'], 'true');
+  await h.tile(0); const free = h.rack(), saved = h.storage.getItem(STORAGE_KEYS.free);
+  await click('open-menu'); await click('open-setup');
+  assert.equal(find('setup-panel').open, true);
+  assert.equal(find('game-menu').open, false);
+  await click('close-setup-panel');
+  assert.deepEqual(h.rack(), free);
+  assert.equal(h.storage.getItem(STORAGE_KEYS.free), saved);
+  await click('open-menu'); await click('play-daily'); assert.deepEqual(h.rack(), daily);
+  await click('open-menu'); await click('play-free'); assert.deepEqual(h.rack(), free);
+});
+
+test('restart confirmation suspends its menu, Escape restores the action and acceptance returns to the board', async (t) => {
+  const h = harness(t), { find, click } = h;
+  await h.tile(0); const draft = h.rack();
+  find('open-menu').focus(); await click('open-menu');
+  find('reset').focus(); await click('reset');
+  assert.equal(find('game-menu').open, false);
+  assert.equal(find('save-confirm').open, true);
+  await find('save-confirm').emit('cancel');
+  assert.equal(find('game-menu').open, true);
+  assert.equal(document.activeElement, find('reset'));
+  assert.deepEqual(h.rack(), draft);
+  await click('reset'); await click('save-confirm-yes');
+  assert.equal(find('game-menu').open, false);
+  assert.equal(find('save-confirm').open, false);
+  assert.equal(document.activeElement, find('board'));
+  assert.doesNotMatch(h.rack()[0], /provisionally/);
+});
+
+test('new Free Play replacement keeps configuration and draft on cancel, then closes setup only on success', async (t) => {
+  const h = harness(t), { find, click } = h;
+  await click('play-free'); await h.tile(0);
+  const saved = h.storage.getItem(STORAGE_KEYS.free);
+  await click('open-setup');
+  find('rows').value = '7'; find('columns').value = '9';
+  find('target-mode').value = 'manual'; await find('target-mode').emit('change'); find('target').value = '37';
+  find('create-board').focus(); await find('dimensions').emit('submit');
+  assert.equal(find('setup-panel').open, false);
+  assert.equal(find('save-confirm').open, true);
+  await click('save-confirm-no');
+  assert.equal(find('setup-panel').open, true);
+  assert.equal(document.activeElement, find('create-board'));
+  assert.equal(find('rows').value, '7');
+  assert.equal(h.storage.getItem(STORAGE_KEYS.free), saved);
+  await find('dimensions').emit('submit'); await click('save-confirm-yes');
+  assert.equal(find('setup-panel').open, false);
+  assert.match(find('board-summary').textContent, /7 rows × 9 columns/);
+  assert.match(find('goal-label').textContent, /0 \/ 37 farm points/);
+});
+
+test('contextual actions follow selection and drafts, while exchange replaces primary actions', async (t) => {
+  const h = harness(t), { find, click } = h;
+  for (const id of ['clear-draft', 'cancel-tile', 'return-tile', 'change-blank']) assert.equal(find(id).hidden, true);
+  await find('rack').children[0].emit('click');
+  assert.equal(find('cancel-tile').hidden, false);
+  assert.equal(find('return-tile').hidden, true);
+  await click('open-help');
+  await window.emit('keydown', { key: 'Escape' });
+  await find('how-to-play').emit('cancel');
+  assert.equal(find('cancel-tile').hidden, false); // Escape belongs to the modal, not tile input.
+  find('cancel-tile').focus(); await click('cancel-tile');
+  assert.equal(find('cancel-tile').hidden, true);
+  assert.equal(document.activeElement, find('board'));
+  await h.tile(0);
+  assert.equal(find('clear-draft').hidden, false);
+  assert.equal(find('fresh-hint').hidden, true);
+  await find('rack').children[0].emit('click');
+  assert.equal(find('return-tile').hidden, false);
+  await click('return-tile');
+  assert.equal(find('clear-draft').hidden, true);
+  await click('start-exchange');
+  assert.equal(find('commit-word').hidden, true);
+  assert.equal(find('draft-actions').hidden, true);
+  assert.equal(find('confirm-exchange').hidden, false);
+  await click('cancel-exchange');
+  assert.equal(find('commit-word').hidden, false);
+  assert.equal(find('confirm-exchange').hidden, true);
+  await click('start-exchange'); await h.change('words');
+  assert.equal(find('commit-word').hidden, false);
+  for (const id of ['start-exchange', 'confirm-exchange', 'cancel-exchange']) assert.equal(find(id).hidden, true);
+  await h.change('daily');
+  assert.equal(find('start-exchange').hidden, false);
+  assert.equal(find('confirm-exchange').hidden, true);
+});
+
+test('Help coordinate inspection closes its modal and focuses the same board without spending a tile', async (t) => {
+  const h = harness(t), { find, click } = h;
+  await find('rack').children[0].emit('click');
+  const saved = h.storage.getItem(STORAGE_KEYS.daily);
+  await click('open-help');
+  find('cell-row').value = '2'; find('cell-column').value = '3';
+  await find('coordinates').emit('submit');
+  assert.equal(find('how-to-play').open, false);
+  assert.equal(document.activeElement, find('board'));
+  assert.match(find('selection-status').textContent, /Row 2, column 3/);
+  assert.equal(h.storage.getItem(STORAGE_KEYS.daily), saved);
+  assert.equal(find('cancel-tile').hidden, false);
+});
+
+test('History confirmation returns to History on cancel or clear without changing active saves', async (t) => {
+  const h = harness(t), { find, click } = h;
+  await click('end-run'); const saved = h.storage.getItem(STORAGE_KEYS.daily);
+  await click('open-history'); find('history-clear').focus(); await click('history-clear');
+  assert.equal(find('history').open, false);
+  await click('save-confirm-no');
+  assert.equal(find('history').open, true);
+  assert.equal(document.activeElement, find('history-clear'));
+  await click('history-clear'); await click('save-confirm-yes');
+  assert.equal(find('history').open, true);
+  assert.equal(find('history-attention').hidden, false);
+  assert.equal(h.storage.getItem(STORAGE_KEYS.daily), saved);
+});
+
+test('ordinary autosaves are absent from play while storage failures remain visible outside destinations', async (t) => {
+  const h = harness(t), { find, click } = h;
+  assert.equal(find('save-context').hidden, true);
+  find('board').focus();
+  h.storage.setItem(STORAGE_KEYS.daily, '{corrupt');
+  await window.emit('storage', { key: STORAGE_KEYS.daily });
+  assert.equal(find('save-context').hidden, false);
+  assert.equal(find('save-status').attributes.role, 'alert');
+  assert.equal(find('game-menu').open, false);
+  assert.equal(document.activeElement, find('board'));
+  await click('open-menu'); await click('close-game-menu');
+  assert.equal(find('save-context').hidden, false);
+});
+
+test('menu sound preference uses the existing independent key and survives reload without editing saves', async (t) => {
+  const h = harness(t), { find, click } = h;
+  const saved = h.storage.getItem(STORAGE_KEYS.daily);
+  assert.equal(find('sound-toggle').attributes['aria-pressed'], 'false');
+  await click('open-menu'); await click('sound-toggle');
+  assert.equal(find('game-menu').open, true);
+  assert.deepEqual(JSON.parse(h.storage.getItem(SOUND_KEY)), { version: 1, enabled: true });
+  assert.equal(h.storage.getItem(STORAGE_KEYS.daily), saved);
+  h.reload(); assert.equal(find('sound-toggle').attributes['aria-pressed'], 'true');
+  await click('open-menu'); await click('sound-toggle');
+  assert.deepEqual(JSON.parse(h.storage.getItem(SOUND_KEY)), { version: 1, enabled: false });
+});
+
+test('successful recovery moves focus from disappearing save/history actions to visible controls', async (t) => {
+  const h = harness(t), { find, click } = h;
+  h.storage.setItem(STORAGE_KEYS.daily, '{broken'); h.reload();
+  find('discard-save').focus(); await click('discard-save'); await click('save-confirm-yes');
+  assert.equal(find('save-context').hidden, true);
+  assert.equal(document.activeElement, find('board'));
+  await click('end-run'); await click('open-history'); await click('history-clear'); await click('save-confirm-yes');
+  await click('close-history');
+  find('save-history-result').focus(); await click('save-history-result');
+  assert.equal(find('save-history-result').hidden, true);
+  assert.equal(document.activeElement, find('results'));
+  h.storage.setItem(HISTORY_KEY, '{broken'); await window.emit('storage', { key: HISTORY_KEY });
+  await click('open-history'); h.storage.removeItem(HISTORY_KEY);
+  find('history-reload').focus(); await click('history-reload');
+  assert.equal(document.activeElement, find('close-history'));
+});
 
 test('explicit draft and exchange actions retain keyboard focus when their controls disappear or disable', async (t) => {
   const h = harness(t);
@@ -251,7 +443,7 @@ test('player navigation and help preserve active sessions while disclosing the c
   const free = h.storage.getItem(STORAGE_KEYS.free);
   await click('open-help'); assert.equal(find('how-to-play').open, true);
   await click('open-history'); assert.equal(find('history').open, true);
-  assert.equal(document.activeElement, find('history-summary'));
+  assert.equal(document.activeElement, find('close-history'));
   await click('play-daily');
   assert.deepEqual(h.rack(), draft); assert.equal(find('setup-panel').hidden, true);
   assert.equal(h.storage.getItem(STORAGE_KEYS.daily), daily);

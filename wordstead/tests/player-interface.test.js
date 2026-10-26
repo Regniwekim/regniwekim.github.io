@@ -37,21 +37,33 @@ test('entry page preserves controller targets, labels and internal navigation af
   for (const [, id] of html.matchAll(/href="#([^"]+)"/g)) assert.ok(ids.has(id), `Navigation target #${id}`);
 });
 
-test('play order keeps the board and rack ahead of utilities, with closed native disclosures and visible warnings', () => {
+test('play order keeps board, rack and actions together; secondary controls live in closed dialogs', () => {
   const ids = structure();
   assert.ok(html.indexOf('id="board-viewport"') < html.indexOf('id="rack"'));
   assert.ok(html.indexOf('id="rack"') < html.indexOf('id="commit-word"'));
   assert.ok(html.indexOf('id="commit-word"') < html.indexOf('id="history"'));
   assert.ok(ids.get('mode').parents.some((node) => node.id === 'development-tools'));
   assert.ok(ids.get('dimensions').parents.some((node) => node.id === 'setup-panel'));
-  for (const id of ['history', 'how-to-play', 'setup-panel', 'development-tools']) {
-    assert.equal(ids.get(id).tag, 'details');
+  for (const id of ['game-menu', 'history', 'how-to-play', 'setup-panel', 'game-details', 'board-options', 'developer-panel', 'about']) {
+    assert.equal(ids.get(id).tag, 'dialog');
     assert.doesNotMatch(ids.get(id).attributes, /\bopen\b/);
   }
-  for (const id of ['save-context', 'history-attention', 'daily-context', 'action-status']) {
-    assert.ok(!ids.get(id).parents.some((node) => node.tag === 'details'), `#${id} remains outside closed disclosures`);
+  assert.equal(ids.get('development-tools').tag, 'details');
+  assert.doesNotMatch(ids.get('development-tools').attributes, /\bopen\b/);
+  for (const id of ['save-context', 'history-attention', 'challenge-notice', 'action-status']) {
+    assert.ok(!ids.get(id).parents.some((node) => ['details', 'dialog'].includes(node.tag)), `#${id} remains outside closed destinations`);
   }
   assert.equal(ids.get('play-daily').tag, 'button');
   assert.equal(ids.get('play-free').tag, 'button');
   assert.match(ids.get('play-daily').attributes, /aria-pressed="true"/);
+  for (const id of ['play-daily', 'play-free', 'reset', 'end-run', 'sound-toggle', 'start-today']) {
+    assert.ok(ids.get(id).parents.some((node) => node.id === 'game-menu'));
+  }
+  for (const id of ['open-menu', 'open-help', 'open-history']) {
+    assert.equal(ids.get(id).tag, 'button');
+    assert.match(ids.get(id).attributes, /aria-label="[^"]+"/);
+  }
+  assert.ok(ids.get('coordinates').parents.some((node) => node.id === 'how-to-play'));
+  assert.ok(ids.get('cell-size').parents.some((node) => node.id === 'board-options'));
+  assert.ok(ids.get('formed-words').parents.some((node) => node.id === 'game-details'));
 });

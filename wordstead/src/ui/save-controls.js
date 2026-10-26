@@ -1,12 +1,15 @@
 /** A native modal keeps destructive choices keyboard accessible and returns focus on close. */
-export function initializeSaveControls({ find }) {
+export function initializeSaveControls({ find, suspendForConfirmation = () => () => {} }) {
   const dialog = find('save-confirm');
   let pending = null;
+  let resume = null;
   function finish(accepted) {
     const callback = pending;
     pending = null;
     dialog.close();
     callback?.(accepted);
+    resume?.(accepted);
+    resume = null;
   }
   find('save-confirm-yes').addEventListener('click', () => finish(true));
   find('save-confirm-no').addEventListener('click', () => finish(false));
@@ -19,12 +22,14 @@ export function initializeSaveControls({ find }) {
       find('save-confirm-no').textContent = cancel;
       find('save-confirm-yes').textContent = label;
       pending = (accepted) => { if (accepted) action(); };
+      resume = suspendForConfirmation();
       dialog.showModal();
     },
     render(slot, diagnostic = false) {
       find('save-context').hidden = !slot;
       if (!slot) return;
       const { kind, message } = slot.info;
+      find('save-context').hidden = !diagnostic && !['invalid', 'unavailable', 'conflict'].includes(kind);
       find('save-context').dataset.attention = String(!diagnostic && ['invalid', 'unavailable', 'conflict'].includes(kind));
       const status = find('save-status');
       status.textContent = diagnostic ? 'QA fixture only. This fixture is not saved; your Free Play save is kept.' : message;
