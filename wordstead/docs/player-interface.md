@@ -84,8 +84,8 @@ alert and Retry; the entire game stays inert and header buttons stay disabled.
 
 Terminal results keep their native collapsible window, authoritative values/share
 text and manual clipboard fallback. Points, words and Copy lead; History and score/
-capture details are subordinate. Collapsing moves the header into normal flow so
-every completed cell is reachable. No result grades or extra judgments are added.
+capture details are subordinate. Collapsing keeps the summary over the board at
+the same position without shifting the board or rack. No result grades or extra judgments are added.
 
 Semantic controls, visible focus, live regions, the skip link, color-independent
 symbols, reduced motion and silent play remain. Closed dialogs remove their controls

@@ -539,10 +539,10 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
 - Collapse and expand the window by pointer and keyboard; inspect and pan the farm
   while collapsed. **View Results** must reopen it. **More Games** must open the
   arcade in a separate tab while the finished farm remains in the original tab.
-- At a narrow width, collapse results and pan to the top-left and top-right board
-  corners at both 44px and 72px cell sizes. Tap the first-row cells and confirm
-  their coordinates are selected. The header must sit entirely above the scroll
-  area; keyboard selection must also reveal these cells without covering them.
+- At narrow and wide widths, collapse results at both 44px and 72px cell sizes.
+  The summary must stay anchored over the board, while the board and rack keep
+  their positions. Expand again with pointer and keyboard; board scrolling and
+  coordinate inspection must remain operational.
 - Open the manual-copy disclosure and select/copy its text with the keyboard. Test
   with clipboard access unavailable/denied: failure must expand that same text,
   explain manual copying and never claim success.

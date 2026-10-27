@@ -388,13 +388,7 @@ canvas:focus-visible {
   scroll-margin-block: 1rem;
 }
 
-/* The collapsed header must leave every cell in the scroll pane reachable. */
-.results-card:not([open]) {
-  position: static;
-  max-height: none;
-  margin-block: 0 0.75rem;
-}
-
+/* Expanded and collapsed results share the same overlay anchor on the board. */
 .results-window-heading {
   position: sticky;
   top: 0;

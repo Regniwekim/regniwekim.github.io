@@ -116,8 +116,8 @@ setup. Lab board settings use the same form when a lab is active.
 Terminal results retain the native collapsible window over the final board.
 Challenge identity, score/target, words and Copy lead; history and farm/exchange
 breakdowns are secondary. Manual copy is still available, and clipboard failure
-opens its exact existing share text. Collapsing results leaves a normal-flow
-header above the board, allowing all cells to be inspected. Unfinished/exhausted
+opens its exact existing share text. Collapsing results keeps its summary anchored
+over the board, without shifting the board or rack. Unfinished/exhausted
 results remain neutral, without judgments or new end conditions.
 
 Normal save success is absent from play. Unavailable, invalid and multi-tab-conflict
@@ -192,6 +192,13 @@ files and the rack QA inline module passed syntax checks. No fixture was
 regenerated and no new runtime dependency or storage key was added.
 
 ## Reproduction and known limitations
+
+Results-collapse follow-up: removed the collapsed state's normal-flow override.
+Browser measurements at 320, 768 and 1440px confirmed zero board/rack displacement
+on collapse, with the summary anchored 12px inside the board. Pointer and keyboard
+collapse/reopen, View Results and 72px cells were checked; share text stayed
+unchanged and no page overflow appeared. The full 346-test suite and
+`git diff --check` passed again.
 
 Serve the repository root over HTTP; open `/wordstead/` directly. Menu → Advanced
 links the existing `daily-qa.html`, `rack-layout-qa.html`, `board-art-qa.html`,

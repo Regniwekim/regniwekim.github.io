@@ -741,8 +741,8 @@ success/failure from a previous run or mode. No result operation mutates gamepla
 
 The compact cream window is a native `details` disclosure, positioned over the
 board viewport within `.board-stage`. The disclosure precedes the viewport in DOM
-order. While collapsed it uses normal flow above the scroll pane, so no part of
-its header covers playable cells or requires extra canvas panning margins. It
+order. Expanded and collapsed states retain the same absolute overlay anchor
+inside the board area; collapsing only hides the body and never shifts the board or rack. It
 opens for a terminal session, and its sticky summary header provides
 keyboard-accessible collapse/expand controls. The
 window height stays within the board stage with internal scrolling for details
