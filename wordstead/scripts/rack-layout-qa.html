@@ -33,7 +33,7 @@
         }
         state = { ...state, ...replenishRack(state.rack, state.bag, capacity) };
         const section = document.createElement('section');
-        section.className = 'utility-panel';
+        section.className = 'utility-panel rack-container';
         const title = document.createElement('h2');
         title.textContent = `${capacity}-tile rack`;
         const group = document.createElement('div');

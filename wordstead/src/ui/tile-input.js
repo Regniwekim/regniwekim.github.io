@@ -7,7 +7,7 @@ const DRAG_THRESHOLD = 8;
  * The board's ordinary surface keeps native scrolling; drafted tile handles and
  * rack buttons alone reserve touch gestures for dragging. */
 export function initializeTileInput({ canvas, viewport, rackButtons, enabled, getState,
-  getDraft, setDraft, getCellSize, selectCell, refresh, redraw = () => {}, feedback = () => {} }) {
+  getDraft, setDraft, getCellSize, selectCell, refresh, redraw = () => {}, feedback = () => {}, isDialogOpen = () => false }) {
   const find = (id) => document.getElementById(id);
   const handles = new Map();
   const suppressed = new WeakSet();
@@ -23,8 +23,10 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
   const describe = (tile) => `physical tile ${tile.tileId}${tile.assignedLetter ? `, blank assigned ${tile.assignedLetter}` : `, ${tile.letter}`}`;
 
   function cancelSelection() {
+    const restoreFocus = document.activeElement === find('cancel-tile');
     selected = null;
     refresh('Tile selection cancelled. Draft unchanged.');
+    if (restoreFocus) canvas.focus({ preventScroll: true });
   }
 
   function chooseBlank(tile, callback) {
@@ -146,10 +148,12 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
         && button.dataset.tileId !== '' && Number(button.dataset.tileId) === current.tile.tileId;
     });
     if (ownSlot && draftById(current.tile.tileId)) {
+      const restoreFocus = document.activeElement === current.source;
       setDraft(returnDraftTile(getDraft(), current.tile.tileId));
       selected = null;
       refresh('Draft tile returned to its original rack slot. No resources spent.');
       feedback({ type: 'tile-returned', slots: [rackButtons.indexOf(ownSlot)] });
+      if (restoreFocus) ownSlot.focus({ preventScroll: true });
     } else if (cell) {
       const previous = draftById(current.tile.tileId);
       const result = placeDraftTile(getState(), getDraft(), { ...current.tile, ...cell });
@@ -222,7 +226,7 @@ export function initializeTileInput({ canvas, viewport, rackButtons, enabled, ge
     });
   });
   window.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || dialog.open || !enabled()) return;
+    if (event.key !== 'Escape' || dialog.open || isDialogOpen() || !enabled()) return;
     if (gesture) finish(true);
     else if (selected) cancelSelection();
   });

@@ -6,7 +6,7 @@ import { RESULT_HEADINGS } from '../core/results.js';
 const stateLabels = { completed: 'Completed', unfinished: 'Recorded unfinished or exhausted result', empty: 'No recorded result' };
 
 /** Read-only calendar and derived totals. No gameplay or active-save operations. */
-export function initializeHistory({ find, getStorage, keyPrefix, today, confirm }) {
+export function initializeHistory({ find, getStorage, keyPrefix, today, confirm, open }) {
   const storage = createHistoryStorage({ getStorage, keyPrefix });
   storage.load();
   let month = today().slice(0, 7), selected = null, current = null;
@@ -139,15 +139,19 @@ export function initializeHistory({ find, getStorage, keyPrefix, today, confirm 
       month = next; selected = null; calendar();
     });
   }
-  find('history-reload').addEventListener('click', () => { storage.load(); shownArchive = null; render(); });
-  const openHistory = (event) => {
-    event.preventDefault();
-    find('history').open = true;
-    find('history-summary').focus();
-    find('history').scrollIntoView({ block: 'start' });
-  };
-  for (const id of ['history-link', 'open-history', 'history-alert-link']) find(id).addEventListener('click', openHistory);
-  find('save-history-result').addEventListener('click', () => { if (current) capture(current); });
+  find('history-reload').addEventListener('click', () => {
+    const restoreFocus = document.activeElement === find('history-reload');
+    storage.load(); shownArchive = null; render();
+    if (restoreFocus && find('history-reload').hidden) find('close-history').focus({ preventScroll: true });
+  });
+  for (const id of ['history-link', 'open-history', 'history-alert-link']) {
+    find(id).addEventListener('click', (event) => { event.preventDefault(); open('history', find(id)); });
+  }
+  find('save-history-result').addEventListener('click', () => {
+    const restoreFocus = document.activeElement === find('save-history-result');
+    if (current) capture(current);
+    if (restoreFocus && find('save-history-result').hidden) find('results').focus({ preventScroll: true });
+  });
   find('history-clear').addEventListener('click', () => {
     const approval = storage.deletionToken();
     if (!approval) { render(); return; }

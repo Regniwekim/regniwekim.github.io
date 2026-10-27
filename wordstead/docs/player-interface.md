@@ -1,234 +1,106 @@
-# Player interface — Milestones 5A / 5B / 5C / 5D
+# Player interface — Milestone 6A
 
-Milestone 5D adds original SVG favicon/arcade-card artwork, a theme color and Open
-Graph title/description/URL while retaining `noindex, nofollow`. The footer now
-names the playable modes. Help distinguishes Daily and custom Free Play and keeps
-experimental-target, solvability, storage and dictionary caveats.
+Wordstead presents a centered daily puzzle, using the same dependency-free
+controllers, original farm art, wooden tiles and procedural sounds from 5B–5D.
+The complete rationale, information map and current validation are in
+[minimalist interface](minimalist-interface.md). Historical art/sound/release
+records describe their original milestones and are not current layout guides.
 
-Keyboard activation of Commit returns focus to the board when that control
-disables. Clear, the last Undo and End Run do the same. Starting exchange focuses the
-first rack tile; cancel returns to Exchange and confirmation focuses a replaced
-slot. These transfers happen only when the activated control had focus. Preview
-rejection, rendering and restoration do not take focus. Dragging retains native
-pointer transactions while skipping redundant same-cell evaluation/redraw.
-At larger text sizes, rack and blank-choice grids reflow to fewer columns while
-retaining 44px targets; the toolbar wraps and History month controls stay within
-their panel. The [release report](release-readiness.md) records the checks and gaps.
+## Ordinary play
 
-Milestone 5C adds restrained, cancelable action feedback and an accessible
-**Sound: Off/On** toggle in play navigation. Original procedural sounds default
-off and activate only through trusted user input. Reduced motion skips cosmetic
-effects. The board overlay is inert and pointer-ignoring; scoring, targets, saves,
-history, results and drag geometry remain authoritative and unchanged. See
-[interaction feedback](interaction-feedback.md) for exact timings, event sources,
-audio behavior, measurements and validation limits.
+The compact, nonsticky header contains Menu, Wordstead, Daily History and Help.
+The canonical challenge date and score/target sit just above the board. An older
+Daily explicitly says “previous challenge”; the menu describes the newer UTC date
+and offers the existing confirmed replacement. No automatic rollover replaces play.
 
-Milestone 5B retains the layout and control contracts below. It adds original
-pixel farm artwork, cultivated claimed land, oat wooden board/rack tiles and
-committed-letter fence rails. Drafts have pale faces, dashed rims and **p**;
-invalid previews also have **×**, reuse has **=**, and assigned blanks retain **◇**.
-Prospective territory uses a dotted outline and **?**, with no permanent claim
-fill. Farm type labels and all selected-cell/action descriptions remain available.
-Claimed features keep their artwork with **+** (recent) or **✓** (earlier).
+The board, rack, action strip and brief feedback form one column, including desktop.
+The page is capped at 46rem; the rack/actions at 36rem. Cells remain 44/56/72 CSS
+pixels, with native internal board scrolling and unchanged high-DPI rendering,
+coordinate transforms, selection reveal, hit testing, draft handles and effects.
+Board options opens the original size selector. No toolbar overlays play.
 
-The rack tray, board frame, Commit control, progress track, results rim and small
-wooden accent beside Wordstead share this visual vocabulary. Target sizes, physical
-IDs, semantic buttons, drag handles, focus order and responsive breakpoints are
-unchanged. See [board art](board-art.md) for artwork provenance, performance and
-the new QA observations. Private third-party art remains excluded and requires
-separate authorization; historical audit/license records are unchanged.
+The semantic rack group retains physical IDs, capacity-aware labels, wooden tiles,
+selected checkmarks, drafted return indicators, blank assignments and empty slots.
+It wraps at four slots below 28rem of container width and uses one capacity-aware
+row above that threshold. Seven, eight and nine slots remain supported. Targets
+remain at least 44 CSS pixels; tiles are at least 56px tall.
 
-Wordstead uses a mobile-first, dependency-free presentation of the existing game.
-This milestone changes HTML, CSS and browser presentation/controller bindings.
-It adds no gameplay rules, target calibration, generation, vocabulary, scoring,
-result/share calculations, persistence schema or history policy. The exploratory
-[v0.1 visual guide](visual-guide-v0.1.md) remains a historical reference; its old
-grade/achievement/art proposals are not part of this interface.
+Commit Word leads the compact action strip, followed by Exchange and Undo.
+Clear appears for a draft, Cancel for selection, Return for a selected draft tile,
+and Change blank for a selected blank. Existing disabled rules remain authoritative.
+Exchange temporarily replaces primary actions with Confirm/Cancel and its explicit
+credit/stroke cost. The hover/drag redraw path does not rearrange controls.
 
-## Information hierarchy and navigation
+A fresh farm gets one short starting hint. Valid/invalid previews retain words,
+prospective awards and exact rejection reasons. Acceptance and exchanges show a
+short outcome; detailed physical IDs, geometry, resources and capture rewards
+remain available in live descriptions and Game details. Routine selection, mode
+navigation, successful saving and dictionary initialization do not add visible boxes.
 
-The compact Wordstead heading retains **Build a farm, one word at a time.**
-Two semantic, visibly selected buttons offer **Daily Puzzle** and **Free Play**.
-They call the existing mode controller and preserve independent sessions and
-drafts. The Daily challenge date, farm points/target and accepted word count lead
-into the board. The page then presents the physical rack, placement feedback,
-**Commit Word**, Undo and Clear. Valid previews name all formed words and the
-prospective farm-point award. Invalid drafts explain what needs attention in text.
-Detailed word geometry, allocations, reused/missing letters and diagnostic codes
-remain in **Word & tile details**.
+## Secondary destinations
 
-The ordinary Daily date is concise. A resumed earlier date visibly explains the
-new challenge's availability and save replacement. **Start today's challenge**
-appears only when it can select another date; the existing replacement confirmation
-and UTC semantics remain authoritative. Midnight, resizing and mode switching
-cannot replace an active run. Daily never exposes Free Play configuration fields.
-
-**Farm points & supplies** retains territory/farm bonuses, latest award, rack/bag,
-exchanges, charged exchanges, credits, strokes, seeds, density and technical puzzle
-identity. **Board key & keyboard controls** holds the full legend and coordinate
-form. Tile-size selection remains beside the board. **Run options** holds the
-subordinate, dashed-border Restart and End Run actions. Existing confirmation
-behavior is retained; this milestone does not add a new ending policy.
-
-**Free Play settings** contains the original dimensions, separate seeds, density,
-automatic-target preview, manual target and New Puzzle form. Automatic settings
-still require a reviewed current estimate before creation. Restart still uses the
-active puzzle's original settings. Labs use the same form as **Lab board settings**.
-
-## Responsive layout
-
-The actual DOM order is board, rack and word actions, then supporting panels.
-This order also provides a predictable reading and keyboard sequence.
-
-| Available CSS width | Behavior |
+| Entry | Destination |
 | --- | --- |
-| Below 640px | Single column; four rack slots per row, including a third row for nine tiles. Utilities follow play. |
-| 640–1023px | Single play column, one rack row sized to capacity, two supporting columns. |
-| From 1024px | Board is the main column; a 20–23rem second column holds rack/actions and feedback. Rack wraps at four slots. Supporting panels use three columns. |
+| Menu → Daily Puzzle / Free Play | Resume the existing independent session/draft; close menu |
+| Menu → Restart / End current run | Existing restart confirmation and explicit end semantics |
+| Menu → Start today's challenge | Only for a newer UTC date; existing replacement confirmation |
+| Menu → New Free Play puzzle / settings | Original dimension/seed/density/automatic/manual target form |
+| Menu → Sound | Existing independent optional preference, default muted |
+| Menu → Farm points & game details | Word count, score/supplies, seeds, selected placement diagnostics |
+| Menu → About & credits | Tagline, identity, original art/audio and ESDB policy/license link |
+| Menu → Advanced → Development Tools | Initially collapsed labs, all scripted fixtures and standalone QA links |
+| Header History / results / recovery | Same monthly calendar, statistics, selected dates and storage recovery |
+| Header Help | Concise loop; deeper tile/exchange/save help, board key and coordinate inspection |
+| Board options | Original 44/56/72 selector |
 
-The page has no sticky rack, toolbar or action layer. There is no fixed element
-covering playable cells. The board uses native internal scrolling, a maximum
-height of 46svh on single-column layouts and 68svh in the two-column layout,
-capped at 44rem. Its Canvas and cells retain their existing dimensions and
-orthographic geometry. A smaller viewport pans instead of shrinking letters.
-The Canvas centers in surplus horizontal room; hit testing still uses its actual
-bounding rectangle. Initial load, reset, display-size changes and resize reveal
-the selected cell inside the board pane without scrolling the document or taking
-focus. Resizing never writes a save.
+Free Play mode navigation never creates another puzzle. Opening/closing setup
+never replaces its session. Unreviewed automatic settings first show the estimate;
+unavailable estimates and canceled replacement preserve the run. Lab settings use
+this same form when a lab is active. Credits and the return to Main Arcade are in
+the menu, with no permanent legal/navigation panel surrounding play.
 
-The rack and drafted handles retain their existing touch-action behavior and
-Pointer Events transactions. Empty and committed board cells retain native touch
-scrolling. There is no new drag implementation or edge auto-scroll. Tap and
-keyboard placement remain complete alternatives to dragging.
+## Focus, dialogs and warnings
 
-## Control hierarchy and help
+Native `dialog.showModal()` contains focus and makes the background inert. Every
+destination has a labeled Close button with initial focus and supports Escape.
+The interface controller opens one destination at a time. Menu-launched destinations
+inherit the visible menu opener; close returns there. A destructive confirmation
+suspends the originating dialog. Cancel/Escape reopens it with its action focused;
+accepted puzzle replacement focuses the board. History clearing returns to History.
+Coordinate submission closes Help and focuses the selected board square without
+placing a tile. Escape from a destination does not cancel a pending tile selection.
 
-Commit Word spans the rack panel and enables for a nonempty editable draft.
-Explicitly checking an invalid preview gives a brief correction rim and its existing
-text reason, preserving draft/selection/blanks. The existing core alone accepts
-legal words. Undo/Clear follow it, with selection/return/blank controls and exchanges
-below. A blank still opens the native A–Z dialog. Selected tiles use an outline and
-checkmark; drafted slots use a dashed inset and return arrow. The placement status
-uses words such as **Valid preview** and **Draft not ready**, alongside the existing
-Canvas symbols, so color is supplementary.
+Commit, last Undo, Clear and End retain the 5D focus transfers. Cancel Selection
+now focuses the board when its contextual button disappears; return focuses the
+physical rack slot. Successful save/history recovery moves focus to a visible board,
+results window or History Close control when the recovery action disappears.
+Passive render/restore/resizing and warning changes do not take focus.
 
-**How to Play** is a short six-step explanation of connected words, the starting
-square, letter fences, territory, captured features and the target. Further native
-disclosures explain draft editing, blanks, exchanging, reuse, feature rewards and
-local saving. Feature cells are explicitly described as unavailable for letters.
-Word-list credits, licenses and acceptance policy remain linked in the footer,
-alongside the return to the main arcade. Successful dictionary preparation is
-visually quiet but remains an accessible status; loading/error/retry stays visible.
+Save unavailable/invalid/conflict messages and controls stay in the ordinary view.
+History storage problems and terminal results needing explicit archiving also have
+an external notice; closing History or collapsing Results cannot hide it. No second
+storage model is introduced. Failed vocabulary loading remains an actionable startup
+alert and Retry; the entire game stays inert and header buttons stay disabled.
 
-**Development Tools** contains the original four-mode selector, unrestricted word
-lab, freeform enclosure lab and all rack/farm/enclosure examples. Selecting a lab
-opens this disclosure and labels the active board clearly; neither ordinary mode
-button is selected. Diagnostic fixtures continue to label themselves as QA and
-retain Resume Free Play. No fixture or QA page is removed.
+Terminal results keep their native collapsible window, authoritative values/share
+text and manual clipboard fallback. Points, words and Copy lead; History and score/
+capture details are subordinate. Collapsing keeps the summary over the board at
+the same position without shifting the board or rack. No result grades or extra judgments are added.
 
-## Results, History and saving
+Semantic controls, visible focus, live regions, the skip link, color-independent
+symbols, reduced motion and silent play remain. Closed dialogs remove their controls
+from keyboard order; accessibility descriptions for the Canvas and rack remain
+explicit ID references. Nonvisual announcement quality still needs real AT review.
 
-Terminal results retain their native disclosure over the completed board, with
-internal scrolling, the same calculated values, score/capture breakdown, clipboard
-workflow and manual-copy fallback. Collapsing results puts the header in normal
-flow above the pane, so all board cells remain reachable. **View Results** reopens
-and focuses this same window. **New Puzzle** in Free Play results opens the existing
-settings disclosure; it cannot create or replace a run itself. Daily History is
-available from navigation and results. The calendar is below gameplay and closed
-by default; explicit opening focuses its summary. Calendar dates, statistics,
-record details, previous/next month, clear and storage recovery retain their
-original behavior. Very narrow calendars scroll internally with 44px dates.
+## Validation
 
-Normal local-save status uses a small unboxed line. Slot invalid/unavailable/conflict
-states use a bordered, visible notice and the original recovery buttons. History
-corruption, storage failures, conflicts and capacity warnings have a visible notice
-outside the closed History panel. A terminal Daily result needing an explicit save
-or retry also exposes that notice, with links to History and the result/save action.
-Collapsing results cannot hide the need for recovery. Notices derive directly from
-the existing slot/archive/result view; there is no duplicate save status model,
-second archive or new gameplay record. The 5C sound preference has its own optional key.
-
-Internal Help, History, Results and New Puzzle links handle disclosure and explicit
-navigation themselves. They prevent default fragment navigation so a `base` URL in
-the controlled-clock QA iframe cannot leave the injected session. Rendering,
-completion, warnings and mode switching never automatically focus/scroll the page.
-
-## Accessibility and tokens
-
-Controls remain semantic buttons, inputs, selects, links and native disclosures.
-Closed disclosures exclude their contents from sequential focus. Mode buttons use
-`aria-pressed`; board coordinates and physical tile IDs retain accessible labels.
-Live status/alert roles, the skip link, visible focus, blank and replacement dialog
-focus behavior, 44px targets and reduced-motion preference support are retained.
-Only explicitly activated panel navigation moves focus. The board model and
-logical coordinate system never depend on these presentation choices.
-
-The local stylesheet consolidates reusable presentation tokens:
-
-| Token | Value / role |
-| --- | --- |
-| `--ink`, `--fern` | `#354c43`, `#4a6452`: dark text and primary controls |
-| `--meadow`, `--sage`, `--harvest` | `#bdd27e`, `#91aa85`, `#dce9b6`: farm/claim states |
-| `--cream`, `--oat`, `--wood` | `#f5e8c8`, `#f0d7af`, `#a67c61`: results and tactile tiles |
-| `--page`, `--surface`, `--support` | `#f4f5eb`, `#fffdf6`, `#edf1e6`: calm page/panel layers |
-| `--border`, `--warning` | `#c6d3bf`, `#8c3936`: separation and actionable warning rim |
-| `--radius`, `--space` | 0.75rem panel radius; 1rem spacing, 1.25rem at wider widths |
-
-System fonts render essential text and letter glyphs; Georgia supplies the native
-brand heading. No external font service, third-party art/audio, runtime dependency
-or elaborate animation is added. The 5B Canvas art refines ground and tile treatments
-within this palette; historical v0.1 proposals remain unchanged.
-
-## Reproducible QA
-
-From `wordstead/`, run `npm test`, `node --check` on changed JavaScript and inline
-QA modules, and `git diff --check`. `tests/player-interface.test.js` validates
-balanced entry markup, unique IDs, controller targets, label/anchor references,
-native disclosures, play order and warning placement. Real-controller tests cover
-new navigation, retained sessions, disclosure access, warning visibility and
-explicit results focus. All prior gameplay/save/history/input tests still run.
-
-Serve the repository root with `python -m http.server 8000 --bind 127.0.0.1`.
-Use a fresh local origin/profile or hard reload after editing native modules to
-avoid cached dependencies. Open `/wordstead/` directly, refresh, and follow the
-arcade return link and the Wordstead homepage card.
-
-1. Inspect fresh and partly played puzzles at **320, 360, 390, 768, 1024 and 1440px**.
-   Verify document scroll width does not exceed viewport width. Open each secondary
-   panel too. Check that the rack follows the board and Commit is reachable by
-   ordinary page scrolling, including with a short viewport.
-2. Switch Daily/Free Play with drafts and accepted words present; return and refresh.
-   Check settings only in Free Play, original restart settings, and canceled/accepted
-   replacement confirmations. Use keyboard navigation and visible focus throughout.
-3. Select, tap-place, move, return, undo and clear physical tiles. Drag from both
-   rack and draft; test outside drops/cancellation. At 44/56/72px cells, pan and use
-   arrows/coordinates; board scrolling must not place tiles. Exercise reserved
-   features, dictionary rejection and incomplete drafts.
-4. Use the README's CAR/CAB/RAT/BAT fixtures and all four farm types. Check the
-   expanded eight-tile rack and free then charged exchanges. For reproducible
-   visual seven/eight/nine-slot samples, open `/wordstead/scripts/rack-layout-qa.html`.
-   It uses the production renderer/CSS and controlled derived-capacity state,
-   without changing saves or providing gameplay. For actual nine-tile play, use
-   a suitable captured-livestock run; model tests pin capacity and rack invariants.
-5. Create the README's `blank-qa-636` puzzle, assign/reassign its blank, commit CAT,
-   exchange, refresh and inspect provenance. Test both diagnostic labs and manual
-   freeform claims. End a run; inspect results, copy/manual text, collapse, pan the
-   completed board and use New Puzzle to reach settings.
-6. `/wordstead/scripts/daily-qa.html` offers all six widths, injected UTC rollover,
-   fixed Daily completion drafts and isolated `wordstead.qa.` storage. Exercise
-   denied/quota/corrupt active saves, history-only failure/retry, corrupt history,
-   clear confirmations and missing historical results. Keep History/results closed
-   while verifying attention notices. Advance the date and verify explicit
-   replacement, including cancellation. Test two tabs for conflicts and safe reload.
-7. Inspect browser logs and static resource paths. On real phones, test touch
-   scrolling/drag negotiation and actual on-screen keyboard behavior. Use assistive
-   technology and other engines for checks that desktop emulation cannot establish.
-
-The existing Daily QA page also offers a three-second vocabulary delay, first
-request 404/abort, and missing animation/audio/clipboard APIs in its isolated
-iframe. Its startup report records the initial inert/busy gate, rack button count,
-load/preparation time and final state. Retry uses the real pinned loader. Normal
-play imports none of these injections; QA storage keeps its existing prefix.
+See [current 6A QA](minimalist-interface.md#validation-performed) for executed tests,
+viewport measurements, browser scenarios and known gaps. Run `npm test`, affected
+`node --check` commands and `git diff --check` from Wordstead. The test suite checks
+markup/IDs/labels, destinations, contextual actions, focus restoration, independent
+sessions, save/history/audio compatibility and all previous gameplay contracts.
+Serve the repository root over HTTP and open `/wordstead/` directly. Standalone
+QA pages remain available through Advanced, with isolated Daily QA storage.
 
 ## Validation performed for 5A
 

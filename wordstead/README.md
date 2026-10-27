@@ -5,7 +5,22 @@ puzzle and cozy farm builder. The [design skeleton](docs/design-skeleton.md)
 defines the planned game; [architecture](docs/architecture.md) documents the
 implemented contracts.
 
-## Current status: Milestone 5D release candidate
+## Current status: Milestone 6A minimalist interface
+
+The farm board and physical rack now form one centered play surface at every
+screen width. A compact header offers **Menu**, **Daily History** and **How to
+Play**. The challenge date and farm-point target sit above the board; **Commit
+Word**, **Exchange** and **Undo** follow the rack. Clear, Cancel, Return and Change
+blank appear only when relevant. Board options retains all three tile sizes.
+
+The menu resumes independent Daily/Free Play sessions and drafts, opens Free Play
+setup, and contains restart/end-run, sound, game details, credits and a collapsed
+Advanced entry to Development Tools. Native dialogs replace the old surrounding
+utility panels. Important save/history problems remain visible beside gameplay.
+No gameplay, released Daily fixtures, storage keys/schemas or share text changed.
+See [the interface design and QA report](docs/minimalist-interface.md).
+
+### Release baseline (5D)
 
 Wordstead is listed on the main arcade with its own original W-tile favicon.
 The release pass improves keyboard focus after draft/exchange actions and avoids
@@ -38,24 +53,10 @@ browser QA, load-size and redraw measurements. All runtime artwork is newly
 authored code/CSS. The private Sprout Lands starter remains private and requires
 separate authorization and license review before any future integration.
 
-The Milestone 5A player-first layout remains in place:
-
-**Daily Puzzle** and **Free Play** are the primary navigation. Challenge identity,
-farm points/target and accepted words lead directly into the board and physical
-rack. Phones use board → rack → Commit Word and draft actions; at 1024px and above,
-the rack sits beside the board. Tiles retain their logical sizes and the board
-scrolls internally. Nothing is sticky over play.
-
-**How to Play**, **Daily History**, **Farm points & supplies**, **Board key & keyboard
-controls**, **Free Play settings** and **Run options** use native disclosures.
-The settings panel is absent in Daily mode. Labs and all existing scripted fixtures
-are under **Development Tools**. Normal saves are quiet; actionable save/history
-notices remain outside closed panels, including unsaved terminal Daily results.
-Results retain their collapsible window, copying and completed-farm inspection.
-Gameplay, generation, scoring, released Daily fixtures and persistence formats are
-unchanged. The interface uses local CSS, system fonts and original Canvas artwork.
-See [player interface](docs/player-interface.md) for layout, tokens,
-accessibility, reproducible QA and testing limitations.
+The earlier 5A sidebar/disclosure layout is superseded by 6A. Current controls,
+accessibility behavior and information destinations are documented in
+[player interface](docs/player-interface.md). Historical art, sound and release
+validation records retain their original milestone observations.
 
 ### Personal Daily history (4B.2)
 
@@ -181,8 +182,9 @@ at `./wordstead/` alongside Target Tap. Direct loading needs no homepage session
 
 ## Rack-limited puzzle controls
 
-Choose **Free Play** for customization. **Free Play settings** provides separate letter
-and farm seeds, farm density, independent 1–30 board dimensions, and target mode.
+Choose **Menu → Free Play** to resume that session. **Menu → New Free Play puzzle /
+settings** opens a setup dialog with separate letter and farm seeds, farm density,
+independent 1–30 board dimensions, and target mode.
 **Automatic — Experimental** is the normal default. **Calculate Target** previews
 the current setup before **New Puzzle** starts it. Editing settings invalidates the
 preview; submitting an uncalculated automatic setup first displays its estimate
@@ -216,10 +218,10 @@ The scrollable board keeps cells at 44, 56 or 72 CSS pixels. Empty and committed
 cells retain native touch scrolling, including while a rack tile is selected.
 Movement beyond the tap threshold or pointer cancellation suppresses board taps.
 Only rack buttons and drafted tile handles reserve touch gestures for dragging.
-On phones the rack wraps at four slots per row immediately below the board; Commit,
-Undo and Clear follow the rack. Tablets use one rack row when space allows; the
-desktop side column uses four slots per row, including nine-slot racks. No native
-HTML drag-and-drop is required.
+The rack sits directly below the board at every width. Narrow layouts wrap at
+four slots per row; a single capacity-aware row appears when the rack container
+has 28rem available. Commit, Exchange and Undo follow, with Clear shown for a draft.
+No native HTML drag-and-drop is required.
 
 **Construction and legality are separate.** The first draft tile can occupy any
 available cell, with direction undecided. A second tile establishes a row or
@@ -241,7 +243,8 @@ selected tile**, a second activation of its selected original rack slot, or a dr
 back to that slot returns it without an exchange. **Undo last placement** returns
 the most recently placed or moved tile (it does not rewind a move to its old cell).
 **Clear draft** returns all pending tiles. An arbitrary return may leave a gap;
-remaining tiles stay visible and editable, with commitment disabled until repaired.
+remaining tiles stay visible and editable. Commit can explain the invalid draft
+without changing it; repair is required for acceptance.
 If only one tile remains, direction becomes undecided again. No other tile is
 silently removed.
 
@@ -276,13 +279,14 @@ pool is deterministically shuffled. Each completed exchange automatically uses o
 available free credit, otherwise it costs one provisional stroke. Failed exchanges
 and cancellation cost nothing. Credits never bypass the bag-size requirement.
 
-The page shows rack/capacity and bag counts, total score/target, base territory and
+The main view shows total score/target. **Menu → Farm points & game details** shows
+rack/capacity and bag counts, base territory and
 farm bonus points, accepted word placements, exchanges, charged exchanges, free
 credits, and derived **strokes = wordCount + exchangeCount − freeExchangesUsed**. Victory
 occurs immediately after an accepted word reaches the target. No further word,
 exchange, or end-run transition is accepted. Restart or create a new puzzle to play.
-**End unfinished run** explicitly forfeits without spending resources. Only empty
-rack **and** empty bag prove resource exhaustion here. An empty bag with useful
+**Menu → End current run** explicitly ends the run without spending resources.
+Only empty rack **and** empty bag prove resource exhaustion here. An empty bag with useful
 rack tiles is playable; there is no exhaustive no-legal-moves solver, so blocked
 runs can require the player to end them. No golf grades or individualized pars exist.
 
@@ -535,10 +539,10 @@ blocked, including the lab's optional CARS extension. Restart repeats this fixtu
 - Collapse and expand the window by pointer and keyboard; inspect and pan the farm
   while collapsed. **View Results** must reopen it. **More Games** must open the
   arcade in a separate tab while the finished farm remains in the original tab.
-- At a narrow width, collapse results and pan to the top-left and top-right board
-  corners at both 44px and 72px cell sizes. Tap the first-row cells and confirm
-  their coordinates are selected. The header must sit entirely above the scroll
-  area; keyboard selection must also reveal these cells without covering them.
+- At narrow and wide widths, collapse results at both 44px and 72px cell sizes.
+  The summary must stay anchored over the board, while the board and rack keep
+  their positions. Expand again with pointer and keyboard; board scrolling and
+  coordinate inspection must remain operational.
 - Open the manual-copy disclosure and select/copy its text with the keyboard. Test
   with clipboard access unavailable/denied: failure must expand that same text,
   explain manual copying and never claim success.
@@ -658,6 +662,7 @@ src/
   persistence/              Versioned action history, validated replay and storage adapter
   rendering/board.js        Shared Canvas view and coordinate transforms
   ui/sandbox.js             DOM controller and four isolated mode sessions
+  ui/interface.js           Native destinations and focus-safe modal transitions
   ui/daily-mode.js          Explicit browser clock boundary and daily availability
   ui/save-controls.js       Local status, recovery controls and replacement dialog
   ui/tile-input.js          Selection, blank dialog and transactional pointer input

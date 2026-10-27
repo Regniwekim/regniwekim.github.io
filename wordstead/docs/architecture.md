@@ -1,5 +1,21 @@
 # Wordstead architecture
 
+Milestone 6A adds presentation-only `ui/interface.js`: one native dialog layer
+for the menu, Help, History, setup, details, board options, About and development.
+It closes the current destination before opening another, inherits the visible
+opener across transitions, and suspends a destination before destructive
+confirmation. Cancel restores the prior destination/action; successful gameplay
+replacement returns to the board. History clearing returns to History. The header
+enables only after initialization completes. No UI destination state is persisted.
+
+The DOM now orders challenge/score → board → physical rack → Commit/Exchange/Undo
+→ contextual feedback at every width. Secondary working controls are moved, not
+copied. Existing IDs, mode controller, renderer geometry, effects, core, Daily v1,
+active saves/history, sound preference and share formatter retain their contracts.
+Normal saves are absent from play; actionable recovery remains outside dialogs.
+See [minimalist interface](minimalist-interface.md) for rationale and current QA.
+The milestone descriptions below record the earlier implementation history.
+
 Milestone 5D retains the existing architecture and all released identities. The
 tile-input controller moves the drag ghost on each pointer sample but repeats
 structural drop evaluation and board redraw only when the destination cell
@@ -645,8 +661,9 @@ ambient gameplay randomness, or animation loop.
 
 The rack has nine persistent semantic DOM buttons with 44px minimum targets,
 visible focus and physical ID/slot labels. Only derived capacity (7–9) is visible;
-the grid and accessible name track capacity. Phones and the desktop side column
-wrap at four slots; tablets can use one row for the full capacity;
+the grid and accessible name track capacity. The rack stays under the board at
+all screen sizes. It wraps at four slots in narrow containers and uses a single
+capacity-aware row when its container has 28rem available;
 empty slots and finished-run tiles are disabled. Dashed insets and ↗ mark draft
 use, outlines/checkmarks mark selection, and ◇ identifies blanks. Buttons retain
 focus across rerenders. A native modal dialog offers 26 A–Z buttons with keyboard
@@ -724,22 +741,22 @@ success/failure from a previous run or mode. No result operation mutates gamepla
 
 The compact cream window is a native `details` disclosure, positioned over the
 board viewport within `.board-stage`. The disclosure precedes the viewport in DOM
-order. While collapsed it uses normal flow above the scroll pane, so no part of
-its header covers playable cells or requires extra canvas panning margins. It
+order. Expanded and collapsed states retain the same absolute overlay anchor
+inside the board area; collapsing only hides the body and never shifts the board or rack. It
 opens for a terminal session, and its sticky summary header provides
 keyboard-accessible collapse/expand controls. The
 window height stays within the board stage with internal scrolling for details
 and manual-copy text. It uses a semantic heading and definition lists, with
 points/target and words prominent and a disclosure for detailed scoring, exchange
-and feature counts. Results and share text omit strokes. Board inspection preserves
+and feature counts. Results and share text omit strokes; game details and History
+retain their existing stroke accounting. Board inspection preserves
 the player's collapsed/expanded choice. Existing run-status live text announces
 the finish; View Results explicitly reopens and navigates to the window. Reveal
 does not automatically move focus or scroll. The board retains its letters/claim mask,
 panning, size controls and pointer/keyboard/coordinate inspection. Finished-run
-mutation controls remain disabled. The existing Restart Puzzle button lives
-in Run options below play and still reconstructs original settings; New Puzzle in
-Free Play results opens the existing settings disclosure rather than creating
-another setup workflow.
+mutation controls remain disabled. The existing restart action lives
+in the main menu and still reconstructs original settings; New Puzzle in
+Free Play results opens the shared setup dialog without creating a puzzle.
 
 Copy Results invokes `navigator.clipboard.writeText` only from its click handler.
 It disables repeated activation while pending, confirms only after success, and

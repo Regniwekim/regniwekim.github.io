@@ -25,14 +25,16 @@ import { createSaveSlot } from '../persistence/storage.js';
 import { initializeSaveControls } from './save-controls.js';
 import { initializeHistory } from './history.js';
 import { initializeFeedback, commitmentFeedback } from './feedback.js';
+import { initializeInterface } from './interface.js';
 
 /** Four isolated in-memory sessions, one shared renderer and input surface. */
 export function initializeSandbox({ dictionary, vocabulary, now, getStorage = () => window.localStorage,
   saveToken = () => crypto.randomUUID(), saveKeyPrefix = '', feedbackFactory = initializeFeedback }) {
   if (typeof dictionary?.has !== 'function') throw new TypeError('Load the gameplay vocabulary before initialization.');
   const find = (id) => document.getElementById(id);
+  const interfaceView = initializeInterface({ find });
   const resultsView = initializeResults({ find });
-  const saveView = initializeSaveControls({ find });
+  const saveView = initializeSaveControls({ find, suspendForConfirmation: interfaceView.suspendForConfirmation });
   const slots = Object.fromEntries(['daily', 'free'].map((key) => [key,
     createSaveSlot({ mode: key, dictionary, getStorage, token: saveToken, keyPrefix: saveKeyPrefix })]));
   const restored = { daily: slots.daily.load(), free: slots.free.load() };
@@ -57,7 +59,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   let productionRack = sessions.rack;
   const dailyMode = createDailyMode({ now });
   const historyView = initializeHistory({ find, getStorage, keyPrefix: saveKeyPrefix,
-    today: dailyMode.today, confirm: saveView.confirm });
+    today: dailyMode.today, confirm: saveView.confirm, open: interfaceView.open });
   let dailyResult = restored.daily ? { available: true, session: restored.daily.state } : dailyMode.startToday();
   sessions.daily = restored.daily ? recovered(restored.daily) : dailyResult.available ? session(null, dailyResult.session) : null;
   for (const [key, run] of [['daily', sessions.daily], ['free', sessions.rack]]) {
@@ -109,6 +111,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   const tileLabel = (tile) => tile.letter ?? '◇ (blank)';
   const feedback = feedbackFactory({ find, getView: () => boardView, rackButtons, getStorage });
   const tileInput = initializeTileInput({ canvas, viewport, rackButtons,
+    isDialogOpen: () => interfaceView.isOpen,
     feedback: (event) => feedback.emit(event),
     enabled: () => isRackMode() && Boolean(active()) && !active().exchanging && active().state.status === 'playing',
     getState: () => active().state, getDraft: () => active().draft,
@@ -128,7 +131,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     const score = getPuzzleScore(state.puzzle).totalPoints;
     const capacity = getRackCapacity(state);
     const credits = getExchangeCredits(state);
-    find('goal-label').textContent = `Farm points: ${score} / ${state.target}`;
+    find('goal-label').textContent = `${score} / ${state.target} farm points`;
     find('goal-progress').max = state.target;
     find('goal-progress').value = score;
     find('rack-count').textContent = `${state.rack.length} / ${capacity}`;
@@ -151,6 +154,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     renderRackSlots(find('rack'), rackButtons, { state, draft: active().draft,
       selectedTileId: tileInput.selected?.tileId, exchanging, exchangeIds });
     find('start-exchange').hidden = exchanging;
+    find('commit-word').hidden = exchanging;
+    find('draft-actions').hidden = exchanging;
     find('start-exchange').disabled = state.status !== 'playing' || !state.rack.length || !state.bag.length || used.size > 0;
     find('confirm-exchange').hidden = !exchanging;
     find('cancel-exchange').hidden = !exchanging;
@@ -174,6 +179,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
       : mode === 'words' ? 'Legal word placement lab' : 'Freeform enclosure lab';
     find('setup-panel').hidden = mode === 'daily';
     find('view-title').textContent = mode === 'rack' ? 'Free Play settings' : 'Lab board settings';
+    find('open-setup').textContent = isRackMode() ? 'New Free Play puzzle / settings' : 'Lab board settings';
     find('economy-metrics').hidden = !isRackMode();
     find('end-run').hidden = !isRackMode();
     historyView.render(mode === 'daily' ? active()?.state : null);
@@ -183,6 +189,12 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     if (mode === 'daily') {
       const today = dailyMode.today();
       const date = active()?.state.daily.date;
+      // Canonical UTC identity remains visible, including a resumed older challenge.
+      if (date) {
+        const label = new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined,
+          { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        find('board-title').textContent = `Daily · ${label}${date !== today ? ' · previous challenge' : ''}`;
+      }
       find('daily-info').textContent = date
         ? `Active challenge: ${date} · UTC. ${date !== today ? `Resuming your previous challenge. Today's challenge (${today}) is available. Start today's challenge replaces this Daily save and discards its progress.` : 'Today’s farm.'}`
         : `Daily Puzzle unavailable for ${today}. ${dailyResult.message} Free Play and the labs are still available.`;
@@ -190,6 +202,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
       find('start-today').hidden = date === today;
       if (date && !dailyResult.available) find('daily-info').textContent += ` New challenge unavailable: ${dailyResult.message}`;
     }
+    find('challenge-notice').hidden = mode !== 'daily' || Boolean(active()) && dailyResult.available;
+    find('challenge-notice').textContent = !find('challenge-notice').hidden ? find('daily-info').textContent : '';
     if (!active()) { resultsView.render(null); return; }
     find('vocabulary-note').textContent = `${active().vocabularyName}. English word list; not an official Scrabble dictionary. Credits and acceptance policy are linked in the footer.`;
     const { selected, recentClaims, latestAward, exchanging } = active();
@@ -239,8 +253,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
       ? preview.legal
         ? `Valid preview · ${preview.words.map((run) => run.text).join(', ')}. Ready to commit: +${previewTerritory.points + summarizeFeatures(board, previewTerritory.newlyClaimed).bonusPoints} farm points from ${previewTerritory.points} enclosed cells.`
         : `${isRackMode() ? 'Draft not ready' : 'Invalid preview'}: ${preview.reason.message}`
-      : isRackMode() ? active().state.status !== 'playing' ? 'Run finished. Restart or create a new puzzle.'
-        : 'Select a tile, then choose a board cell.'
+      : isRackMode() ? active().state.status !== 'playing' ? 'Run finished. Open the menu to restart or create a puzzle.'
+        : ''
         : 'No preview. Enter a word and choose a starting cell, then preview.';
     find('draft-direction').textContent = isRackMode() && preview
       ? `Draft direction: ${preview.structural.orientation ?? 'undecided (one tile)'}. ${preview.structural.coherent ? 'Straight and contiguous.' : preview.structural.reason.message}${preview.reason ? ` Diagnostic: ${preview.reason.code}.` : ''}` : '';
@@ -258,6 +272,21 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     if (isRackMode()) renderRack();
     resultsView.render(isRackMode() ? active().state : null);
     tileInput.render();
+    // Contextual controls update on completed input, never in the drag-hover path.
+    for (const id of ['clear-draft', 'cancel-tile', 'return-tile', 'change-blank']) {
+      find(id).hidden = !isRackMode() || find(id).disabled;
+    }
+    find('fresh-hint').hidden = !isRackMode() || wordCount > 0 || active().draft.tiles.length > 0
+      || exchanging || active().state.status !== 'playing';
+    if (message) {
+      // Detailed physical IDs/coordinates stay in live regions and Game details.
+      // The ordinary view shows only completed gameplay outcomes or explicit failures.
+      const accepted = /^Accepted placement \d+: (.+?)\. Claimed \d+ new cells\. \+(\d+) total points\./.exec(message);
+      find('play-feedback').textContent = accepted ? `${accepted[1]} accepted · +${accepted[2]} farm points.`
+        : /^Exchange complete/.test(message) ? message.replace(/ Exchanges \d+; strokes \d+\.$/, '')
+          : /^(Placement rejected|Drop rejected)/.test(message) && !preview ? message : '';
+      find('last-action').textContent = message;
+    }
     if (message) find('action-status').textContent = message;
   }
 
@@ -355,6 +384,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     preview = null;
     const legal = mode !== 'freeform';
     find('word-controls').hidden = !legal;
+    find('commit-word').hidden = false;
+    for (const id of ['start-exchange', 'confirm-exchange', 'cancel-exchange']) find(id).hidden = !isRackMode();
     find('word-form').hidden = mode !== 'words';
     find('clear-preview').hidden = mode !== 'words';
     find('rack-controls').hidden = !isRackMode();
@@ -377,20 +408,17 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     if (isRackMode()) updatePreview();
     render(`${find('mode').selectedOptions[0].textContent} resumed. Each mode keeps its own board and progress.`);
   }
-  find('daily-free-play').addEventListener('click', () => changeMode('rack'));
-  find('play-daily').addEventListener('click', () => changeMode('daily'));
-  find('play-free').addEventListener('click', () => changeMode('rack'));
-  find('open-help').addEventListener('click', (event) => {
-    event.preventDefault();
-    find('how-to-play').open = true;
-    find('help-summary').focus();
-    find('how-to-play').scrollIntoView({ block: 'start' });
+  function navigateMode(nextMode) { changeMode(nextMode); interfaceView.close(); }
+  find('daily-free-play').addEventListener('click', () => navigateMode('rack'));
+  find('play-daily').addEventListener('click', () => navigateMode('daily'));
+  find('play-free').addEventListener('click', () => navigateMode('rack'));
+  find('open-setup').addEventListener('click', () => {
+    if (mode === 'daily') changeMode('rack');
+    interfaceView.open('setup-panel');
   });
   find('new-puzzle-link').addEventListener('click', (event) => {
     event.preventDefault();
-    find('setup-panel').open = true;
-    find('view-title').focus();
-    find('setup-panel').scrollIntoView({ block: 'start' });
+    interfaceView.open('setup-panel');
   });
   find('start-today').addEventListener('click', () => {
     if (mode !== 'daily' || active()?.state.daily.date === dailyMode.today()) return;
@@ -404,10 +432,11 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
         viewport.scrollTop = 0;
         viewport.scrollLeft = 0;
         changeMode('daily');
+        interfaceView.close();
       } else render();
     });
   });
-  find('mode').addEventListener('change', () => changeMode(find('mode').value));
+  find('mode').addEventListener('change', () => navigateMode(find('mode').value));
   find('word-form').addEventListener('submit', (event) => { event.preventDefault(); updatePreview(); });
   wordInput.addEventListener('input', updatePreview);
   find('orientation').addEventListener('change', updatePreview);
@@ -449,12 +478,14 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   find('rack-example').addEventListener('click', () => {
     changeMode('rack');
     reset({ rows: 7, columns: 7 }, createEnclosureSession(), true);
+    interfaceView.close();
     render('Scripted rack QA example ready. Place C, A, R in row 4, columns 4–6, then commit. Follow CAR, CAB, RAT, BAT below.');
   });
   find('farm-example').addEventListener('click', () => {
     const type = find('farm-example-type').value;
     changeMode('rack');
     reset({ rows: 7, columns: 7 }, createFarmSession(type), true);
+    interfaceView.close();
     render(`${FEATURE_TYPES[type].label} farm QA ready at (5, 5). Build CAR, CAB, RAT, BAT using rack tiles. ${FEATURE_TYPES[type].effect}`);
   });
   find('start-exchange').addEventListener('click', () => {
@@ -504,6 +535,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     active().exchangeIds = [];
     preview = null;
     render('Unfinished run ended. Restart or create a new puzzle to play again.');
+    interfaceView.close();
     if (restoreFocus) canvas.focus({ preventScroll: true });
     feedback.emit({ type: 'run-ended' });
   });
@@ -536,6 +568,8 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     const cell = { row: Number(rowInput.value) - 1, column: Number(columnInput.value) - 1 };
     getCellIndex(puzzle().board, cell.row, cell.column);
     select(cell);
+    interfaceView.close(false);
+    canvas.focus({ preventScroll: true });
   });
   // Unsubmitted coordinate edits must not leave a committable preview of the old cell.
   for (const input of [rowInput, columnInput]) input.addEventListener('input', () => {
@@ -568,7 +602,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
     current.latestAward = result.points;
     render(`Claimed ${result.newlyClaimed.length} new cells. +${result.points} territory points. Total ${result.totalPoints}.`);
   });
-  find('reset').addEventListener('click', () => replaceRun('Restart this puzzle? Its saved actions and draft will be discarded. The original farm, tiles and target will repeat.', 'Restart puzzle', () => reset()));
+  find('reset').addEventListener('click', () => replaceRun('Restart this puzzle? Its saved actions and draft will be discarded. The original farm, tiles and target will repeat.', 'Restart puzzle', () => { reset(); interfaceView.close(); }));
   find('dimensions').addEventListener('submit', (event) => {
     event.preventDefault();
     if (mode === 'daily') return;
@@ -582,7 +616,7 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
         if (!result.available) { targetSetup.calculate(); return; }
         rackState = result.session;
       }
-      replaceRun('Create a new Free Play puzzle? This replaces your Free Play save and discards its progress. Daily progress is kept.', 'New Free Play puzzle', () => reset(dimensions, rackState, false), true);
+      replaceRun('Create a new Free Play puzzle? This replaces your Free Play save and discards its progress. Daily progress is kept.', 'New Free Play puzzle', () => { reset(dimensions, rackState, false); interfaceView.close(); }, true);
     } catch (error) { render(error.message); }
   });
   find('cell-size').addEventListener('change', () => {
@@ -684,4 +718,5 @@ export function initializeSandbox({ dictionary, vocabulary, now, getStorage = ()
   changeMode('daily');
   render('Daily Puzzle ready. Select a physical rack tile, then place it on the board.');
   if (active()) revealSelection(viewport, active().selected, cellSize);
+  interfaceView.ready();
 }

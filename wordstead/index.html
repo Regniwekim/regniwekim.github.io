@@ -32,45 +32,34 @@
       <div id="blank-letters" class="blank-letters"></div>
       <button id="cancel-blank" class="secondary" type="button">Cancel blank assignment</button>
     </dialog>
-
     <div class="page-shell">
       <header class="site-header">
-        <div class="brand"><h1>Wordstead</h1><p class="tagline">Build a farm, one word at a time.</p></div>
+        <button id="open-menu" aria-haspopup="dialog" aria-controls="game-menu" class="icon-button secondary" type="button" aria-label="Open game menu" disabled><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+        <h1>Wordstead</h1>
+        <div class="header-actions">
+          <button id="open-history" aria-haspopup="dialog" aria-controls="history" class="icon-button secondary" type="button" aria-label="View Daily History" disabled><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V13h3v7M11 20V4h3v16M17 20V9h3v11"></path></svg></button>
+          <button id="open-help" aria-haspopup="dialog" aria-controls="how-to-play" class="icon-button secondary" type="button" aria-label="How to Play" disabled><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 8a3 3 0 1 1 5 2c-1 1-2 1-2 3M12 17h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0"></path></svg></button>
+        </div>
       </header>
       <main id="main" tabindex="-1">
         <div class="vocabulary-loading">
           <p id="vocabulary-status" role="status" aria-live="polite" aria-atomic="true">Loading English vocabulary… Gameplay will be ready shortly.</p>
           <button id="retry-vocabulary" class="secondary" type="button" hidden>Retry vocabulary loading</button>
         </div>
-        <noscript><p>JavaScript is required to play Wordstead. Enable it and reload this page.</p></noscript>
+        <noscript>
+          <p>JavaScript is required to play Wordstead. Enable it and reload this page.</p>
+        </noscript>
         <section id="game" class="sandbox" aria-labelledby="board-title" aria-busy="true" inert>
-          <nav class="play-navigation" aria-label="Play Wordstead">
-            <div class="play-modes" role="group" aria-label="Play mode">
-              <button id="play-daily" type="button" aria-pressed="true">Daily Puzzle</button>
-              <button id="play-free" type="button" aria-pressed="false">Free Play</button>
-            </div>
-            <a id="open-history" href="#history">Daily History</a>
-            <a id="open-help" href="#how-to-play">How to Play</a>
-            <button id="sound-toggle" class="secondary" type="button" aria-pressed="false">Sound: Off</button>
-          </nav>
           <div class="challenge-header">
-            <div class="board-heading">
-              <h2 id="board-title">Daily Puzzle</h2>
-            </div>
-            <section id="daily-context" aria-label="Daily challenge" hidden>
-              <p id="daily-info" role="status" aria-live="polite" aria-atomic="true"></p>
-              <button id="start-today" class="secondary" type="button" hidden>Start today's challenge</button>
+            <h2 id="board-title">Daily Puzzle</h2>
+            <section id="rack-play" aria-label="Puzzle progress">
+              <label for="goal-progress" id="goal-label">0 / target farm points</label>
+              <progress id="goal-progress" class="sr-only" value="0" max="1" aria-labelledby="goal-label"></progress>
+              <p id="run-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+              <a id="results-link" class="results-link" href="#results" hidden>View Results</a>
             </section>
-            <div class="progress-heading">
-              <section id="rack-play" aria-label="Puzzle progress">
-                <label for="goal-progress" id="goal-label">Farm points · 0 / target</label>
-                <progress id="goal-progress" value="0" max="1" aria-labelledby="goal-label"></progress>
-                <p id="run-status" role="status" aria-live="polite" aria-atomic="true"></p>
-                <a id="results-link" class="results-link" href="#results" hidden>View Results</a>
-              </section>
-              <dl class="word-progress"><div id="word-metrics"><dt>Words placed</dt><dd id="word-count">0</dd></div></dl>
-            </div>
           </div>
+          <p id="challenge-notice" class="challenge-notice" role="status" hidden></p>
           <section id="save-context" class="save-context" aria-label="Local progress" hidden>
             <p id="save-status" role="status" aria-live="polite" aria-atomic="true"></p>
             <div class="actions">
@@ -87,52 +76,81 @@
           <div id="play-surface">
             <div class="board-layout">
               <div class="board-panel">
-                <div class="board-toolbar">
-                  <p id="starting-square"></p>
-                  <label class="zoom-control">Tile size<select id="cell-size"><option value="44">44px</option><option value="56">56px</option><option value="72">72px</option></select></label>
-                </div>
                 <div class="board-stage">
                   <details id="results" class="results-card" aria-labelledby="results-title" tabindex="-1" hidden>
-                    <summary class="results-window-heading">
-                      <h2>
-                        <span id="results-title"></span>
-                        <span class="results-collapse">Collapse results −</span>
-                        <span class="results-expand">Show results +</span>
-                      </h2>
-                    </summary>
+                    <summary class="results-window-heading"><h2><span id="results-title"></span> <span class="results-collapse">Collapse results −</span> <span class="results-expand">Show results +</span></h2></summary>
                     <div class="results-window-body">
                       <p id="results-context" class="eyebrow"></p>
-                      <p id="history-result-status" class="hint" role="status" aria-live="polite" hidden></p>
-                      <button id="save-history-result" class="secondary" type="button" hidden>Save to Daily History</button>
-                      <a id="history-link" class="results-link" href="#history">View Daily History</a>
                       <dl class="results-primary">
-                        <div class="results-score"><dt>Farm Points</dt><dd id="results-points"></dd></div>
-                        <div><dt>Words Placed</dt><dd id="results-words"></dd></div>
+                        <div class="results-score">
+                          <dt>Farm Points</dt>
+                          <dd id="results-points"></dd>
+                        </div>
+                        <div>
+                          <dt>Words Placed</dt>
+                          <dd id="results-words"></dd>
+                        </div>
                       </dl>
-                      <details id="results-breakdown" class="results-breakdown">
-                        <summary>Score, exchanges &amp; farm captured</summary>
-                        <dl class="results-statistics">
-                          <div><dt>Base territory points</dt><dd id="results-territory"></dd></div>
-                          <div><dt>Total farm bonus points</dt><dd id="results-bonus"></dd></div>
-                          <div><dt>Crop bonus points</dt><dd id="results-crop-bonus"></dd></div>
-                          <div><dt>Fertility bonus points</dt><dd id="results-fertility-bonus"></dd></div>
-                          <div><dt>Total exchanges</dt><dd id="results-exchanges"></dd></div>
-                          <div><dt>Free exchanges used</dt><dd id="results-free-exchanges"></dd></div>
-                          <div><dt>Charged exchanges</dt><dd id="results-charged-exchanges"></dd></div>
-                        </dl>
-                        <h3>Farm Captured</h3>
-                        <dl class="results-statistics">
-                          <div><dt>Crops</dt><dd id="results-crops"></dd></div>
-                          <div><dt>Fertile cells</dt><dd id="results-fertile"></dd></div>
-                          <div><dt>Livestock</dt><dd id="results-livestock"></dd></div>
-                          <div><dt>Buildings</dt><dd id="results-buildings"></dd></div>
-                        </dl>
-                      </details>
                       <div class="actions">
                         <button id="copy-results" type="button" disabled>Copy Results</button>
                         <a id="new-puzzle-link" class="button-link secondary" href="#view-title" hidden>New Puzzle</a>
-                        <a class="button-link secondary" href="https://games.regniwekim.com/" target="_blank" rel="noopener noreferrer">More Games <span class="hint">(new tab)</span></a>
                       </div>
+                      <p id="history-result-status" class="hint" role="status" aria-live="polite" hidden></p>
+                      <button id="save-history-result" class="secondary" type="button" hidden>Save to Daily History</button>
+                      <details id="results-breakdown" class="results-breakdown">
+                        <summary>Score, exchanges &amp; farm captured</summary>
+                        <dl class="results-statistics">
+                          <div>
+                            <dt>Base territory points</dt>
+                            <dd id="results-territory"></dd>
+                          </div>
+                          <div>
+                            <dt>Total farm bonus points</dt>
+                            <dd id="results-bonus"></dd>
+                          </div>
+                          <div>
+                            <dt>Crop bonus points</dt>
+                            <dd id="results-crop-bonus"></dd>
+                          </div>
+                          <div>
+                            <dt>Fertility bonus points</dt>
+                            <dd id="results-fertility-bonus"></dd>
+                          </div>
+                          <div>
+                            <dt>Total exchanges</dt>
+                            <dd id="results-exchanges"></dd>
+                          </div>
+                          <div>
+                            <dt>Free exchanges used</dt>
+                            <dd id="results-free-exchanges"></dd>
+                          </div>
+                          <div>
+                            <dt>Charged exchanges</dt>
+                            <dd id="results-charged-exchanges"></dd>
+                          </div>
+                        </dl>
+                        <h3>Farm Captured</h3>
+                        <dl class="results-statistics">
+                          <div>
+                            <dt>Crops</dt>
+                            <dd id="results-crops"></dd>
+                          </div>
+                          <div>
+                            <dt>Fertile cells</dt>
+                            <dd id="results-fertile"></dd>
+                          </div>
+                          <div>
+                            <dt>Livestock</dt>
+                            <dd id="results-livestock"></dd>
+                          </div>
+                          <div>
+                            <dt>Buildings</dt>
+                            <dd id="results-buildings"></dd>
+                          </div>
+                        </dl>
+                        <a id="history-link" class="results-link" href="#history">View Daily History</a>
+                        <a class="button-link secondary" href="https://games.regniwekim.com/" target="_blank" rel="noopener noreferrer">More Games <span class="hint">(new tab)</span></a>
+                      </details>
                       <p id="copy-status" class="hint" role="status" aria-live="polite" aria-atomic="true"></p>
                       <details id="manual-copy">
                         <summary>Share text / manual copy</summary>
@@ -154,238 +172,394 @@
               </div>
               <div class="play-column">
                 <section id="word-controls" aria-labelledby="word-title">
-                  <div class="rack-heading"><h3 id="word-title">Your rack</h3></div>
+                  <h3 id="word-title" class="sr-only">Your rack</h3>
                   <div id="rack-controls">
                     <div id="rack" class="rack" role="group" aria-label="7 rack slots" aria-describedby="rack-help"></div>
-                    <p id="rack-help" class="hint">Select a tile, then tap the board. Dragging works too. ◇ = blank.</p>
+                    <p id="rack-help" class="sr-only">Select a tile, then tap the board. Dragging works too. ◇ = blank.</p>
                   </div>
                   <form id="word-form">
                     <label>Word<input id="word" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="vocabulary-note"></label>
                     <label>Orientation<select id="orientation"><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
                     <button class="secondary" type="submit">Preview word</button>
                   </form>
-                  <p id="tile-selection" role="status" aria-live="polite" aria-atomic="true"></p>
-                  <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true">Select a rack tile to begin.</p>
-                  <div class="placement-actions">
+                  <div class="primary-actions">
                     <button id="commit-word" type="button" disabled>Commit Word</button>
-                    <div id="draft-actions" class="actions">
-                      <button id="undo-draft" class="secondary" type="button" disabled>Undo last placement</button>
-                      <button id="clear-draft" class="secondary" type="button" disabled>Clear draft</button>
+                    <button id="start-exchange" class="secondary" type="button">Exchange</button>
+                    <div id="draft-actions">
+                      <button id="undo-draft" class="secondary" type="button" disabled>Undo</button>
                     </div>
-                    <button id="clear-preview" class="secondary" type="button">Clear preview</button>
-                    <button id="example" class="secondary" type="button">Set up 7×7 example</button>
+                  </div>
+                  <div class="exchange-actions actions">
+                    <button id="confirm-exchange" type="button" hidden>Confirm exchange</button>
+                    <button id="cancel-exchange" class="secondary" type="button" hidden>Cancel exchange</button>
                   </div>
                   <div id="rack-context">
                     <div class="tile-actions actions">
-                      <button id="cancel-tile" class="secondary" type="button" disabled>Cancel selection</button>
-                      <button id="return-tile" class="secondary" type="button" disabled>Return selected tile</button>
-                      <button id="change-blank" class="secondary" type="button" disabled>Change blank letter</button>
+                      <button id="clear-draft" class="secondary" type="button" disabled hidden>Clear draft</button>
+                      <button id="cancel-tile" class="secondary" type="button" disabled hidden>Cancel selection</button>
+                      <button id="return-tile" class="secondary" type="button" disabled hidden>Return selected tile</button>
+                      <button id="change-blank" class="secondary" type="button" disabled hidden>Change blank letter</button>
                     </div>
-                    <p id="drag-status" class="hint" role="status" aria-live="polite" aria-atomic="true"></p>
-                    <div class="exchange-controls">
-                      <div class="actions">
-                        <button id="start-exchange" class="secondary" type="button">Exchange tiles</button>
-                        <button id="confirm-exchange" type="button" hidden>Confirm exchange</button>
-                        <button id="cancel-exchange" class="secondary" type="button" hidden>Cancel exchange</button>
-                      </div>
-                      <p id="exchange-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-                    </div>
+                    <p id="drag-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+                    <p id="exchange-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
                   </div>
-                  <details class="draft-details">
-                    <summary>Word &amp; tile details</summary>
-                    <p id="draft-direction" class="hint"></p>
-                    <ul id="formed-words" aria-label="Complete formed words"></ul>
-                    <p id="rack-feedback" class="hint"></p>
-                    <p id="vocabulary-note" class="hint">Preparing ESDB American English 60.</p>
-                  </details>
+                  <p id="tile-selection" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+                  <p id="placement-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+                  <p id="action-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+                  <p id="play-feedback" class="play-feedback"></p>
+                  <p id="fresh-hint" class="hint">Select a letter, then place it on ☆ to start.</p>
+                  <div class="lab-actions actions">
+                    <button id="clear-preview" class="secondary" type="button">Clear preview</button>
+                    <button id="example" class="secondary" type="button">Set up 7×7 example</button>
+                  </div>
                 </section>
-                <p id="action-status" class="action-status" role="status" aria-live="polite" aria-atomic="true">Starting puzzle…</p>
-                <p id="selection-status" role="status" aria-live="polite" aria-atomic="true">No cell selected yet.</p>
+                <p id="selection-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
                 <div id="freeform-actions" class="actions" hidden>
                   <button id="claim" type="button">Claim enclosed land</button>
                   <button id="inspect" class="secondary" type="button">Inspect enclosure</button>
                 </div>
                 <dl id="freeform-metrics" class="metrics" aria-label="Enclosure diagnostics" hidden>
-                  <div><dt>Enclosed cells</dt><dd id="enclosed-count">0</dd></div>
-                  <div><dt>Ready to claim</dt><dd id="claimable-count">0</dd></div>
+                  <div>
+                    <dt>Enclosed cells</dt>
+                    <dd id="enclosed-count">0</dd>
+                  </div>
+                  <div>
+                    <dt>Ready to claim</dt>
+                    <dd id="claimable-count">0</dd>
+                  </div>
                 </dl>
               </div>
             </div>
-            <div class="support-grid">
-              <details class="utility-panel">
-                <summary>Farm points &amp; supplies</summary>
-                <dl id="main-metrics" class="metrics" aria-label="Score breakdown">
-                  <div><dt>Base territory points</dt><dd id="territory-score">0</dd></div>
-                  <div id="farm-metric"><dt>Farm bonus points</dt><dd id="farm-score">0</dd></div>
-                  <div><dt>Latest award</dt><dd id="latest-award">+0</dd></div>
-                </dl>
-                <dl id="economy-metrics" class="metrics" aria-label="Letter economy">
-                  <div><dt>Rack / capacity</dt><dd id="rack-count">7 / 7</dd></div>
-                  <div><dt>Bag remaining</dt><dd id="bag-count">93</dd></div>
-                  <div><dt>Exchanges</dt><dd id="exchange-count">0</dd></div>
-                  <div><dt>Charged exchanges</dt><dd id="charged-exchanges">0</dd></div>
-                  <div><dt>Free credits</dt><dd id="free-credits">0</dd></div>
-                  <div><dt>Total strokes</dt><dd id="strokes">0</dd></div>
-                </dl>
-                <p class="hint">Strokes = accepted words + charged exchanges.</p>
-                <p id="run-info" class="hint"></p>
-                <p id="board-summary" class="hint">Board initialization pending.</p>
-              </details>
-              <details class="utility-panel" id="board-tools">
-                <summary>Board key &amp; keyboard controls</summary>
-                <p id="board-help">Select a rack tile, then use arrows and Enter/Space on the board. Swipe or scroll empty cells to pan.</p>
-                <p class="hint">Coordinates start at 1. Select a cell to inspect letters, land or farm features. Farm-feature cells cannot receive letters.</p>
-                <form id="coordinates">
-                  <div class="field-pair">
-                    <label>Row<input id="cell-row" type="number" min="1" max="15" value="1" step="1" required></label>
-                    <label>Column<input id="cell-column" type="number" min="1" max="15" value="1" step="1" required></label>
-                  </div>
-                  <button class="secondary" type="submit">Select cell</button>
-                </form>
-                <button id="toggle-letter" type="button" hidden>Toggle selected letter</button>
-                <ul class="legend" aria-label="Board key">
-                  <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
-                  <li><span class="swatch enclosed" aria-hidden="true">▫</span>Enclosed, unclaimed</li>
-                  <li><span class="swatch recent" aria-hidden="true">+</span>Newly claimed</li>
-                  <li><span class="swatch claimed" aria-hidden="true">✓</span>Previously claimed</li>
-                  <li><span class="swatch letter" aria-hidden="true">A</span>Letter fence</li>
-                  <li><span class="swatch proposed" aria-hidden="true">p</span>Proposed letter</li>
-                  <li><span class="swatch letter" aria-hidden="true">=</span>Reused letter</li>
-                  <li><span class="swatch letter" aria-hidden="true">◇</span>Assigned blank</li>
-                  <li><span class="swatch proposed" aria-hidden="true">×</span>Conflict</li>
-                  <li><span class="swatch proposed" aria-hidden="true">?</span>Prospective claim</li>
-                  <li><span class="swatch exterior" aria-hidden="true">☆</span>Starting square</li>
-                  <li><span class="swatch exterior" aria-hidden="true">C</span>Crop · growing plot</li>
-                  <li><span class="swatch exterior" aria-hidden="true">L</span>Livestock · hen</li>
-                  <li><span class="swatch exterior" aria-hidden="true">B</span>Building · shed</li>
-                  <li><span class="swatch exterior" aria-hidden="true">F</span>Fertile ground · enriched soil</li>
-                </ul>
-              </details>
-              <details id="setup-panel" class="utility-panel" hidden>
-                <summary id="view-title">Free Play settings</summary>
-                <form id="dimensions">
-                  <div id="rack-setup">
-                    <label>Letter seed<input id="seed" type="text" value="wordstead-2c" required></label>
-                    <label>Farm seed<input id="farm-seed" type="text" value="wordstead-farm-2d" required></label>
-                    <label>Farm density<input id="farm-density" type="number" min="0" max="0.25" step="0.01" value="0.08" required></label>
-                    <label>Target mode<select id="target-mode"><option value="automatic">Automatic — Experimental</option><option value="manual">Manual</option></select></label>
-                    <label id="manual-target" hidden>Total score target<input id="target" type="number" min="1" step="1" value="1" disabled></label>
-                    <div id="automatic-target">
-                      <button id="calculate-target" class="secondary" type="button">Calculate Target</button>
-                      <p id="target-preview" role="status" aria-live="polite" aria-atomic="true"></p>
-                    </div>
-                    <p class="hint">Seeds independently control letter order and farm layout. Density is the fraction of eligible interior cells (0 disables features). Calculate and review an automatic target, or choose Manual. New puzzles use these settings; restart repeats the active run.</p>
-                  </div>
-                  <div class="field-pair">
-                    <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
-                    <label>Columns<input id="columns" type="number" min="1" max="30" value="15" step="1" required></label>
-                  </div>
-                  <button id="create-board" class="secondary" type="submit">New Puzzle</button>
-                </form>
-                <p id="setup-help" class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
-              </details>
-              <details class="utility-panel" id="run-options">
-                <summary>Run options</summary>
-                <p class="hint">Restart repeats this farm, tile order and target. Progress replacement asks for confirmation.</p>
-                <div class="actions session-actions">
-                  <button id="reset" class="secondary caution" type="button">Restart Puzzle</button>
-                  <button id="end-run" class="secondary caution" type="button">End unfinished run</button>
-                </div>
-              </details>
+            <div class="board-options">
+              <button id="open-board-options" aria-haspopup="dialog" aria-controls="board-options" class="secondary" type="button">Board options</button>
             </div>
           </div>
-          <div class="game-utilities">
-            <details class="utility-panel" id="how-to-play">
-              <summary id="help-summary">How to Play</summary>
-              <ol class="how-to-steps">
-                <li>Build connected words from the letters in your rack.</li>
-                <li>Your first word must cross the starting square, ☆.</li>
-                <li>Your letters form fences around the land.</li>
-                <li>Enclose territory to earn farm points.</li>
-                <li>Capture farm features for bonus points, extra rack space or free exchanges. Feature cells cannot receive letters.</li>
-                <li>Reach the farm-point target to complete the puzzle.</li>
-              </ol>
-              <details><summary>Tiles, blanks &amp; exchanging</summary>
-                <p>Tap a drafted tile to pick it up, then tap another cell to move it. Return selected tile sends it back to its original rack slot. Undo returns the last tile placed or moved; Clear returns the whole draft. Nothing is spent until you commit.</p>
-                <p>Choose an A–Z letter when selecting a blank (◇). Use Change blank letter to reassign it before committing. Its chosen letter becomes permanent after commitment.</p>
-                <p>Reuse matching letters already on the board for free. Every complete word formed in either direction must be accepted by the word list.</p>
-                <p>Return or clear the draft before exchanging. Choose Exchange tiles, select rack tiles, then confirm or cancel. The bag needs at least as many tiles as you exchange. An exchange uses one free credit if available; otherwise it adds one stroke.</p>
-                <p>Crops add 3 bonus points; fertile ground adds 1. Livestock adds a rack slot, up to nine. Buildings grant a free exchange credit. Every captured cell also earns one territory point. Board edges do not act as fences.</p>
-              </details>
-              <details><summary>Daily puzzles &amp; local saving</summary>
-                <p>Daily Puzzle shares the same farm and letters for each date. Free Play lets you choose your own settings. Daily dates begin at 00:00 UTC using your device clock. Your active challenge keeps its date until you explicitly start today's challenge. Automatic targets are experimental; difficulty varies and completion is not guaranteed.</p>
-                <p>Daily and Free Play save separately in this browser/profile on this device. They are not synchronized or backed up. Clearing website data or browser eviction can remove saves and history. Labs and scripted fixtures are not saved.</p>
-                <button id="daily-free-play" class="secondary" type="button">Return to Free Play</button>
-              </details>
-            </details>
-            <details id="history" class="daily-history">
-              <summary id="history-summary">Daily History</summary>
-              <p class="hint">Your Daily results stay in this browser/profile on this device. They are not synchronized or backed up and may disappear if website data is cleared or evicted.</p>
-              <p id="history-status" role="status" aria-live="polite" aria-atomic="true"></p>
-              <button id="history-reload" class="secondary" type="button" hidden>Reload stored history</button>
-              <div id="history-content">
-                <p id="history-empty">Your calendar is ready whenever you finish a Daily Puzzle. No results recorded yet.</p>
-                <dl class="history-totals" aria-label="Personal Daily statistics">
-                  <div><dt>Recorded challenges completed</dt><dd id="history-completed">0</dd></div>
-                  <div><dt>Recorded unfinished or exhausted results</dt><dd id="history-unfinished">0</dd></div>
-                  <div><dt>Accepted words in completed dailies</dt><dd id="history-words">0</dd></div>
-                  <div><dt>Average words per completed daily</dt><dd id="history-average-words">—</dd></div>
-                  <div><dt>Strokes in completed dailies</dt><dd id="history-strokes">0</dd></div>
-                  <div><dt>Average strokes per completed daily</dt><dd id="history-average-strokes">—</dd></div>
-                  <div><dt>Farm points in completed dailies</dt><dd id="history-points">0</dd></div>
-                  <div><dt>Captured farm features in completed dailies</dt><dd id="history-features">0</dd></div>
-                </dl>
-                <p class="hint">Strokes = accepted words + charged exchanges. Averages use completed records only; — means none yet. Missing dates say nothing about attempts.</p>
-                <div class="history-layout">
-                  <section class="history-calendar" aria-labelledby="history-month">
-                    <div class="history-month-nav">
-                      <button id="history-previous" class="secondary" type="button" aria-label="Previous history month">←</button>
-                      <h3 id="history-month" aria-live="polite" aria-atomic="true"></h3>
-                      <button id="history-next" class="secondary" type="button" aria-label="Next history month">→</button>
-                    </div>
-                    <p class="hint">UTC dates · ✓ Completed · ◦ Unfinished / exhausted · Unmarked: no recorded result</p>
-                    <div class="history-calendar-scroll">
-                      <div class="history-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
-                      <div id="history-days" aria-label="Daily result dates"></div>
-                    </div>
-                  </section>
-                  <section id="history-details" aria-label="Selected historical result" aria-live="polite"></section>
-                </div>
+          <dialog id="game-menu" class="destination" aria-labelledby="game-menu-title">
+            <div class="dialog-heading">
+              <h2 id="game-menu-title" tabindex="-1">Game menu</h2>
+              <button id="close-game-menu" class="icon-button secondary" type="button" aria-label="Close Game menu" autofocus>×</button>
+            </div>
+            <nav aria-label="Play Wordstead">
+              <h3>Play modes</h3>
+              <div class="play-modes" role="group" aria-label="Play mode">
+                <button id="play-daily" type="button" aria-pressed="true">Daily Puzzle</button>
+                <button id="play-free" type="button" aria-pressed="false">Free Play</button>
               </div>
-              <button id="history-clear" class="secondary" type="button">Clear Daily History</button>
+              <section id="daily-context" aria-label="Daily challenge">
+                <p id="daily-info"></p>
+                <button id="start-today" class="secondary" type="button" hidden>Start today's challenge</button>
+              </section>
+              <h3>Puzzle actions</h3>
+              <div class="menu-actions">
+                <button id="open-setup" aria-haspopup="dialog" aria-controls="setup-panel" class="secondary" type="button">New Free Play puzzle / settings</button>
+                <button id="reset" class="secondary" type="button">Restart current puzzle</button>
+                <button id="end-run" class="secondary" type="button">End current run</button>
+              </div>
+              <h3>Preferences</h3>
+              <button id="sound-toggle" class="secondary" type="button" aria-pressed="false">Sound: Off</button>
+              <h3>Game information</h3>
+              <div class="menu-actions">
+                <button id="open-details" aria-haspopup="dialog" aria-controls="game-details" class="secondary" type="button">Farm points &amp; game details</button>
+                <button id="open-about" aria-haspopup="dialog" aria-controls="about" class="secondary" type="button">About &amp; credits</button>
+                <a class="back-link" href="../index.html">← Back to Main Arcade</a>
+              </div>
+              <details class="developer-entry">
+                <summary>Advanced</summary>
+                <button id="open-development" aria-haspopup="dialog" aria-controls="developer-panel" class="secondary" type="button">Development Tools</button>
+              </details>
+            </nav>
+          </dialog>
+          <dialog id="how-to-play" class="destination" aria-labelledby="help-summary">
+            <div class="dialog-heading">
+              <h2 id="help-summary" tabindex="-1">How to Play</h2>
+              <button id="close-how-to-play" class="icon-button secondary" type="button" aria-label="Close How to Play" autofocus>×</button>
+            </div>
+            <p class="tagline">Build a farm, one word at a time.</p>
+            <ol class="how-to-steps">
+              <li>Build connected words from the letters in your rack.</li>
+              <li>Your first word must cross the starting square, ☆.</li>
+              <li>Your letters form fences around the land.</li>
+              <li>Enclose territory to earn farm points.</li>
+              <li>Capture farm features for bonus points, extra rack space or free exchanges. Feature cells cannot receive letters.</li>
+              <li>Reach the farm-point target to complete the puzzle.</li>
+            </ol>
+            <details>
+              <summary>Tiles, blanks &amp; exchanging</summary>
+              <p>Tap a drafted tile to pick it up, then tap another cell to move it. Return selected tile sends it back to its original rack slot. Undo returns the last tile placed or moved; Clear returns the whole draft. Nothing is spent until you commit.</p>
+              <p>Choose an A–Z letter when selecting a blank (◇). Use Change blank letter to reassign it before committing. Its chosen letter becomes permanent after commitment.</p>
+              <p>Reuse matching letters already on the board for free. Every complete word formed in either direction must be accepted by the word list.</p>
+              <p>Return or clear the draft before exchanging. Choose Exchange tiles, select rack tiles, then confirm or cancel. The bag needs at least as many tiles as you exchange. An exchange uses one free credit if available; otherwise it adds one stroke.</p>
+              <p>Crops add 3 bonus points; fertile ground adds 1. Livestock adds a rack slot, up to nine. Buildings grant a free exchange credit. Every captured cell also earns one territory point. Board edges do not act as fences.</p>
             </details>
+            <details>
+              <summary>Daily puzzles &amp; local saving</summary>
+              <p>Daily Puzzle shares the same farm and letters for each date. Free Play lets you choose your own settings. Daily dates begin at 00:00 UTC using your device clock. Your active challenge keeps its date until you explicitly start today's challenge. Automatic targets are experimental; difficulty varies and completion is not guaranteed.</p>
+              <p>Daily and Free Play save separately in this browser/profile on this device. They are not synchronized or backed up. Clearing website data or browser eviction can remove saves and history. Labs and scripted fixtures are not saved.</p>
+              <button id="daily-free-play" class="secondary" type="button">Return to Free Play</button>
+            </details>
+            <details class="utility-panel" id="board-tools">
+              <summary>Board key &amp; keyboard controls</summary>
+              <p id="starting-square"></p>
+              <p id="board-help">Select a rack tile, then use arrows and Enter/Space on the board. Swipe or scroll empty cells to pan.</p>
+              <p class="hint">Coordinates start at 1. Select a cell to inspect letters, land or farm features. Farm-feature cells cannot receive letters.</p>
+              <form id="coordinates">
+                <div class="field-pair">
+                  <label>Row<input id="cell-row" type="number" min="1" max="15" value="1" step="1" required></label>
+                  <label>Column<input id="cell-column" type="number" min="1" max="15" value="1" step="1" required></label>
+                </div>
+                <button class="secondary" type="submit">Select cell</button>
+              </form>
+              <button id="toggle-letter" type="button" hidden>Toggle selected letter</button>
+              <ul class="legend" aria-label="Board key">
+                <li><span class="swatch exterior" aria-hidden="true"></span>Exterior</li>
+                <li><span class="swatch enclosed" aria-hidden="true">▫</span>Enclosed, unclaimed</li>
+                <li><span class="swatch recent" aria-hidden="true">+</span>Newly claimed</li>
+                <li><span class="swatch claimed" aria-hidden="true">✓</span>Previously claimed</li>
+                <li><span class="swatch letter" aria-hidden="true">A</span>Letter fence</li>
+                <li><span class="swatch proposed" aria-hidden="true">p</span>Proposed letter</li>
+                <li><span class="swatch letter" aria-hidden="true">=</span>Reused letter</li>
+                <li><span class="swatch letter" aria-hidden="true">◇</span>Assigned blank</li>
+                <li><span class="swatch proposed" aria-hidden="true">×</span>Conflict</li>
+                <li><span class="swatch proposed" aria-hidden="true">?</span>Prospective claim</li>
+                <li><span class="swatch exterior" aria-hidden="true">☆</span>Starting square</li>
+                <li><span class="swatch exterior" aria-hidden="true">C</span>Crop · growing plot</li>
+                <li><span class="swatch exterior" aria-hidden="true">L</span>Livestock · hen</li>
+                <li><span class="swatch exterior" aria-hidden="true">B</span>Building · shed</li>
+                <li><span class="swatch exterior" aria-hidden="true">F</span>Fertile ground · enriched soil</li>
+              </ul>
+            </details>
+            <details>
+              <summary>Board size &amp; automatic targets</summary>
+              <p>Choose 44, 56 or 72 pixel tiles in Board options. The board scrolls inside its frame; letters never shrink to fit. Arrow keys move the selected cell; Enter or Space places a selected tile. Use the coordinate form above to inspect any square. Automatic targets estimate the generated farm and letters; puzzles are not guaranteed solvable.</p>
+            </details>
+          </dialog>
+          <dialog id="history" class="destination" aria-labelledby="history-summary">
+            <div class="dialog-heading">
+              <h2 id="history-summary" tabindex="-1">Daily History</h2>
+              <button id="close-history" class="icon-button secondary" type="button" aria-label="Close Daily History" autofocus>×</button>
+            </div>
+            <p class="hint">Your Daily results stay in this browser/profile on this device. They are not synchronized or backed up and may disappear if website data is cleared or evicted.</p>
+            <p id="history-status" role="status" aria-live="polite" aria-atomic="true"></p>
+            <button id="history-reload" class="secondary" type="button" hidden>Reload stored history</button>
+            <div id="history-content">
+              <p id="history-empty">Your calendar is ready whenever you finish a Daily Puzzle. No results recorded yet.</p>
+              <dl class="history-totals" aria-label="Personal Daily statistics">
+                <div>
+                  <dt>Recorded challenges completed</dt>
+                  <dd id="history-completed">0</dd>
+                </div>
+                <div>
+                  <dt>Recorded unfinished or exhausted results</dt>
+                  <dd id="history-unfinished">0</dd>
+                </div>
+                <div>
+                  <dt>Accepted words in completed dailies</dt>
+                  <dd id="history-words">0</dd>
+                </div>
+                <div>
+                  <dt>Average words per completed daily</dt>
+                  <dd id="history-average-words">—</dd>
+                </div>
+                <div>
+                  <dt>Strokes in completed dailies</dt>
+                  <dd id="history-strokes">0</dd>
+                </div>
+                <div>
+                  <dt>Average strokes per completed daily</dt>
+                  <dd id="history-average-strokes">—</dd>
+                </div>
+                <div>
+                  <dt>Farm points in completed dailies</dt>
+                  <dd id="history-points">0</dd>
+                </div>
+                <div>
+                  <dt>Captured farm features in completed dailies</dt>
+                  <dd id="history-features">0</dd>
+                </div>
+              </dl>
+              <p class="hint">Strokes = accepted words + charged exchanges. Averages use completed records only; — means none yet. Missing dates say nothing about attempts.</p>
+              <div class="history-layout">
+                <section class="history-calendar" aria-labelledby="history-month">
+                  <div class="history-month-nav">
+                    <button id="history-previous" class="secondary" type="button" aria-label="Previous history month">←</button>
+                    <h3 id="history-month" aria-live="polite" aria-atomic="true"></h3>
+                    <button id="history-next" class="secondary" type="button" aria-label="Next history month">→</button>
+                  </div>
+                  <p class="hint">UTC dates · ✓ Completed · ◦ Unfinished / exhausted · Unmarked: no recorded result</p>
+                  <div class="history-calendar-scroll">
+                    <div class="history-weekdays" aria-hidden="true">
+                      <span>Sun</span>
+                      <span>Mon</span>
+                      <span>Tue</span>
+                      <span>Wed</span>
+                      <span>Thu</span>
+                      <span>Fri</span>
+                      <span>Sat</span>
+                    </div>
+                    <div id="history-days" aria-label="Daily result dates"></div>
+                  </div>
+                </section>
+                <section id="history-details" aria-label="Selected historical result" aria-live="polite"></section>
+              </div>
+            </div>
+            <button id="history-clear" class="secondary" type="button">Clear Daily History</button>
+          </dialog>
+          <dialog id="setup-panel" class="destination" aria-labelledby="view-title">
+            <div class="dialog-heading">
+              <h2 id="view-title" tabindex="-1">Free Play settings</h2>
+              <button id="close-setup-panel" class="icon-button secondary" type="button" aria-label="Close Free Play settings" autofocus>×</button>
+            </div>
+            <form id="dimensions">
+              <div id="rack-setup">
+                <label>Letter seed<input id="seed" type="text" value="wordstead-2c" required></label>
+                <label>Farm seed<input id="farm-seed" type="text" value="wordstead-farm-2d" required></label>
+                <label>Farm density<input id="farm-density" type="number" min="0" max="0.25" step="0.01" value="0.08" required></label>
+                <label>Target mode<select id="target-mode"><option value="automatic">Automatic — Experimental</option><option value="manual">Manual</option></select></label>
+                <label id="manual-target" hidden>Total score target<input id="target" type="number" min="1" step="1" value="1" disabled></label>
+                <div id="automatic-target">
+                  <button id="calculate-target" class="secondary" type="button">Calculate Target</button>
+                  <p id="target-preview" role="status" aria-live="polite" aria-atomic="true"></p>
+                </div>
+                <p class="hint">Seeds independently control letter order and farm layout. Density is the fraction of eligible interior cells (0 disables features). Calculate and review an automatic target, or choose Manual. New puzzles use these settings; restart repeats the active run.</p>
+              </div>
+              <div class="field-pair">
+                <label>Rows<input id="rows" type="number" min="1" max="30" value="15" step="1" required></label>
+                <label>Columns<input id="columns" type="number" min="1" max="30" value="15" step="1" required></label>
+              </div>
+              <button id="create-board" class="secondary" type="submit">New Puzzle</button>
+            </form>
+            <p id="setup-help" class="hint">1–30 per dimension. Creating a board clears all letters, claims, and points.</p>
+          </dialog>
+          <dialog id="game-details" class="destination" aria-labelledby="game-details-title">
+            <div class="dialog-heading">
+              <h2 id="game-details-title" tabindex="-1">Game details</h2>
+              <button id="close-game-details" class="icon-button secondary" type="button" aria-label="Close Game details" autofocus>×</button>
+            </div>
+            <p id="last-action" class="hint"></p>
+            <section class="game-details">
+              <h3>Farm points &amp; supplies</h3>
+              <dl id="main-metrics" class="metrics" aria-label="Score breakdown">
+                <div>
+                  <dt>Base territory points</dt>
+                  <dd id="territory-score">0</dd>
+                </div>
+                <div id="farm-metric">
+                  <dt>Farm bonus points</dt>
+                  <dd id="farm-score">0</dd>
+                </div>
+                <div>
+                  <dt>Latest award</dt>
+                  <dd id="latest-award">+0</dd>
+                </div>
+              </dl>
+              <dl id="economy-metrics" class="metrics" aria-label="Letter economy">
+                <div>
+                  <dt>Rack / capacity</dt>
+                  <dd id="rack-count">7 / 7</dd>
+                </div>
+                <div>
+                  <dt>Bag remaining</dt>
+                  <dd id="bag-count">93</dd>
+                </div>
+                <div>
+                  <dt>Exchanges</dt>
+                  <dd id="exchange-count">0</dd>
+                </div>
+                <div>
+                  <dt>Charged exchanges</dt>
+                  <dd id="charged-exchanges">0</dd>
+                </div>
+                <div>
+                  <dt>Free credits</dt>
+                  <dd id="free-credits">0</dd>
+                </div>
+                <div>
+                  <dt>Total strokes</dt>
+                  <dd id="strokes">0</dd>
+                </div>
+              </dl>
+              <p class="hint">Strokes = accepted words + charged exchanges.</p>
+              <p id="run-info" class="hint"></p>
+              <p id="board-summary" class="hint">Board initialization pending.</p>
+            </section>
+            <details class="draft-details">
+              <summary>Word &amp; tile details</summary>
+              <p id="draft-direction" class="hint"></p>
+              <ul id="formed-words" aria-label="Complete formed words"></ul>
+              <p id="rack-feedback" class="hint"></p>
+              <p id="vocabulary-note" class="hint">Preparing ESDB American English 60.</p>
+            </details>
+            <dl class="word-progress">
+              <div id="word-metrics">
+                <dt>Words placed</dt>
+                <dd id="word-count">0</dd>
+              </div>
+            </dl>
+          </dialog>
+          <dialog id="board-options" class="destination" aria-labelledby="board-options-title">
+            <div class="dialog-heading">
+              <h2 id="board-options-title" tabindex="-1">Board options</h2>
+              <button id="close-board-options" class="icon-button secondary" type="button" aria-label="Close Board options" autofocus>×</button>
+            </div>
+            <label class="zoom-control">Tile size<select id="cell-size"><option value="44">44px</option><option value="56">56px</option><option value="72">72px</option></select></label>
+            <p>The board scrolls inside its frame. Larger tiles keep their full size.</p>
+          </dialog>
+          <dialog id="about" class="destination" aria-labelledby="about-title">
+            <div class="dialog-heading">
+              <h2 id="about-title" tabindex="-1">About Wordstead</h2>
+              <button id="close-about" class="icon-button secondary" type="button" aria-label="Close About Wordstead" autofocus>×</button>
+            </div>
+            <p>Wordstead · Daily Puzzle &amp; Free Play</p>
+            <p>Build a farm, one word at a time.</p>
+            <p>Original farm artwork, wooden tiles and procedural sounds. English words use ESDB American English 60; this is not an official Scrabble dictionary.</p>
+            <a class="back-link" href="./vocabulary/">Word-list credits, license &amp; acceptance policy</a>
+            <p>Progress and history stay in this browser/profile on this device, without synchronization or backup.</p>
+          </dialog>
+          <dialog id="developer-panel" class="destination" aria-labelledby="developer-panel-title">
+            <div class="dialog-heading">
+              <h2 id="developer-panel-title" tabindex="-1">Development Tools</h2>
+              <button id="close-developer-panel" class="icon-button secondary" type="button" aria-label="Close Development Tools" autofocus>×</button>
+            </div>
             <details id="development-tools" class="utility-panel">
               <summary>Development Tools</summary>
               <p class="hint">Independent diagnostic sessions and scripted fixtures for testing.</p>
+              <details>
+                <summary>Standalone QA pages</summary>
+                <ul>
+                  <li><a href="./scripts/daily-qa.html">Daily, saves &amp; History QA</a></li>
+                  <li><a href="./scripts/rack-layout-qa.html">Seven, eight &amp; nine tile racks</a></li>
+                  <li><a href="./scripts/board-art-qa.html">Board artwork QA</a></li>
+                  <li><a href="./scripts/feedback-qa.html">Feedback, sound &amp; reduced motion QA</a></li>
+                  <li><a href="./scripts/benchmark-targets.html">Automatic target benchmark</a></li>
+                </ul>
+              </details>
               <label class="mode-control">Play / diagnostic mode<select id="mode"><option value="daily">Daily Puzzle</option><option value="rack">Free Play</option><option value="words">Legal word placement lab</option><option value="freeform">Freeform enclosure lab</option></select></label>
-              <details class="rules"><summary>Development diagnostics: four words, one enclosure</summary>
+              <details class="rules">
+                <summary>Development diagnostics: four words, one enclosure</summary>
                 <button id="rack-example" class="secondary" type="button">Load scripted rack QA example</button>
                 <p>The scripted QA example uses Free Play's view with a 7×7 board, target 1, and a full standard bag arranged for this sequence. Your production Free Play save is kept; Resume Free Play returns to it. Daily Puzzle stays separate. The fixture uses the preserved hand-selected demo vocabulary for QA. New puzzle returns to ESDB. The unrestricted example remains in Legal word placement lab.</p>
                 <p>In rack mode, place C, A, R at (4, 4–6), then commit CAR. Place A and B at (5–6, 4), then commit CAB. Place A and T at (5–6, 6), then commit RAT. Place A at (6, 5), then commit BAT. Coordinates are 1-based. Shared letters are reused automatically; no typing is needed. In the word lab, enter the full words instead.</p>
                 <p>Shared corners are reused. Before BAT commits, the center (5, 5) shows a prospective ? with score 0. Committing BAT awards +1, for 4 placements and territory score 1. Try ZZZ or a conflicting letter: counts, tiles and claims stay unchanged.</p>
               </details>
-              <details class="rules"><summary>Development diagnostics: farm capture fixtures</summary>
+              <details class="rules">
+                <summary>Development diagnostics: farm capture fixtures</summary>
                 <label>Center feature<select id="farm-example-type"><option value="crop">Crop</option><option value="fertile">Fertile ground</option><option value="livestock">Livestock</option><option value="building">Building</option></select></label>
                 <button id="farm-example" class="secondary" type="button">Load scripted farm QA example</button>
                 <p>These separate 7×7 fixtures place one feature at (5, 5) and use the same full bag and CAR, CAB, RAT, BAT sequence above. The original rack fixture remains unchanged. Select the feature to inspect it. Before BAT commits it remains uncaptured and rewards stay inactive.</p>
                 <p>Crop: +1 base and +3 bonus, score 4 and victory. Fertile: +1 base and +1 bonus, score 2 and victory. Livestock: score 1, rack expands from 7 to 8 using one extra bag tile. Building: score 1 and one free exchange credit. Its next successful exchange increases exchanges but keeps strokes at 4; the following exchange raises strokes to 5. Utility fixtures use target 20 to keep playing.</p>
                 <p>Restart repeats the selected fixture. New puzzle restores ordinary seeded play. Credits do not bypass bag requirements; invalid moves and previews award nothing. Captured features retain their icon and receive + (new) or ✓ (older); ? is preview only.</p>
               </details>
-              <details class="rules"><summary>How to test an enclosure</summary>
+              <details class="rules">
+                <summary>How to test an enclosure</summary>
                 <p>Choose Freeform enclosure lab. It keeps a separate board and permits unrestricted letter toggling and manual claims for diagnostics. Switching back restores legal play without lab edits.</p>
                 <p>Place letters in rows 2 and 4, columns 2–4. Add letters at row 3, columns 2 and 4. The empty center (row 3, column 3) is enclosed and earns one point when claimed. Claim again to verify +0.</p>
                 <p>All four board edges give outside access. Only letters block orthogonal paths; empty cells cannot pass diagonally. Detection updates after every edit. Claims persist if you reopen a fence or cover claimed land with a letter.</p>
                 <p>A + marks cells from the latest claim. Another claim or letter edit changes earlier claims to ✓. Nothing is saved on refresh.</p>
               </details>
             </details>
-          </div>
+          </dialog>
         </section>
       </main>
-      <footer>
-        <a class="back-link" href="../index.html">← Back to Main Arcade</a>
-        <p>Wordstead · Daily Puzzle &amp; Free Play · <a href="./vocabulary/">Word-list credits, license &amp; acceptance policy</a></p>
-        <p>ESDB American English 60 · Not an official Scrabble dictionary.</p>
-      </footer>
     </div>
   </body>
 </html>
